@@ -1,8 +1,10 @@
 #include <SFML/Window.hpp>
+#include "table.hpp"
 
 int main()
 {
 	sf::Window window(sf::VideoMode(800, 600), "WordGame");
+    wg::Table table;
 
 	while (window.isOpen())
 	{
