@@ -8,10 +8,8 @@ if (UNIX AND NOT APPLE)
     set(LINUX TRUE)
 endif ()
 
-add_definitions(-g)
+add_definitions(-g -stdlib=libc++)
 
-#find_package(SDL2 REQUIRED)
-#include_directories(${SDL2_INCLUDE_DIRS})
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 
 include_directories("${CMAKE_SOURCE_DIR}/include/")
