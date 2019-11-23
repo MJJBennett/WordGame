@@ -1,0 +1,10 @@
+.idea/
+cmake-build-debug/
+client_id.hpp
+compile_commands.json
+output
+*.swp
+token.txt
+__pycache__/
+
+src/ex-bot.cpp
