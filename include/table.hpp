@@ -4,21 +4,30 @@
 #include <array>
 #include <optional>
 
-#include "multipliers.hpp"
+#include "item.hpp"
 
 namespace wg
 {
-struct Item
-{
-    std::optional<char> character_;
-    std::optional<MultiplierMask> multipliers_;
-};
+// Forward declarations
+struct RenderOptions;
 
 class Table
 {
 public:
+    static constexpr unsigned int table_size = 15;
+
+public:
+    const std::array<Item, table_size>& get_column(unsigned int col_num) const
+    {
+        assert(col_num < table_size);
+        return items_[col_num];
+    }
+
+    virtual bool has_render_opts() const noexcept;
+    virtual const RenderOptions& get_render_opts() const;
+
 private:
-    std::array<std::array<Item, 15>, 15> items_;
+    std::array<std::array<Item, table_size>, table_size> items_;
 };
 }  // namespace wg
 
