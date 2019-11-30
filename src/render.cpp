@@ -2,7 +2,6 @@
 
 #include "item.hpp"
 #include "renderoptions.hpp"
-#include "rendertable.hpp"
 #include "table.hpp"
 #include "tools.hpp"
 
@@ -26,8 +25,7 @@ void wg::Renderer::render(const Item& i)
 
 void wg::Renderer::render(const Table& i)
 {
-    const auto& opts =
-        i.has_render_opts() ? i.get_render_opts() : RenderTable::get_default_render_opts();
+    const auto opts = wg::RenderOptions{};
     const int width  = default_val(opts.value("width"), 25);
     const int height = default_val(opts.value("height"), 25);
     const float offset_x = width + default_val(opts.value("x-offset"), 3);
