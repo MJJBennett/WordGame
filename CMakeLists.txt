@@ -24,6 +24,8 @@ add_executable(WordGame
     # Add class and function definitions
     ${CMAKE_SOURCE_DIR}/src/table.cpp ${CMAKE_SOURCE_DIR}/include/table.hpp
     ${CMAKE_SOURCE_DIR}/src/render.cpp ${CMAKE_SOURCE_DIR}/include/render.hpp
+    ${CMAKE_SOURCE_DIR}/src/resourcemanager.cpp ${CMAKE_SOURCE_DIR}/include/resourcemanager.hpp
+    ${CMAKE_SOURCE_DIR}/include/resource.hpp
 
     # Add main (entry point)
     ${CMAKE_SOURCE_DIR}/src/main.cpp
