@@ -26,6 +26,8 @@ add_executable(WordGame
     ${CMAKE_SOURCE_DIR}/src/resourcemanager.cpp ${CMAKE_SOURCE_DIR}/include/framework/resourcemanager.hpp
     ${CMAKE_SOURCE_DIR}/include/framework/resource.hpp
 
+    ${CMAKE_SOURCE_DIR}/src/context.cpp ${CMAKE_SOURCE_DIR}/include/game/context.hpp
+
     # Add main (entry point)
     ${CMAKE_SOURCE_DIR}/src/main.cpp
 )

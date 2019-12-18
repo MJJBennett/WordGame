@@ -1,13 +1,16 @@
 #include "framework/render.hpp"
 
-#include "game/item.hpp"
+#include "framework/resource.hpp"
+#include "framework/resourcemanager.hpp"
 #include "framework/table.hpp"
 #include "framework/tools.hpp"
+#include "game/item.hpp"
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
-wg::Renderer::Renderer(sf::RenderWindow& window) : window_(window)
+wg::Renderer::Renderer(sf::RenderWindow& window, wg::ResourceManager& manager)
+    : window_(window), manager_(manager)
 {
     rect_.setSize(sf::Vector2f{25, 25});
     rect_.setFillColor(sf::Color{128, 128, 128});
@@ -15,20 +18,16 @@ wg::Renderer::Renderer(sf::RenderWindow& window) : window_(window)
 
 void wg::Renderer::render(const sf::Drawable& d) { window_.draw(d); }
 
-void wg::Renderer::render(const Item& i)
+void wg::Renderer::render(const Table<Item>& i)
 {
-    rect_.setPosition(sf::Vector2f{offset_ * 26.f, position_ * 26.f});
-    window_.draw(rect_);
-    position_++;
-}
-
-void wg::Renderer::render(const Table& i)
-{
+    // This is bad but I think I'm going to wait on fixing it
+    // I'm hopeful that a better architecture will reveal itself in a dream
     const auto opts = wg::RenderOptions{};
-    const int width  = default_val(opts.value("width"), 25);
-    const int height = default_val(opts.value("height"), 25);
-    const float offset_x = width + default_val(opts.value("x-offset"), 3);
-    const float offset_y = height + default_val(opts.value("y-offset"), 3);
+    // This is beautiful, I've truly fallen in love
+    const auto [width, height]      = i.get_tile_dimensions();
+    const auto [offset_x, offset_y] = i.get_tile_offsets();
+    const float move_x              = width + offset_x;
+    const float move_y              = height + offset_y;
 
     for (unsigned int col_num = 0; col_num < i.table_size; col_num++)
     {
@@ -37,18 +36,27 @@ void wg::Renderer::render(const Table& i)
         {
             // So looking at this now I'm thinking that the overhead of x*y sf::RectangleShapes
             // in memory might be way better than running these methods x*y times per tick.
-            // Pretty easy change to make once more implementation is done and it's actually possible
-            // to test this hypothesis.
-            rect_.setFillColor(column[row_num].colour_);
-            rect_.setPosition(sf::Vector2f{col_num * static_cast<float>(offset_x),
-                                           row_num * static_cast<float>(offset_y)});
+            // Pretty easy change to make once more implementation is done and it's actually
+            // possible to test this hypothesis.
+            const auto& item = column[row_num];
+            const auto pos_x = col_num * move_x;
+            const auto pos_y = row_num * move_y;
+
+            // Colour
+            rect_.setFillColor(item.colour_);
+
+            // Background tile
+            rect_.setPosition(sf::Vector2f{pos_x, pos_y});
+
+            // Draw it
             window_.draw(rect_);
+
+            if (item.character_)
+            {
+                auto c = manager_.get({wg::ResourceType::text, std::string{*(item.character_)}});
+                c->setPosition(pos_x, pos_y);
+                window_.draw(c->asDrawable());
+            }
         }
     }
-}
-
-void wg::Renderer::start_render(unsigned int offset)
-{
-    position_ = 0;
-    offset_   = offset;
 }

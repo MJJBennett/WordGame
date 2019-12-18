@@ -2,9 +2,9 @@
 #define WG_RENDER_HPP
 
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <unordered_map>
 #include <optional>
 #include <string>
+#include <unordered_map>
 
 // Forward declaration
 namespace sf
@@ -16,7 +16,9 @@ class Drawable;
 namespace wg
 {
 class Item;
+template <typename T>
 class Table;
+class ResourceManager;
 
 struct RenderOptions
 {
@@ -40,22 +42,34 @@ public:
     };
 
 public:
-    Renderer(sf::RenderWindow& window);
-
-    void start_render(unsigned int offset);
+    Renderer(sf::RenderWindow& window, wg::ResourceManager& manager);
 
     void render(const sf::Drawable&);
-    void render(const Item&);
-    void render(const Table&);
+    void render(const Table<Item>&);
 
 private:
     sf::RectangleShape rect_;
     sf::RenderWindow& window_;
+    wg::ResourceManager& manager_;
 
     Mode mode_{Mode::vertical};
-    unsigned int position_{0};
-    unsigned int offset_{0};
 };
+
+template <typename T>
+class Renderable : public T
+{
+public:
+    Renderable(T&& t) : T(std::move(t)) {}
+    Renderable(const T& t) : T(t) {}
+
+    wg::RenderOptions opts_;
+};
+
+template <typename T>
+auto enable_render(T&& obj) -> Renderable<T>
+{
+    return Renderable<T>{obj};
+}
 }  // namespace wg
 
 #endif  // WG_RENDER_HPP

@@ -14,6 +14,7 @@ namespace wg
 struct Resource
 {
     virtual sf::Drawable& asDrawable() { assert(false); }
+    virtual void setPosition(float, float) { assert(false); }
 };
 
 struct FontResource : Resource
@@ -38,6 +39,8 @@ struct TextResource : Resource
         text.setCharacterSize(size);
         text.setFillColor(colour);
     }
+
+    void setPosition(float x, float y) override { text.setPosition(x, y); }
 
     sf::Drawable& asDrawable() override { return text; }
 };
