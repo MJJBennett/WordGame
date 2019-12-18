@@ -3,19 +3,15 @@
 
 namespace wg
 {
-// This isn't quite as flexible
-// as I'd like this to be, but it
-// could easily be improved in the future.
-// MultiplierMask is just a wrapper anyways.
-enum class Multiplier : unsigned char
+namespace multiplier
 {
-    DoubleWord = 0b0000'0001,
-    DoubleChar = 0b0000'0001 << 1,
-    TripleWord = 0b0000'0001 << 2,
-    TripleChar = 0b0000'0001 << 3,
-    QuadWord = 0b0000'0001 << 4,
-    QuadChar = 0b0000'0001 << 5,
-};
+unsigned char DoubleWord = 0b0000'0001;
+unsigned char DoubleChar = 0b0000'0001 << 1;
+unsigned char TripleWord = 0b0000'0001 << 2;
+unsigned char TripleChar = 0b0000'0001 << 3;
+unsigned char QuadWord   = 0b0000'0001 << 4;
+unsigned char QuadChar   = 0b0000'0001 << 5;
+};  // namespace multiplier
 
 struct MultiplierMask
 {
@@ -23,13 +19,15 @@ struct MultiplierMask
 
     unsigned int get_word() const
     {
-        return (multipliers_ & 0b0000'0001) * 2 + (multipliers_ & 0b0000'0100) * 3 +
-               (multipliers_ & 0b0001'0000) * 4;
+        return (multipliers_ & multiplier::DoubleWord) * 2 +
+               (multipliers_ & multiplier::TripleWord) * 3 +
+               (multipliers_ & multiplier::QuadWord) * 4;
     }
     unsigned int get_char() const
     {
-        return (multipliers_ & 0b0000'0010) * 2 + (multipliers_ & 0b0000'1000) * 3 +
-               (multipliers_ & 0b0010'0000) * 4;
+        return (multipliers_ & multiplier::DoubleChar) * 2 +
+               (multipliers_ & multiplier::TripleChar) * 3 +
+               (multipliers_ & multiplier::QuadChar) * 4;
     }
 };
 }  // namespace wg

@@ -5,6 +5,11 @@
 
 namespace wg
 {
+namespace default_resource
+{
+const ResourceIdentifier font{ResourceType::font, "../resources/Roboto/Roboto-Black.ttf"};
+}
+
 enum class ResourceType : int
 {
     font,

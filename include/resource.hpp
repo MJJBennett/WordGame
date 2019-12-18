@@ -13,7 +13,7 @@ namespace wg
 {
 struct Resource
 {
-    virtual sf::Drawable& drawable() { assert(false); }
+    virtual sf::Drawable& asDrawable() { assert(false); }
 };
 
 struct FontResource : Resource
@@ -39,7 +39,7 @@ struct TextResource : Resource
         text.setFillColor(colour);
     }
 
-    sf::Drawable& drawable() override { return text; }
+    sf::Drawable& asDrawable() override { return text; }
 };
 }  // namespace wg
 

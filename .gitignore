@@ -6,6 +6,8 @@ output
 *.swp
 token.txt
 __pycache__/
+*.mdj
 
 src/ex-bot.cpp
 deps/
+game.json

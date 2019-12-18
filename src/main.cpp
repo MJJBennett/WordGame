@@ -11,7 +11,7 @@ int main()
     wg::Renderer renderer(window);
     wg::ResourceManager manager;
     manager.load({wg::ResourceType::text, "Hello world!"});
-    auto& text = manager.get({wg::ResourceType::text, "Hello world!"})->drawable();
+    auto& text = manager.get({wg::ResourceType::text, "Hello world!"})->asDrawable();
 
     while (window.isOpen())
     {
