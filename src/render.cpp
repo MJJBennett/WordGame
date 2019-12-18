@@ -1,9 +1,8 @@
-#include "render.hpp"
+#include "framework/render.hpp"
 
-#include "item.hpp"
-#include "renderoptions.hpp"
-#include "table.hpp"
-#include "tools.hpp"
+#include "game/item.hpp"
+#include "framework/table.hpp"
+#include "framework/tools.hpp"
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>

@@ -1,7 +1,6 @@
-#include "resourcemanager.hpp"
+#include "framework/resourcemanager.hpp"
 
-#include "constants.hpp"
-#include "resource.hpp"
+#include "framework/resource.hpp"
 
 wg::ResourceManager::ResourceManager() {}
 
@@ -24,7 +23,7 @@ std::unique_ptr<wg::Resource> wg::ResourceManager::load(const ResourceIdentifier
         case ResourceType::font: return std::make_unique<wg::FontResource>(ri.location_);
         case ResourceType::text:
             return std::make_unique<wg::TextResource>(
-                static_cast<FontResource*>(get(wg::default_font))->font, ri.location_);
+                static_cast<FontResource*>(get(wg::default_resource::font))->font, ri.location_);
     }
 }
 

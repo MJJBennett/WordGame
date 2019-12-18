@@ -5,12 +5,12 @@ namespace wg
 {
 namespace multiplier
 {
-unsigned char DoubleWord = 0b0000'0001;
-unsigned char DoubleChar = 0b0000'0001 << 1;
-unsigned char TripleWord = 0b0000'0001 << 2;
-unsigned char TripleChar = 0b0000'0001 << 3;
-unsigned char QuadWord   = 0b0000'0001 << 4;
-unsigned char QuadChar   = 0b0000'0001 << 5;
+constexpr unsigned char DoubleWord = 0b0000'0001;
+constexpr unsigned char DoubleChar = 0b0000'0001 << 1;
+constexpr unsigned char TripleWord = 0b0000'0001 << 2;
+constexpr unsigned char TripleChar = 0b0000'0001 << 3;
+constexpr unsigned char QuadWord   = 0b0000'0001 << 4;
+constexpr unsigned char QuadChar   = 0b0000'0001 << 5;
 };  // namespace multiplier
 
 struct MultiplierMask

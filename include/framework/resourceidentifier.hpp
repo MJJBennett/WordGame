@@ -5,10 +5,6 @@
 
 namespace wg
 {
-namespace default_resource
-{
-const ResourceIdentifier font{ResourceType::font, "../resources/Roboto/Roboto-Black.ttf"};
-}
 
 enum class ResourceType : int
 {
@@ -25,6 +21,11 @@ struct ResourceIdentifier
         return (type_ == other.type_ && location_ == other.location_);
     }
 };
+
+namespace default_resource
+{
+const ResourceIdentifier font{ResourceType::font, "../resources/Roboto/Roboto-Black.ttf"};
+}
 }  // namespace wg
 
 namespace std

@@ -4,7 +4,7 @@
 #include <array>
 #include <optional>
 
-#include "item.hpp"
+#include "game/item.hpp"
 
 namespace wg
 {

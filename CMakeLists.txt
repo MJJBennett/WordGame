@@ -16,16 +16,15 @@ include_directories("${CMAKE_SOURCE_DIR}/include/")
 
 add_executable(WordGame
     # Add headers
-    ${CMAKE_SOURCE_DIR}/include/item.hpp
-    ${CMAKE_SOURCE_DIR}/include/multipliers.hpp
-    ${CMAKE_SOURCE_DIR}/include/renderoptions.hpp
-    ${CMAKE_SOURCE_DIR}/include/tools.hpp
+    ${CMAKE_SOURCE_DIR}/include/game/item.hpp
+    ${CMAKE_SOURCE_DIR}/include/game/multipliers.hpp
+    ${CMAKE_SOURCE_DIR}/include/framework/tools.hpp
      
     # Add class and function definitions
-    ${CMAKE_SOURCE_DIR}/src/table.cpp ${CMAKE_SOURCE_DIR}/include/table.hpp
-    ${CMAKE_SOURCE_DIR}/src/render.cpp ${CMAKE_SOURCE_DIR}/include/render.hpp
-    ${CMAKE_SOURCE_DIR}/src/resourcemanager.cpp ${CMAKE_SOURCE_DIR}/include/resourcemanager.hpp
-    ${CMAKE_SOURCE_DIR}/include/resource.hpp
+    ${CMAKE_SOURCE_DIR}/src/table.cpp ${CMAKE_SOURCE_DIR}/include/framework/table.hpp
+    ${CMAKE_SOURCE_DIR}/src/render.cpp ${CMAKE_SOURCE_DIR}/include/framework/render.hpp
+    ${CMAKE_SOURCE_DIR}/src/resourcemanager.cpp ${CMAKE_SOURCE_DIR}/include/framework/resourcemanager.hpp
+    ${CMAKE_SOURCE_DIR}/include/framework/resource.hpp
 
     # Add main (entry point)
     ${CMAKE_SOURCE_DIR}/src/main.cpp

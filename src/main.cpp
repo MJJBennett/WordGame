@@ -1,8 +1,8 @@
 #include <SFML/Graphics.hpp>
-#include "render.hpp"
-#include "table.hpp"
-#include "resourcemanager.hpp"
-#include "resource.hpp"
+#include "framework/render.hpp"
+#include "framework/table.hpp"
+#include "framework/resourcemanager.hpp"
+#include "framework/resource.hpp"
 
 int main()
 {
