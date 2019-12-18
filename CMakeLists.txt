@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.1)
-project(WordGame)
+project(WordGame LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if (UNIX AND NOT APPLE)
-    set(LINUX TRUE)
-endif ()
-
 add_definitions(-g -stdlib=libc++)
 
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
+find_package(Boost 1.71 COMPONENTS program_options REQUIRED)
+find_package(Threads)
+add_subdirectory(include/deps/nlohmann_json)
 
 include_directories("${CMAKE_SOURCE_DIR}/include/")
+include_directories(${Boost_INCLUDE_DIR})
 
 add_executable(WordGame
     # Add headers
@@ -32,5 +32,8 @@ add_executable(WordGame
     ${CMAKE_SOURCE_DIR}/src/main.cpp
 )
 
-
-target_link_libraries(WordGame sfml-graphics)
+target_link_libraries(WordGame PUBLIC sfml-graphics)
+target_link_libraries(WordGame PRIVATE stdc++fs)
+target_link_libraries(WordGame PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(WordGame PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(WordGame PRIVATE ${Boost_LIBRARIES})
