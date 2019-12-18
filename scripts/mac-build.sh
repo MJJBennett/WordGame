@@ -16,4 +16,4 @@ cmake .. -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl
 cp compile_commands.json ..
 cd ..
 echo "Fixing compile commands..."
-./scripts/fix-compile-commands.py include/framework include/game src auth
+./scripts/fix-compile-commands.py include/framework include/game src auth include/debug
