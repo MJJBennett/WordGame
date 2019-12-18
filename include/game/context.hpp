@@ -35,6 +35,7 @@ public:
 
 private:
     void parse_key_released(sf::Event&);
+    void parse_text_entered(sf::Event&);
     void parse_mouse_released(sf::Event&);
     void parse_escape();
 private:

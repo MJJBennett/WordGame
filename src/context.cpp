@@ -12,9 +12,11 @@ void wg::GameContext::parse_input(sf::Event& e)
             {
                 parse_escape();
             }
-            else if (mode_ != Mode::Text)
+            else if (mode_ == Mode::Default)
                 parse_key_released(e);
             break;
+        case sf::Event::TextEntered:
+            if (mode_ != Mode::Default) parse_text_entered(e);
         case sf::Event::MouseButtonReleased: parse_mouse_released(e); break;
         default: break;
     }
@@ -23,11 +25,15 @@ void wg::GameContext::parse_input(sf::Event& e)
 void wg::GameContext::render(wg::Renderer& renderer) { renderer.render(table_); }
 
 // Event handling
-void wg::GameContext::parse_key_released(sf::Event& e) {
-    if (mode_ == Mode::SetTile) {
+void wg::GameContext::parse_key_released(sf::Event& e) {}
+void wg::GameContext::parse_text_entered(sf::Event& e)
+{
+    if (mode_ == Mode::SetTile)
+    {
         const auto [col, row] = *pending_tile_;
-        auto& item = table_.at(col, row);
-        item.character_ = (char)e.text.unicode;
+        auto& item            = table_.at(col, row);
+        item.character_       = (char)e.text.unicode;
+        mode_ = Mode::Default;
     }
 }
 void wg::GameContext::parse_mouse_released(sf::Event& e)
@@ -48,9 +54,9 @@ void wg::GameContext::parse_mouse_released(sf::Event& e)
         // But only if this is a noticeable performance hit, unlikely
 
         assert(row < table_.table_size && row >= 0 && col < table_.table_size && col >= 0);
-        
-        pending_tile_ = {col, row};
-        mode_ = Mode::SetTile;
+
+        pending_tile_ = {row, col};
+        mode_         = Mode::SetTile;
     }
 }
 void wg::GameContext::parse_escape() { running_ = false; }

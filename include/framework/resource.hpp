@@ -32,7 +32,7 @@ struct TextResource : Resource
     sf::Text text;
 
     TextResource(const sf::Font& font, const std::string& str,
-                 const sf::Color& colour = sf::Color::Black, int size = 30)
+                 const sf::Color& colour = sf::Color::Black, int size = 28)
     {
         text.setFont(font);
         text.setString(str);

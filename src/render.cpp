@@ -54,7 +54,7 @@ void wg::Renderer::render(const Table<Item>& i)
             if (item.character_)
             {
                 auto c = manager_.get({wg::ResourceType::text, std::string{*(item.character_)}});
-                c->setPosition(pos_x, pos_y);
+                c->setPosition(pos_x + 4, pos_y - 4);
                 window_.draw(c->asDrawable());
             }
         }

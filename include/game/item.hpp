@@ -12,7 +12,7 @@ struct Item
 {
     std::optional<char> character_;
     std::optional<MultiplierMask> multipliers_;
-    sf::Color colour_{128, 128, 128};
+    sf::Color colour_{198, 178, 188};
 };
 }  // namespace wg
 
