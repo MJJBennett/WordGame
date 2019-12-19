@@ -15,6 +15,7 @@ CMakeSettings.json
 # Ignorable extensions
 *.swp
 *.mdj
+*.tmp
 
 # Ignore dependencies for now
 deps/

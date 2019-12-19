@@ -16,7 +16,8 @@ wg::Server::Server() : tcp_acceptor_(ioc_)
     signals_.async_wait([&](boost::system::error_code const&, int) { this->ioc_.stop(); });
 
     // { address, port }
-    auto endpoint = tcp::endpoint{boost::asio::ip::make_address("192.168.1.89"), 27600};
+#include "VERYTEMP_address.tmp"
+    auto endpoint = tcp::endpoint{boost::asio::ip::make_address(address), 27600};
     tcp_acceptor_.open(endpoint.protocol(), ec);
     if (ec)
     {
@@ -41,9 +42,12 @@ wg::Server::Server() : tcp_acceptor_(ioc_)
         return;
     }
 
+    wg::log::point("Successfully configured webserver.");
+
     tcp_acceptor_.async_accept(asio::make_strand(ioc_),
                                beast::bind_front_handler(&Server::on_accept, this));
 
+    wg::log::point("Launching webserver!");
     ioc_.run();
 }
 
