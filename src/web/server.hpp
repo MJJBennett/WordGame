@@ -39,22 +39,21 @@ private:
     boost::asio::ip::tcp::acceptor tcp_acceptor_;
 };
 
-/* wip
 class WebSocketSession : public boost::enable_shared_from_this<WebSocketSession>
 {
 public:
     WebSocketSession(boost::asio::ip::tcp::socket&& socket) : websocket_(std::move(socket)) {}
 
-    void launch();
+    void launch(http::request<http::string_body> req);
     void start_read();
     void on_read(beast::error_code, std::size_t);
     void on_write(beast::error_code, std::size_t, bool);
+    void on_accept(beast::error_code);
 
 private:
     beast::websocket::stream<beast::tcp_stream> websocket_;
     beast::flat_buffer buffer_;
 };
-*/
 }  // namespace wg
 
 #endif  // WG_SERVER_HPP
