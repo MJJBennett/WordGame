@@ -15,7 +15,7 @@ class Drawable;
 
 namespace wg
 {
-class Item;
+struct Item;
 template <typename T>
 class Table;
 class ResourceManager;

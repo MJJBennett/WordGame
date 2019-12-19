@@ -3,6 +3,10 @@
 #include <SFML/Window/Event.hpp>
 #include "framework/render.hpp"
 
+#ifdef _WIN32
+#include <assert.h>
+#endif
+
 void wg::GameContext::parse_input(sf::Event& e)
 {
     switch (e.type)
