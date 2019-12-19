@@ -9,11 +9,15 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 
+#ifdef _WIN32
+#include <cassert>
+#endif
+
 namespace wg
 {
 struct Resource
 {
-    virtual sf::Drawable& asDrawable() { assert(false); }
+    virtual sf::Drawable& asDrawable() { assert(false); abort();  }
     virtual void setPosition(float, float) { assert(false); }
 };
 

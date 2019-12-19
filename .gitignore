@@ -1,13 +1,24 @@
+# IDE configuration folders
 .idea/
-cmake-build-debug/
-client_id.hpp
-compile_commands.json
-output
-*.swp
-token.txt
+.vs/
+
+# Build folders
 __pycache__/
+cmake-build-debug/
+out/
+output/
+
+# Local configurations
+compile_commands.json
+CMakeSettings.json
+
+# Ignorable extensions
+*.swp
 *.mdj
 
-src/ex-bot.cpp
+# Ignore dependencies for now
 deps/
+resources/
+
+# Game configuration
 game.json
