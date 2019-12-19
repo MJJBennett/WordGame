@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include "server.hpp"
 #include "framework/render.hpp"
 #include "framework/table.hpp"
 #include "framework/resourcemanager.hpp"
@@ -34,6 +35,8 @@ int main()
 
         window.display();
     }
+
+    wg::Server s;
 
     return 0;
 }

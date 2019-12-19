@@ -3,6 +3,7 @@ project(WordGame LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(JSON_BuildTests OFF CACHE INTERNAL "")
 
 add_definitions(-g -stdlib=libc++)
 
@@ -12,6 +13,7 @@ find_package(Threads)
 add_subdirectory(include/deps/nlohmann_json)
 
 include_directories("${CMAKE_SOURCE_DIR}/include/")
+include_directories("${CMAKE_SOURCE_DIR}/src/web/")
 include_directories(${Boost_INCLUDE_DIR})
 
 add_executable(WordGame
@@ -28,12 +30,13 @@ add_executable(WordGame
 
     ${CMAKE_SOURCE_DIR}/src/context.cpp ${CMAKE_SOURCE_DIR}/include/game/context.hpp
 
+    ${CMAKE_SOURCE_DIR}/src/web/server.cpp ${CMAKE_SOURCE_DIR}/src/web/server.hpp
+
     # Add main (entry point)
     ${CMAKE_SOURCE_DIR}/src/main.cpp
 )
 
 target_link_libraries(WordGame PUBLIC sfml-graphics)
-target_link_libraries(WordGame PRIVATE stdc++fs)
 target_link_libraries(WordGame PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(WordGame PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(WordGame PRIVATE ${Boost_LIBRARIES})
