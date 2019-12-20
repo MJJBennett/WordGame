@@ -54,6 +54,7 @@ wg::Server::Server() : tcp_acceptor_(ioc_)
 
 void wg::Server::on_accept(boost::system::error_code const& ec, tcp::socket socket)
 {
+    wg::log::point("[Server] Initiating acceptance.");
     if (ec)
     {
         if (ec != asio::error::operation_aborted)
@@ -61,16 +62,31 @@ void wg::Server::on_accept(boost::system::error_code const& ec, tcp::socket sock
         return;
     }
 
+    wg::log::point("> Launching server session.");
     boost::make_shared<Server::Session>(std::move(socket))->launch();
 
+    wg::log::point("> Continuing to accept connections.");
     tcp_acceptor_.async_accept(asio::make_strand(ioc_),
                                beast::bind_front_handler(&Server::on_accept, this));
 }
 
-void wg::Server::Session::launch() { start_read(); }
+wg::Server::Session::Session(boost::asio::ip::tcp::socket&& socket)
+    : tcp_stream_(std::move(socket))
+{
+    wg::log::point("[Session] Created a server session.");
+}
+
+wg::Server::Session::~Session() { wg::log::point("[Session] Destroyed a server session."); }
+
+void wg::Server::Session::launch()
+{
+    wg::log::point("[Session] Launching dedicated server session.");
+    start_read();
+}
 
 void wg::Server::Session::start_read()
 {
+    wg::log::point("[Session] Setting up read.");
     // Clear the request parser while we have free time
     req_parser_.reset();
 
@@ -78,12 +94,14 @@ void wg::Server::Session::start_read()
 
     tcp_stream_.expires_after(std::chrono::minutes(2));
 
+    wg::log::point("[Session] Launching read.");
     http::async_read(tcp_stream_, buffer_, req_parser_->get(),
                      beast::bind_front_handler(&Session::on_read, shared_from_this()));
 }
 
 void wg::Server::Session::on_read(beast::error_code ec, std::size_t)
 {
+    wg::log::point("[Session] Reading message.");
     if (ec == http::error::end_of_stream)
     {
         tcp_stream_.socket().shutdown(tcp::socket::shutdown_send, ec);
@@ -98,6 +116,7 @@ void wg::Server::Session::on_read(beast::error_code ec, std::size_t)
 
     if (beast::websocket::is_upgrade(req_parser_->get()))
     {
+        wg::log::point("[Session] Message was upgrade: Upgrading session to WebSocket.");
         // We're upgrading to a websocket connection with the remote client
         // Hooray!
         boost::make_shared<WebSocketSession>(tcp_stream_.release_socket())

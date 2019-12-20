@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.1)
 project(WordGame LANGUAGES CXX)
 
+project(TestClient LANGUAGES CXX)
+project(TestServer LANGUAGES CXX)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(JSON_BuildTests OFF CACHE INTERNAL "")
@@ -41,3 +44,19 @@ target_link_libraries(WordGame PUBLIC sfml-graphics)
 target_link_libraries(WordGame PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(WordGame PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(WordGame PRIVATE ${Boost_LIBRARIES})
+
+add_executable(TestServer
+    ${CMAKE_SOURCE_DIR}/src/web/server.cpp ${CMAKE_SOURCE_DIR}/src/web/server.hpp ${CMAKE_SOURCE_DIR}/src/web/testserver.cpp
+)
+#target_link_libraries(TestServer PUBLIC sfml-graphics)
+target_link_libraries(TestServer PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(TestServer PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(TestServer PRIVATE ${Boost_LIBRARIES})
+
+add_executable(TestClient
+    ${CMAKE_SOURCE_DIR}/src/web/client.cpp ${CMAKE_SOURCE_DIR}/src/web/client.hpp ${CMAKE_SOURCE_DIR}/src/web/testclient.cpp
+)
+#target_link_libraries(TestClient PUBLIC sfml-graphics)
+target_link_libraries(TestClient PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(TestClient PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(TestClient PRIVATE ${Boost_LIBRARIES})

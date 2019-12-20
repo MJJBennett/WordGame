@@ -15,7 +15,8 @@ class Server
     class Session : public boost::enable_shared_from_this<Session>
     {
     public:
-        Session(boost::asio::ip::tcp::socket&& socket) : tcp_stream_(std::move(socket)) {}
+        Session(boost::asio::ip::tcp::socket&& socket);
+        ~Session();
 
         void launch();
         void start_read();
