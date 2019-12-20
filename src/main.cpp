@@ -37,7 +37,7 @@ int main()
         window.display();
     }
 
-    boost::make_shared<wg::WebSocketClient>()->launch();
+    wg::Server s;
 
 
     return 0;

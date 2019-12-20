@@ -18,7 +18,9 @@ wg::Server::Server() : tcp_acceptor_(ioc_)
 
     // { address, port }
 #include "VERYTEMP_address.tmp"
-    auto endpoint = tcp::endpoint{boost::asio::ip::make_address(address), 27600};
+    const auto port = 27600;
+    wg::log::point("[Server] Running on: ", address, ':', port);
+    auto endpoint = tcp::endpoint{boost::asio::ip::make_address(address), port};
     tcp_acceptor_.open(endpoint.protocol(), ec);
     if (ec)
     {
@@ -88,7 +90,7 @@ void wg::Server::Session::start_read()
 {
     wg::log::point("[Session] Setting up read.");
     // Clear the request parser while we have free time
-    req_parser_.reset();
+    req_parser_.emplace();
 
     req_parser_->body_limit(4096);
 
