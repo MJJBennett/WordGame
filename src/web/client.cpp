@@ -58,3 +58,15 @@ void wg::WebSocketClient::launch()
 
     ioc_.run();
 }
+
+void wg::WebSocketClient::shutdown()
+{
+    try
+    {
+        ws_.close(websocket::close_code::normal);
+    }
+    catch (const std::exception& e)
+    {
+        wg::log::err("[Client (", __func__, ")] ", e.what());
+    }
+}

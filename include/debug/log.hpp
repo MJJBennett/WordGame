@@ -76,7 +76,7 @@ void point(Ts... ts)
 template <typename L, typename... Ts>
 void data(const L& label, Ts... ts)
 {
-    _log(">> DATA: ", label, std::forward<Ts>(ts)..., "\n------------------");
+    _log(">> DATA: ", label, '\n', std::forward<Ts>(ts)..., "\n------------------");
 }
 
 /** For logging the value of a variable. **/

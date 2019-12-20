@@ -20,6 +20,8 @@ public:
     WebSocketClient();
 
     void launch();
+    void shutdown();
+
     void on_write(beast::error_code, std::size_t);
 
 private:
