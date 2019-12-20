@@ -13,6 +13,7 @@ namespace wg
 namespace beast     = boost::beast;
 namespace websocket = beast::websocket;
 namespace asio      = boost::asio;
+using resolver      = asio::ip::tcp::resolver;
 
 class WebSocketClient : public std::enable_shared_from_this<WebSocketClient>
 {
@@ -29,6 +30,9 @@ public:
 
 private:
     // Async handlers
+    void on_resolve(beast::error_code, resolver::results_type);
+    void on_connect(beast::error_code, resolver::results_type::endpoint_type);
+    void on_handshake(beast::error_code);
     void on_write(beast::error_code, std::size_t);
 
 private:
@@ -46,7 +50,7 @@ private:
     // Message queue - messages that still need to be sent
     std::queue<std::string> message_queue_;
     // Current message waiting to be sent.
-    std::optional<std::string> message_{"{\"seq\":314}"};
+    std::optional<std::string> message_{"***REQ_ID: "};
 
     enum class Status
     {

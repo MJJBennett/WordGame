@@ -3,22 +3,41 @@
 #include "debug/log.hpp"
 
 wg::WebSocketClient::WebSocketClient(std::string target, std::string port)
-    : resolver_(ioc_), ws_(ioc_), target_(std::move(target)), port_(port)
+    : resolver_(ioc_), ws_(ioc_), target_(std::move(target)), port_(std::move(port))
 {
-    wg::log::point("[Client] Constructing websocket wrapper.");
-    boost::beast::error_code ec{};
+    wg::log::point("[Client] Constructed a websocket wrapper.");
+}
 
+// Client entry point - blocking.
+void wg::WebSocketClient::launch()
+{
+    // note: you cannot call shared_from_this in the constructor
+    // today, I have learned something new! (heh, memory pun)
     wg::log::point("[Client] Connecting to websocket at URL: ", target_, " and port: ", port_,
                    "\n\tResolving websocket URL...");
-    auto const results = resolver_.resolve(target_, port_);
+
+    // Queue our first async operation, so our ioc_.run() call doesn't
+    // immediately exit after not having anything to do.
+    resolver_.async_resolve(
+        target_, port_,
+        beast::bind_front_handler(&WebSocketClient::on_resolve, shared_from_this()));
+
+    ioc_.run();
+}
+
+void wg::WebSocketClient::on_resolve(beast::error_code ec, resolver::results_type results)
+{
+    if (wg::log::opt_err(ec, "[Client] Resolve failed")) return;
 
     wg::log::point("[Client] Connecting to the IP address...");
-    beast::get_lowest_layer(ws_).connect(results, ec);
-    if (ec)
-    {
-        wg::log::err("[Client] Error connecting: ", ec.message());
-        return;
-    }
+    beast::get_lowest_layer(ws_).async_connect(
+        results, beast::bind_front_handler(&WebSocketClient::on_connect, shared_from_this()));
+}
+
+void wg::WebSocketClient::on_connect(beast::error_code ec,
+                                     resolver::results_type::endpoint_type endpoint)
+{
+    if (wg::log::opt_err(ec, "[Client] Connect failed")) return;
 
     // Timeout in websocket, not in tcp
     beast::get_lowest_layer(ws_).expires_never();
@@ -31,18 +50,25 @@ wg::WebSocketClient::WebSocketClient(std::string target, std::string port)
                 std::string(BOOST_BEAST_VERSION_STRING) + " websocket-wordgame-client");
     }));
 
-    wg::log::point("[Client] Performing the websocket handshake.");
-    ws_.handshake(target_, std::string("/"));
-    wg::log::point("[Client] Successfully performed the handshake! Waiting for launch() call.");
+    wg::log::point("[Client] Performing the websocket handshake...");
+    ws_.async_handshake(
+        target_, std::string("/"),
+        beast::bind_front_handler(&WebSocketClient::on_handshake, shared_from_this()));
+}
+
+void wg::WebSocketClient::on_handshake(beast::error_code ec)
+{
+    if (wg::log::opt_err(ec, "[Client] Handshake failed")) return;
+
+    // Now we need to authenticate with the server.
+
+    ws_.async_write(asio::buffer(*message_),
+                    beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
 }
 
 void wg::WebSocketClient::on_write(beast::error_code ec, std::size_t)
 {
-    if (ec)
-    {
-        wg::log::err("[Client] Write failed: ", ec.message());
-        return;
-    }
+    if (wg::log::opt_err(ec, "[Client] Write failed")) return;
 
     message_.reset();
 
@@ -58,16 +84,6 @@ void wg::WebSocketClient::on_write(beast::error_code ec, std::size_t)
     {
         shutdown();
     }
-}
-
-void wg::WebSocketClient::launch()
-{
-    // note: cannot call shared_from_this in the constructor
-    // today, I have learned something new! (heh, memory pun)
-    ws_.async_write(asio::buffer(*message_),
-                    beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
-
-    ioc_.run();
 }
 
 void wg::WebSocketClient::shutdown()
