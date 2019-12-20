@@ -134,3 +134,20 @@ void wg::WebSocketSession::on_accept(beast::error_code ec)
     websocket_.async_read(
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));
 }
+
+void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
+{
+    if (ec)
+    {
+        if (ec != asio::error::operation_aborted)
+            wg::log::err("[WebSocket] Failed to read: ", ec.message());
+        return;
+    }
+
+    wg::log::data("Received message", beast::buffers_to_string(buffer_.data()));
+
+    buffer_.consume(buffer_.size());
+
+    websocket_.async_read(
+        buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));
+}

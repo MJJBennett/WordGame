@@ -1,0 +1,34 @@
+#ifndef WG_WEBSOCKET_CLIENT_HPP
+#define WG_WEBSOCKET_CLIENT_HPP
+
+#include <boost/asio.hpp>
+#include <boost/beast/core.hpp>
+#include <boost/beast/websocket.hpp>
+
+namespace wg
+{
+namespace beast     = boost::beast;
+namespace http      = beast::http;
+namespace websocket = beast::websocket;
+namespace asio      = boost::asio;
+using tcp           = boost::asio::ip::tcp;
+
+class WebSocketClient : public boost::enable_shared_from_this<WebSocketClient>
+{
+public:
+    WebSocketClient();
+
+    void on_write(beast::error_code, std::size_t);
+
+private:
+    // This must be constructed first
+    boost::asio::io_context ioc_;
+
+    boost::asio::ip::tcp::resolver resolver_;
+
+    // This uses the SSL context and the IOC
+    websocket::stream<beast::tcp_stream> ws_;
+};
+}  // namespace wg
+
+#endif  // WG_WEBSOCKET_CLIENT_HPP
