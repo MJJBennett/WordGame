@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
+#include <memory>
 
 namespace wg
 {
@@ -13,7 +14,7 @@ namespace websocket = beast::websocket;
 namespace asio      = boost::asio;
 using tcp           = boost::asio::ip::tcp;
 
-class WebSocketClient : public boost::enable_shared_from_this<WebSocketClient>
+class WebSocketClient : public std::enable_shared_from_this<WebSocketClient>
 {
 public:
     WebSocketClient();
@@ -29,6 +30,8 @@ private:
 
     // This uses the SSL context and the IOC
     websocket::stream<beast::tcp_stream> ws_;
+
+    std::string persistent_str_{"Hello from client!"};
 };
 }  // namespace wg
 

@@ -2,5 +2,5 @@
 
 int main()
 {
-    boost::make_shared<wg::WebSocketClient>()->launch();
+    std::make_shared<wg::WebSocketClient>()->launch();
 }

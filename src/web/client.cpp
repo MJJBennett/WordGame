@@ -29,12 +29,14 @@ wg::WebSocketClient::WebSocketClient() : resolver_(ioc_), ws_(ioc_)
 
     wg::log::point("Performing the websocket handshake.");
     ws_.handshake(remote_address, std::string("/"));
+    wg::log::point("Successfully performed the handshake; writing to websocket.");
 
     // Handshake complete! Hopefully we haven't errored up until now.
     // It's okay, because this is just preliminary setup...
 
-    ws_.async_write(asio::buffer("hi!"),
+    ws_.async_write(asio::buffer(persistent_str_),
                     beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
+    wg::log::point("Launched first write, waiting for launch.");
 }
 
 void wg::WebSocketClient::on_write(beast::error_code ec, std::size_t)
@@ -51,5 +53,4 @@ void wg::WebSocketClient::on_write(beast::error_code ec, std::size_t)
 void wg::WebSocketClient::launch()
 {
     ioc_.run();
-
 }
