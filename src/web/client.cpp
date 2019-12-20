@@ -2,24 +2,17 @@
 
 #include "debug/log.hpp"
 
-wg::WebSocketClient::WebSocketClient() : resolver_(ioc_), ws_(ioc_)
+wg::WebSocketClient::WebSocketClient(std::string target, std::string port)
+    : resolver_(ioc_), ws_(ioc_), target_(std::move(target)), port_(port)
 {
     wg::log::point("[Client] Constructing websocket wrapper.");
     boost::beast::error_code ec{};
 
-#include "VERYTEMP_remoteaddr.tmp"
-    message_queue_.push("First message!");
-    message_queue_.push("Hello again!");
-    message_queue_.push("Hello my friend!");
-    message_queue_.push("Okay, last time's the charm!");
+    wg::log::point("[Client] Connecting to websocket at URL: ", target_, " and port: ", port_,
+                   "\n\tResolving websocket URL...");
+    auto const results = resolver_.resolve(target_, port_);
 
-    wg::log::point("[Client] Connecting to websocket at URL: ", remote_address,
-                   " and port: ", 27600);
-
-    wg::log::point("[Client] Resolving websocket URL.");
-    auto const results = resolver_.resolve(remote_address, "27600");
-
-    wg::log::point("[Client] Connecting to the IP address using Asio.");
+    wg::log::point("[Client] Connecting to the IP address...");
     beast::get_lowest_layer(ws_).connect(results, ec);
     if (ec)
     {
@@ -34,12 +27,12 @@ wg::WebSocketClient::WebSocketClient() : resolver_(ioc_), ws_(ioc_)
 
     // Set a decorator to change the User-Agent of the handshake
     ws_.set_option(websocket::stream_base::decorator([](websocket::request_type& req) {
-        req.set(http::field::user_agent,
+        req.set(beast::http::field::user_agent,
                 std::string(BOOST_BEAST_VERSION_STRING) + " websocket-wordgame-client");
     }));
 
     wg::log::point("[Client] Performing the websocket handshake.");
-    ws_.handshake(remote_address, std::string("/"));
+    ws_.handshake(target_, std::string("/"));
     wg::log::point("[Client] Successfully performed the handshake! Waiting for launch() call.");
 }
 
