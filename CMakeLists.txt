@@ -1,18 +1,23 @@
 cmake_minimum_required(VERSION 3.1)
-project(WordGame)
+project(WordGame LANGUAGES CXX)
+
+project(TestClient LANGUAGES CXX)
+project(TestServer LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-if (UNIX AND NOT APPLE)
-    set(LINUX TRUE)
-endif ()
+set(JSON_BuildTests OFF CACHE INTERNAL "")
 
 add_definitions(-g -stdlib=libc++)
 
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
+find_package(Boost 1.71 COMPONENTS program_options REQUIRED)
+find_package(Threads)
+add_subdirectory(include/deps/nlohmann_json)
 
 include_directories("${CMAKE_SOURCE_DIR}/include/")
+include_directories("${CMAKE_SOURCE_DIR}/src/web/")
+include_directories(${Boost_INCLUDE_DIR})
 
 add_executable(WordGame
     # Add headers
@@ -28,9 +33,30 @@ add_executable(WordGame
 
     ${CMAKE_SOURCE_DIR}/src/context.cpp ${CMAKE_SOURCE_DIR}/include/game/context.hpp
 
+    ${CMAKE_SOURCE_DIR}/src/web/server.cpp ${CMAKE_SOURCE_DIR}/src/web/server.hpp
+    ${CMAKE_SOURCE_DIR}/src/web/client.cpp ${CMAKE_SOURCE_DIR}/src/web/client.hpp
+
     # Add main (entry point)
     ${CMAKE_SOURCE_DIR}/src/main.cpp
 )
 
+target_link_libraries(WordGame PUBLIC sfml-graphics)
+target_link_libraries(WordGame PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(WordGame PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(WordGame PRIVATE ${Boost_LIBRARIES})
 
-target_link_libraries(WordGame sfml-graphics)
+add_executable(TestServer
+    ${CMAKE_SOURCE_DIR}/src/web/server.cpp ${CMAKE_SOURCE_DIR}/src/web/server.hpp ${CMAKE_SOURCE_DIR}/src/web/testserver.cpp
+)
+#target_link_libraries(TestServer PUBLIC sfml-graphics)
+target_link_libraries(TestServer PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(TestServer PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(TestServer PRIVATE ${Boost_LIBRARIES})
+
+add_executable(TestClient
+    ${CMAKE_SOURCE_DIR}/src/web/client.cpp ${CMAKE_SOURCE_DIR}/src/web/client.hpp ${CMAKE_SOURCE_DIR}/src/web/testclient.cpp
+)
+#target_link_libraries(TestClient PUBLIC sfml-graphics)
+target_link_libraries(TestClient PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(TestClient PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(TestClient PRIVATE ${Boost_LIBRARIES})

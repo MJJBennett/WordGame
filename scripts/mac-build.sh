@@ -10,10 +10,10 @@ cd $script_dir/..
 mkdir output >/dev/null 2>&1
 cd output
 
-cmake .. -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl
+cmake ..
 # rm ../compile_commands.json
 # ln -s compile_commands.json ../compile_commands.json
 cp compile_commands.json ..
 cd ..
 echo "Fixing compile commands..."
-./scripts/fix-compile-commands.py include src auth
+./scripts/fix-compile-commands.py include/framework include/game src auth include/debug src/web
