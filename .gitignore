@@ -7,6 +7,7 @@ __pycache__/
 cmake-build-debug/
 out/
 output/
+enc_temp_folder/
 
 # Local configurations
 compile_commands.json

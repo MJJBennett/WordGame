@@ -47,3 +47,9 @@ void wg::WebSocketClient::on_write(beast::error_code ec, std::size_t)
 
     // done for now, just testing
 }
+
+void wg::WebSocketClient::launch()
+{
+    ioc_.run();
+
+}

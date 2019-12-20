@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "server.hpp"
+#include "client.hpp"
 #include "framework/render.hpp"
 #include "framework/table.hpp"
 #include "framework/resourcemanager.hpp"
@@ -36,7 +37,8 @@ int main()
         window.display();
     }
 
-    wg::Server s;
+    boost::make_shared<wg::WebSocketClient>()->launch();
+
 
     return 0;
 }

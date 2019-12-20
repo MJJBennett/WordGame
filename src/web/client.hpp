@@ -18,6 +18,7 @@ class WebSocketClient : public boost::enable_shared_from_this<WebSocketClient>
 public:
     WebSocketClient();
 
+    void launch();
     void on_write(beast::error_code, std::size_t);
 
 private:
