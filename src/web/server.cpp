@@ -128,6 +128,11 @@ void wg::Server::Session::on_read(beast::error_code ec, std::size_t)
 
 void wg::Server::Session::on_write(beast::error_code, std::size_t, bool) {}
 
+wg::WebSocketSession::WebSocketSession(tcp::socket&& socket) : websocket_(std::move(socket))
+{
+    wg::log::point("[WebSocket] Created a websocket session.");
+}
+
 void wg::WebSocketSession::launch(http::request<http::string_body> req)
 {
     websocket_.set_option(websocket::stream_base::timeout::suggested(beast::role_type::server));
@@ -160,8 +165,13 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
 {
     if (ec)
     {
-        if (ec != asio::error::operation_aborted)
-            wg::log::err("[WebSocket] Failed to read: ", ec.message());
+        if (ec == asio::error::operation_aborted) return;
+        if (ec == websocket::error::closed)
+        {
+            wg::log::point("[WebSocket] The remote connection has been closed.");
+            return;
+        }
+        wg::log::err("[WebSocket] Failed to read: ", ec.message());
         return;
     }
 
@@ -171,4 +181,9 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
 
     websocket_.async_read(
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));
+}
+
+wg::WebSocketSession::~WebSocketSession()
+{
+    wg::log::point("[WebSocket] Destroyed a websocket session.");
 }

@@ -43,7 +43,8 @@ private:
 class WebSocketSession : public boost::enable_shared_from_this<WebSocketSession>
 {
 public:
-    WebSocketSession(boost::asio::ip::tcp::socket&& socket) : websocket_(std::move(socket)) {}
+    WebSocketSession(boost::asio::ip::tcp::socket&& socket);
+    ~WebSocketSession();
 
     void launch(http::request<http::string_body> req);
     void start_read();
