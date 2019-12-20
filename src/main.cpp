@@ -37,8 +37,7 @@ int main()
         window.display();
     }
 
-    wg::Server s;
-
+    std::make_shared<wg::WebSocketClient>()->launch();
 
     return 0;
 }
