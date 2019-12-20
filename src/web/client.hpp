@@ -5,6 +5,8 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <memory>
+#include <optional>
+#include <queue>
 
 namespace wg
 {
@@ -19,21 +21,29 @@ class WebSocketClient : public std::enable_shared_from_this<WebSocketClient>
 public:
     WebSocketClient();
 
+    // Blocking call, launches the web socket
     void launch();
     void shutdown();
 
     void on_write(beast::error_code, std::size_t);
 
 private:
-    // This must be constructed first
+    // The client has its own io context
     boost::asio::io_context ioc_;
-
     boost::asio::ip::tcp::resolver resolver_;
 
-    // This uses the SSL context and the IOC
+    // The core of this class - a wrapped websocket stream
     websocket::stream<beast::tcp_stream> ws_;
 
-    std::string persistent_str_{"Hello from client!"};
+    std::queue<std::string> message_queue_;
+    std::optional<std::string> message_{"Zero string!"};
+
+    enum class Status
+    {
+        Ready,
+        Running,
+        Closed
+    } status_ = Status::Ready;
 };
 }  // namespace wg
 
