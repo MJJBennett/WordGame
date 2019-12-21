@@ -38,6 +38,8 @@ add_executable(WordGame
     ${CMAKE_SOURCE_DIR}/src/web/server.cpp ${CMAKE_SOURCE_DIR}/src/web/server.hpp
     ${CMAKE_SOURCE_DIR}/src/web/client.cpp ${CMAKE_SOURCE_DIR}/src/web/client.hpp
 
+    ${CMAKE_SOURCE_DIR}/src/webclient.cpp ${CMAKE_SOURCE_DIR}/include/framework/webclient.hpp
+
     # Add main (entry point)
     ${CMAKE_SOURCE_DIR}/src/main.cpp
 )
