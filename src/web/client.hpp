@@ -7,36 +7,62 @@
 #include <memory>
 #include <optional>
 #include <queue>
+#include <string>
 
 namespace wg
 {
 namespace beast     = boost::beast;
-namespace http      = beast::http;
 namespace websocket = beast::websocket;
 namespace asio      = boost::asio;
-using tcp           = boost::asio::ip::tcp;
+using resolver      = asio::ip::tcp::resolver;
 
 class WebSocketClient : public std::enable_shared_from_this<WebSocketClient>
 {
 public:
-    WebSocketClient();
+    WebSocketClient(std::string target, std::string port = "27600");
+    ~WebSocketClient();
 
-    // Blocking call, launches the web socket
+    // Blocking call, launches the websocket
     void launch();
-    void shutdown();
+    // Threadsafe shutdown
+    void queue_shutdown();
 
+    // Sends a single string message over the connection
+    void queue_send(std::string message);
+    // Reads a single string message across the connection
+    std::optional<std::string> read();
+
+private:
+    // Async handlers
+    void on_resolve(beast::error_code, resolver::results_type);
+    void on_connect(beast::error_code, resolver::results_type::endpoint_type);
+    void on_handshake(beast::error_code);
     void on_write(beast::error_code, std::size_t);
+    void on_read(beast::error_code, std::size_t);
+
+    void send(std::string message);
+
+    void shutdown();
 
 private:
     // The client has its own io context
-    boost::asio::io_context ioc_;
-    boost::asio::ip::tcp::resolver resolver_;
+    asio::io_context ioc_;
+    asio::ip::tcp::resolver resolver_;
 
     // The core of this class - a wrapped websocket stream
     websocket::stream<beast::tcp_stream> ws_;
 
+    // Target remote machine to connect to
+    std::string target_;
+    std::string port_;
+
+    // Message queue - messages that still need to be sent
     std::queue<std::string> message_queue_;
-    std::optional<std::string> message_{"Zero string!"};
+    // Current message waiting to be sent.
+    std::optional<std::string> message_{"***REQ_ID: "};
+
+    // Read message will be here
+    beast::flat_buffer buffer_;
 
     enum class Status
     {

@@ -33,8 +33,12 @@ add_executable(WordGame
 
     ${CMAKE_SOURCE_DIR}/src/context.cpp ${CMAKE_SOURCE_DIR}/include/game/context.hpp
 
+    ${CMAKE_SOURCE_DIR}/src/web/ws_session.cpp ${CMAKE_SOURCE_DIR}/src/web/ws_session.hpp
+    ${CMAKE_SOURCE_DIR}/src/web/session.cpp ${CMAKE_SOURCE_DIR}/src/web/session.hpp
     ${CMAKE_SOURCE_DIR}/src/web/server.cpp ${CMAKE_SOURCE_DIR}/src/web/server.hpp
     ${CMAKE_SOURCE_DIR}/src/web/client.cpp ${CMAKE_SOURCE_DIR}/src/web/client.hpp
+
+    ${CMAKE_SOURCE_DIR}/src/webclient.cpp ${CMAKE_SOURCE_DIR}/include/framework/webclient.hpp
 
     # Add main (entry point)
     ${CMAKE_SOURCE_DIR}/src/main.cpp
@@ -46,6 +50,8 @@ target_link_libraries(WordGame PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(WordGame PRIVATE ${Boost_LIBRARIES})
 
 add_executable(TestServer
+    ${CMAKE_SOURCE_DIR}/src/web/ws_session.cpp ${CMAKE_SOURCE_DIR}/src/web/ws_session.hpp
+    ${CMAKE_SOURCE_DIR}/src/web/session.cpp ${CMAKE_SOURCE_DIR}/src/web/session.hpp
     ${CMAKE_SOURCE_DIR}/src/web/server.cpp ${CMAKE_SOURCE_DIR}/src/web/server.hpp ${CMAKE_SOURCE_DIR}/src/web/testserver.cpp
 )
 #target_link_libraries(TestServer PUBLIC sfml-graphics)

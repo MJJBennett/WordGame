@@ -2,5 +2,5 @@
 
 int main()
 {
-    std::make_shared<wg::WebSocketClient>()->launch();
+    std::make_shared<wg::WebSocketClient>("127.0.0.1")->launch();
 }

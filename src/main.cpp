@@ -7,6 +7,7 @@
 #include "framework/resource.hpp"
 #include "game/item.hpp"
 #include "game/context.hpp"
+#include "framework/webclient.hpp"
 
 int main()
 {
@@ -17,6 +18,8 @@ int main()
     manager.load({wg::ResourceType::text, "Hello world!"});
     auto& text = manager.get({wg::ResourceType::text, "Hello world!"})->asDrawable();
     wg::GameContext game;
+    wg::web::Client web_client;
+    web_client.launch("127.0.0.1", "27600");
 
     while (window.isOpen() && game.running())
     {
@@ -25,6 +28,7 @@ int main()
         while (window.pollEvent(e))
         {
             if (e.type == sf::Event::Closed) window.close();
+            if (e.type == sf::Event::KeyReleased) web_client.send("KeyEvent occurred!");
             game.parse_input(e);
         }
         game.update();
@@ -37,7 +41,9 @@ int main()
         window.display();
     }
 
-    std::make_shared<wg::WebSocketClient>()->launch();
+    web_client.shutdown(true);
+
+    //std::make_shared<wg::WebSocketClient>()->launch();
 
     return 0;
 }
