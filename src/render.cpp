@@ -5,18 +5,18 @@
 #include "framework/table.hpp"
 #include "framework/tools.hpp"
 #include "game/item.hpp"
+#include "framework/windowcontext.hpp"
 
 #include <SFML/Graphics/Drawable.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
 
-wg::Renderer::Renderer(sf::RenderWindow& window, wg::ResourceManager& manager)
+wg::Renderer::Renderer(wg::WindowContext& window, wg::ResourceManager& manager)
     : window_(window), manager_(manager)
 {
     rect_.setSize(sf::Vector2f{25, 25});
     rect_.setFillColor(sf::Color{128, 128, 128});
 }
 
-void wg::Renderer::render(const sf::Drawable& d) { window_.draw(d); }
+void wg::Renderer::render(const sf::Drawable& d) { window_.getTarget().draw(d); }
 
 void wg::Renderer::render(const Table<Item>& i)
 {
@@ -49,13 +49,13 @@ void wg::Renderer::render(const Table<Item>& i)
             rect_.setPosition(sf::Vector2f{pos_x, pos_y});
 
             // Draw it
-            window_.draw(rect_);
+            window_.getTarget().draw(rect_);
 
             if (item.character_)
             {
                 auto c = manager_.get({wg::ResourceType::text, std::string{*(item.character_)}});
                 c->setPosition(pos_x + 4, pos_y - 4);
-                window_.draw(c->asDrawable());
+                window_.getTarget().draw(c->asDrawable());
             }
         }
     }

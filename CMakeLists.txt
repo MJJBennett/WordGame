@@ -28,6 +28,9 @@ add_executable(WordGame
     # Add class and function definitions
     ${CMAKE_SOURCE_DIR}/src/table.cpp ${CMAKE_SOURCE_DIR}/include/framework/table.hpp
     ${CMAKE_SOURCE_DIR}/src/render.cpp ${CMAKE_SOURCE_DIR}/include/framework/render.hpp
+    ${CMAKE_SOURCE_DIR}/src/windowcontext.cpp ${CMAKE_SOURCE_DIR}/include/framework/windowcontext.hpp
+    ${CMAKE_SOURCE_DIR}/src/window_io.cpp ${CMAKE_SOURCE_DIR}/include/framework/window_io.hpp
+    ${CMAKE_SOURCE_DIR}/src/window_items.cpp ${CMAKE_SOURCE_DIR}/include/framework/window_item.hpp
     ${CMAKE_SOURCE_DIR}/src/resourcemanager.cpp ${CMAKE_SOURCE_DIR}/include/framework/resourcemanager.hpp
     ${CMAKE_SOURCE_DIR}/include/framework/resource.hpp
 
@@ -39,6 +42,8 @@ add_executable(WordGame
     ${CMAKE_SOURCE_DIR}/src/web/client.cpp ${CMAKE_SOURCE_DIR}/src/web/client.hpp
 
     ${CMAKE_SOURCE_DIR}/src/webclient.cpp ${CMAKE_SOURCE_DIR}/include/framework/webclient.hpp
+
+    ${CMAKE_SOURCE_DIR}/src/application.cpp ${CMAKE_SOURCE_DIR}/include/application.hpp 
 
     # Add main (entry point)
     ${CMAKE_SOURCE_DIR}/src/main.cpp

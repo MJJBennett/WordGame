@@ -21,7 +21,7 @@ struct Resource
     virtual void setPosition(float, float) { assert(false); }
 };
 
-struct FontResource : Resource
+struct FontResource : public Resource
 {
     sf::Font font;
 
@@ -31,7 +31,7 @@ struct FontResource : Resource
     }
 };
 
-struct TextResource : Resource
+struct TextResource : public Resource
 {
     sf::Text text;
 

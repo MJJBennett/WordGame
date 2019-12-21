@@ -10,6 +10,7 @@
 namespace wg
 {
 struct Resource;
+struct FontResource;
 
 class ResourceManager
 {
@@ -20,8 +21,12 @@ public:
     Resource* get(const ResourceIdentifier&);
     std::unique_ptr<Resource> load(const ResourceIdentifier&);
 
+    // Convenience
+    FontResource* defaultFont() { return default_font_; }
+
 private:
     std::unordered_map<ResourceIdentifier, std::unique_ptr<Resource>> resources_;
+    FontResource* default_font_ = nullptr;
 };
 }  // namespace wg
 

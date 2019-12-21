@@ -9,7 +9,6 @@
 // Forward declaration
 namespace sf
 {
-class RenderWindow;
 class Drawable;
 }  // namespace sf
 
@@ -19,6 +18,7 @@ struct Item;
 template <typename T>
 class Table;
 class ResourceManager;
+class WindowContext;
 
 struct RenderOptions
 {
@@ -42,14 +42,14 @@ public:
     };
 
 public:
-    Renderer(sf::RenderWindow& window, wg::ResourceManager& manager);
+    Renderer(wg::WindowContext& window, wg::ResourceManager& manager);
 
     void render(const sf::Drawable&);
     void render(const Table<Item>&);
 
 private:
     sf::RectangleShape rect_;
-    sf::RenderWindow& window_;
+    wg::WindowContext& window_;
     wg::ResourceManager& manager_;
 
     Mode mode_{Mode::vertical};

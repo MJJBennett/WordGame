@@ -37,7 +37,7 @@ void wg::GameContext::parse_text_entered(sf::Event& e)
         const auto [col, row] = *pending_tile_;
         auto& item            = table_.at(col, row);
         item.character_       = (char)e.text.unicode;
-        mode_ = Mode::Default;
+        mode_                 = Mode::Default;
     }
 }
 void wg::GameContext::parse_mouse_released(sf::Event& e)

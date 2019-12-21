@@ -20,7 +20,13 @@ std::unique_ptr<wg::Resource> wg::ResourceManager::load(const ResourceIdentifier
 {
     switch (ri.type_)
     {
-        case ResourceType::font: return std::make_unique<wg::FontResource>(ri.location_);
+        case ResourceType::font:
+        {
+            if (default_font_) return std::make_unique<wg::FontResource>(ri.location_);
+            auto f        = std::make_unique<wg::FontResource>(ri.location_);
+            default_font_ = f.get();
+            return std::move(f);
+        }
         case ResourceType::text:
             return std::make_unique<wg::TextResource>(
                 static_cast<FontResource*>(get(wg::default_resource::font))->font, ri.location_);
