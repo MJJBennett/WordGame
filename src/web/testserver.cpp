@@ -2,5 +2,5 @@
 
 int main()
 {
-    wg::Server s;
+    wg::Server s("127.0.0.1");
 }
