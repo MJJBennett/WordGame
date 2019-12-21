@@ -22,6 +22,7 @@ public:
         return ret;
     }
     bool is_inside(int x, int y);
+    std::string text() { return text_.getString(); }
 
 private:
     bool clicked_{false};
@@ -31,8 +32,8 @@ private:
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        target.draw(text_);
         target.draw(rect_);
+        target.draw(text_);
         if (clicked_) target.draw(shade_);
     }
 };

@@ -7,12 +7,15 @@ wg::Button::Button(std::string text, const sf::Font& font, float x, float y, flo
     text_.setString(text);
     text_.setCharacterSize(28);
     text_.setFillColor(sf::Color::Black);
+    text_.setPosition(x_, y_);
+
     rect_.setSize(sf::Vector2f{w,h});
-    rect_.setFillColor(sf::Color{128, 128, 128});
-    rect_.setPosition(sf::Vector2f{x,y});
+    rect_.setFillColor(sf::Color{198, 198, 198});
+    rect_.setPosition(x_, y_);
+
     shade_.setSize(sf::Vector2f{w,h});
-    shade_.setFillColor(sf::Color{64, 64, 64, 128});
-    shade_.setPosition(sf::Vector2f{x,y});
+    shade_.setFillColor(sf::Color{128, 128, 128, 128});
+    shade_.setPosition(x_,y_);
 }
 
 bool wg::Button::accept_click(const sf::Event& e)

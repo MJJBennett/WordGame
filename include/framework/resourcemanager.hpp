@@ -22,7 +22,11 @@ public:
     std::unique_ptr<Resource> load(const ResourceIdentifier&);
 
     // Convenience
-    FontResource* defaultFont() { return default_font_; }
+    FontResource* defaultFont()
+    {
+        assert(default_font_ != nullptr);
+        return default_font_;
+    }
 
 private:
     std::unordered_map<ResourceIdentifier, std::unique_ptr<Resource>> resources_;
