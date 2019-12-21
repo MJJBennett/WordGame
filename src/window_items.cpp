@@ -10,6 +10,9 @@ wg::Button::Button(std::string text, const sf::Font& font, float x, float y, flo
     rect_.setSize(sf::Vector2f{w,h});
     rect_.setFillColor(sf::Color{128, 128, 128});
     rect_.setPosition(sf::Vector2f{x,y});
+    shade_.setSize(sf::Vector2f{w,h});
+    shade_.setFillColor(sf::Color{64, 64, 64, 128});
+    shade_.setPosition(sf::Vector2f{x,y});
 }
 
 bool wg::Button::accept_click(const sf::Event& e)

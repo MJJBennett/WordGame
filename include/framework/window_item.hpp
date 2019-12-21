@@ -27,11 +27,13 @@ private:
     bool clicked_{false};
     sf::Text text_;
     sf::RectangleShape rect_;
+    sf::RectangleShape shade_;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         target.draw(text_);
         target.draw(rect_);
+        if (clicked_) target.draw(shade_);
     }
 };
 }  // namespace wg
