@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <queue>
+#include <string>
 
 namespace wg
 {
@@ -19,14 +20,17 @@ class WebSocketClient : public std::enable_shared_from_this<WebSocketClient>
 {
 public:
     WebSocketClient(std::string target, std::string port = "27600");
+    ~WebSocketClient();
 
     // Blocking call, launches the websocket
     void launch();
-    // Closes the websocket
-    void shutdown();
+    // Threadsafe shutdown
+    void queue_shutdown();
 
     // Sends a single string message over the connection
-    void send(std::string message);
+    void queue_send(std::string message);
+    // Reads a single string message across the connection
+    std::optional<std::string> read();
 
 private:
     // Async handlers
@@ -34,6 +38,11 @@ private:
     void on_connect(beast::error_code, resolver::results_type::endpoint_type);
     void on_handshake(beast::error_code);
     void on_write(beast::error_code, std::size_t);
+    void on_read(beast::error_code, std::size_t);
+
+    void send(std::string message);
+
+    void shutdown();
 
 private:
     // The client has its own io context
@@ -51,6 +60,9 @@ private:
     std::queue<std::string> message_queue_;
     // Current message waiting to be sent.
     std::optional<std::string> message_{"***REQ_ID: "};
+
+    // Read message will be here
+    beast::flat_buffer buffer_;
 
     enum class Status
     {

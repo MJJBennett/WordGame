@@ -8,6 +8,11 @@ wg::WebSocketClient::WebSocketClient(std::string target, std::string port)
     wg::log::point("[Client] Constructed a websocket wrapper.");
 }
 
+wg::WebSocketClient::~WebSocketClient()
+{
+    if (status_ != Status::Closed) shutdown();
+}
+
 // Client entry point - blocking.
 void wg::WebSocketClient::launch()
 {
@@ -64,6 +69,9 @@ void wg::WebSocketClient::on_handshake(beast::error_code ec)
 
     ws_.async_write(asio::buffer(*message_),
                     beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
+
+    ws_.async_read(buffer_, std::bind(&WebSocketClient::on_read, shared_from_this(),
+                                      std::placeholders::_1, std::placeholders::_2));
 }
 
 void wg::WebSocketClient::on_write(beast::error_code ec, std::size_t)
@@ -80,10 +88,11 @@ void wg::WebSocketClient::on_write(beast::error_code ec, std::size_t)
         ws_.async_write(asio::buffer(*message_),
                         beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
     }
-    else
-    {
-        shutdown();
-    }
+}
+
+void wg::WebSocketClient::on_read(beast::error_code, std::size_t)
+{
+    // do nothing for now, because we're not calling this (I hope...)
 }
 
 void wg::WebSocketClient::shutdown()
@@ -103,4 +112,34 @@ void wg::WebSocketClient::shutdown()
     {
         wg::log::err("[Client (", __func__, ")] ", e.what());
     }
+}
+
+void wg::WebSocketClient::queue_send(std::string message)
+{
+    asio::post(ioc_, beast::bind_front_handler(&WebSocketClient::send, shared_from_this(),
+                                               std::move(message)));
+}
+
+void wg::WebSocketClient::queue_shutdown()
+{
+    asio::post(ioc_, std::bind(&WebSocketClient::shutdown, shared_from_this()));
+}
+
+// This should probably be queue_read when it actually works
+std::optional<std::string> wg::WebSocketClient::read() { return {}; }
+
+// Launches async operation - async_write
+void wg::WebSocketClient::send(std::string message)
+{
+    // Push our message to the end of the queue
+    message_queue_.push(message);
+
+    // This is only the case if we're already in a async_write!
+    if (message_) return;
+
+    // Great, no write currently happening
+    message_ = message_queue_.front();
+    message_queue_.pop();
+    ws_.async_write(asio::buffer(*message_),
+                    beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
 }
