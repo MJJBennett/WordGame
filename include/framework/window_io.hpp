@@ -24,6 +24,10 @@ std::string get_string(wg::WindowContext& target, wg::ResourceManager& manager,
                        const std::string& query, const std::vector<std::string>& options);
 void back_screen(wg::WindowContext& target, wg::ResourceManager& manager,
                  const std::string& message, const std::string& button_message = "Back");
+
+std::string get_from_file(wg::WindowContext& target, wg::ResourceManager& manager,
+                          const std::string& message, const std::string& filename);
+
 }  // namespace window_io
 }  // namespace wg
 
