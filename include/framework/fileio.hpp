@@ -1,6 +1,7 @@
 #ifndef WG_FILEIO_HPP
 #define WG_FILEIO_HPP
 
+#include <array>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -14,7 +15,7 @@ enum class ReadMode
     HasChars
 };
 
-template <typename R>
+template <typename T, typename R>
 bool in(T t, const R& r)
 {
     for (auto&& t2 : r)
@@ -54,6 +55,14 @@ std::vector<std::string> get_lines(std::string filename, ReadMode r = ReadMode::
         }
     }
     return list;
+}
+
+void add_line(std::string filename, std::string line)
+{
+    std::ofstream output_file(filename, std::ios_base::app | std::ios_base::out);
+    output_file << line;
+    if (line.size() > 0 && line.back() == '\n') return;
+    output_file << '\n';
 }
 }  // namespace wg
 

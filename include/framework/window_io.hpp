@@ -22,6 +22,8 @@ auto center(num context_length, num item_length) -> num
 
 std::string get_string(wg::WindowContext& target, wg::ResourceManager& manager,
                        const std::string& query, const std::vector<std::string>& options);
+std::string get_string(wg::WindowContext& target, wg::ResourceManager& manager,
+                       const std::string& query);
 void back_screen(wg::WindowContext& target, wg::ResourceManager& manager,
                  const std::string& message, const std::string& button_message = "Back");
 
