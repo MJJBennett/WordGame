@@ -7,7 +7,6 @@
 #include "framework/render.hpp"
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
-#include "framework/table.hpp"
 #include "framework/webclient.hpp"
 #include "framework/window_io.hpp"
 #include "framework/windowcontext.hpp"
@@ -18,24 +17,50 @@
 int wg::Application::launch()
 {
     wg::WindowContext window(sf::VideoMode(800, 600), "WordGame");
-    wg::Table<wg::Item> table;
     wg::ResourceManager manager;
     wg::Renderer renderer(window, manager);
+
+    // Example load code, unused, does populate default font though
+    // Which isn't really the ideal way to do things, but hey!
     manager.load({wg::ResourceType::text, "Hello world!"});
     auto& text = manager.get({wg::ResourceType::text, "WordGame"})->asDrawable();
-    wg::GameContext game;
-    wg::web::Client web_client;
-    // web_client.launch("127.0.0.1", "27600");
 
     std::vector<std::string> opts;
-    opts.push_back("Test 1");
-    opts.push_back("Test 2");
-    opts.push_back("Test 3");
-    wg::log::data("String configured",
-                  wg::window_io::get_string(window, manager, "What do you want?", opts));
-    wg::log::data(
-        "File string configured",
-        wg::window_io::get_from_file(window, manager, "Enter Remote IP Address", "ip.txt"));
+    opts.push_back("Launch Server");
+    opts.push_back("Connect to Server");
+    opts.push_back("Play Singleplayer (Lonely Mode)");
+    const auto choice = wg::window_io::get_string(window, manager, "Game Menu", opts);
+    wg::log::point("Entering mode: ", choice);
+
+    if (choice == "Launch Server") run_webserver(window, manager, renderer);
+    else if (choice == "Connect to Server") run_webclient(window, manager, renderer);
+    else if (choice == "Play Singleplayer (Lonely Mode)") run_local(window, manager, renderer);
+
+    return 0;
+}
+
+int wg::Application::run_webserver(wg::WindowContext& window, wg::ResourceManager& manager,
+                                   wg::Renderer& renderer)
+{
+    const auto addr =
+        wg::window_io::get_from_file(window, manager, "Enter Your IP Address", "ip.txt");
+    wg::window_io::back_screen(
+        window, manager, "The window will now close.\nThe server will run in terminal.", "Okay");
+    if (!window.isOpen()) return 0;
+    window.close();
+    window.getTarget().setVisible(false);
+    wg::Server s(addr);
+    return 0;
+}
+
+int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManager& manager,
+                                   wg::Renderer& renderer)
+{
+    const auto addr =
+        wg::window_io::get_from_file(window, manager, "Enter Remote IP Address", "ip.txt");
+    wg::GameContext game;
+    wg::web::Client web_client;
+    web_client.launch(addr, "27600");
 
     while (window.isOpen() && game.running())
     {
@@ -52,7 +77,6 @@ int wg::Application::launch()
         window.getTarget().clear();
 
         game.render(renderer);
-        window.getTarget().draw(text);
 
         window.getTarget().display();
 
@@ -61,6 +85,12 @@ int wg::Application::launch()
     }
 
     web_client.shutdown(true);
+    return 0;
+}
 
+int wg::Application::run_local(wg::WindowContext& window, wg::ResourceManager& manager,
+                               wg::Renderer& renderer)
+{
+    wg::window_io::back_screen(window, manager, "This mode is currently unsupported.", "Oh... :(");
     return 0;
 }
