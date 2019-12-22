@@ -25,9 +25,12 @@ int wg::Application::launch()
     auto& text = manager.get({wg::ResourceType::text, "Hello world!"})->asDrawable();
     wg::GameContext game;
     wg::web::Client web_client;
-    web_client.launch("127.0.0.1", "27600");
+    //web_client.launch("127.0.0.1", "27600");
 
     std::vector<std::string> opts;
+    opts.push_back("Test 1");
+    opts.push_back("Test 2");
+    opts.push_back("Test 3");
     wg::log::data("String configured",
                   wg::window_io::get_string(window, manager, "What do you want?", opts));
 

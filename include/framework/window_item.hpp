@@ -24,6 +24,9 @@ public:
     bool is_inside(int x, int y);
     std::string text() { return text_.getString(); }
 
+    void set_x(float x);
+    void update_position();
+
 private:
     bool clicked_{false};
     sf::Text text_;

@@ -21,6 +21,7 @@ public:
 private:
     std::thread client_thread_;
     std::shared_ptr<WebSocketClient> client_;
+    bool launched_{false};
 };
 }  // namespace web
 }  // namespace wg

@@ -9,13 +9,13 @@ wg::Button::Button(std::string text, const sf::Font& font, float x, float y, flo
     text_.setFillColor(sf::Color::Black);
     text_.setPosition(x_, y_);
 
-    rect_.setSize(sf::Vector2f{w,h});
+    rect_.setSize(sf::Vector2f{w, h});
     rect_.setFillColor(sf::Color{198, 198, 198});
     rect_.setPosition(x_, y_);
 
-    shade_.setSize(sf::Vector2f{w,h});
+    shade_.setSize(sf::Vector2f{w, h});
     shade_.setFillColor(sf::Color{128, 128, 128, 128});
-    shade_.setPosition(x_,y_);
+    shade_.setPosition(x_, y_);
 }
 
 bool wg::Button::accept_click(const sf::Event& e)
@@ -40,4 +40,17 @@ bool wg::Button::is_inside(int x, int y)
 {
     if ((x > x_) && (x < x_ + w_) && (y > y_) && (y < y_ + h_)) return true;
     return false;
+}
+
+void wg::Button::set_x(float x)
+{
+    x_ = x;
+    update_position();
+}
+
+void wg::Button::update_position()
+{
+    text_.setPosition(x_, y_);
+    rect_.setPosition(x_, y_);
+    shade_.setPosition(x_, y_);
 }

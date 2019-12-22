@@ -16,6 +16,8 @@ public:
     bool shouldClose(const sf::Event& e) { return e.type == sf::Event::Closed; }
     void close() { window_.close(); }
 
+    unsigned int width() { return window_.getSize().x; } 
+
 private:
     sf::RenderWindow window_;
 };
