@@ -1,19 +1,25 @@
 #include "framework/webclient.hpp"
 
 #include "client.hpp"  // the actual web client that we're wrapping
+#include "debug/log.hpp"
 
 void wg::web::Client::launch(std::string address, std::string port)
 {
     // Launches a web client!
     // This is actually extremely scary and I'm pretty sure very wrong
     // But hey if it works for now, it works for now!
-    launched_ = true;
+    launched_      = true;
     client_        = std::make_shared<WebSocketClient>(std::move(address), std::move(port));
     client_thread_ = std::thread(&WebSocketClient::launch, client_);
 }
 
 void wg::web::Client::send(std::string message)
 {
+    if (!launched_)
+    {
+        wg::log::warn("Tried to send a message over web client before launch:\n", message);
+        return;
+    }
     assert(client_ != nullptr);
     client_->queue_send(message);
 }
