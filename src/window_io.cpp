@@ -173,9 +173,11 @@ void wg::window_io::back_screen(wg::WindowContext& target, wg::ResourceManager& 
     text.setString(message);
     text.setCharacterSize(32);
     text.setFillColor(sf::Color::Cyan);
+    text.setPosition(center(float(target.width()), text.getGlobalBounds().width), 16);
 
     std::vector<wg::Button> buttons;
-    buttons.emplace_back(button_message, manager.defaultFont()->font, 25, 25, 100, 100);
+    buttons.emplace_back(button_message, manager.defaultFont()->font, 0, 128, 250, 64);
+    buttons.back().set_x(center(float(target.width()), buttons.back().w_));
     try_get_text(target, text, buttons);
 }
 

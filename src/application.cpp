@@ -60,6 +60,8 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
         wg::window_io::get_from_file(window, manager, "Enter Remote IP Address", "ip.txt");
     wg::GameContext game;
     wg::web::Client web_client;
+    // TODO - add 'connecting' pane here
+    // when connection fails (if), use wg::window_io::back_screen and go back to main menu
     web_client.launch(addr, "27600");
 
     while (window.isOpen() && game.running())
