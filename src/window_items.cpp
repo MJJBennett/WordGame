@@ -1,5 +1,7 @@
 #include "framework/window_item.hpp"
 
+#include "framework/window_io.hpp"
+
 wg::Button::Button(std::string text, const sf::Font& font, float x, float y, float w, float h)
     : x_(x), y_(y), w_(w), h_(h)
 {
@@ -50,7 +52,8 @@ void wg::Button::set_x(float x)
 
 void wg::Button::update_position()
 {
-    text_.setPosition(x_, y_);
+    const auto text_width = text_.getGlobalBounds().width;
+    text_.setPosition(wg::window_io::center(w_, text_width) + x_, y_);
     rect_.setPosition(x_, y_);
     shade_.setPosition(x_, y_);
 }

@@ -22,7 +22,7 @@ int wg::Application::launch()
     wg::ResourceManager manager;
     wg::Renderer renderer(window, manager);
     manager.load({wg::ResourceType::text, "Hello world!"});
-    auto& text = manager.get({wg::ResourceType::text, "Hello world!"})->asDrawable();
+    auto& text = manager.get({wg::ResourceType::text, "WordGame"})->asDrawable();
     wg::GameContext game;
     wg::web::Client web_client;
     //web_client.launch("127.0.0.1", "27600");

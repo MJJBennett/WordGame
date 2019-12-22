@@ -59,12 +59,7 @@ std::string wg::window_io::get_string(wg::WindowContext& target, wg::ResourceMan
                 {
                     for (auto&& b : buttons)
                     {
-                        if (b.accept_release(e))
-                        {
-                            wg::log::point("Got a full click on a button!");
-                            wg::log::point("Would click: ", b.text());
-                            // return b.text();
-                        }
+                        if (b.accept_release(e)) return b.text();
                     }
                     break;
                 }

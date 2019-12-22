@@ -33,6 +33,7 @@ add_executable(WordGame
     ${CMAKE_SOURCE_DIR}/src/window_items.cpp ${CMAKE_SOURCE_DIR}/include/framework/window_item.hpp
     ${CMAKE_SOURCE_DIR}/src/resourcemanager.cpp ${CMAKE_SOURCE_DIR}/include/framework/resourcemanager.hpp
     ${CMAKE_SOURCE_DIR}/include/framework/resource.hpp
+    ${CMAKE_SOURCE_DIR}/include/graphics/display_mode.hpp
 
     ${CMAKE_SOURCE_DIR}/src/context.cpp ${CMAKE_SOURCE_DIR}/include/game/context.hpp
 
