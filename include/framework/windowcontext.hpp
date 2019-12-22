@@ -11,6 +11,8 @@ public:
     template<typename... Args>
     WindowContext(Args... args) : window_(std::forward<Args>(args)...) {}
 
+    ~WindowContext();
+
     sf::RenderWindow& getTarget() { return window_; }
     bool isOpen() { return window_.isOpen(); }
     bool shouldClose(const sf::Event& e) { return e.type == sf::Event::Closed; }
