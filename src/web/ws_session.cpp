@@ -63,7 +63,7 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
     else if (rem_seq_ + 1 != seq)
         wg::log::warn("[WebSocket] Received sequence number ", seq, " when ", rem_seq_ + 1,
                       " was expected.");
-    rem_seq_ = seq;
+    rem_seq_                  = seq;
     const std::string payload = data["msg"];
     const auto ret            = nlohmann::json{{"type", "ack"}, {"ack", seq + 1}};
 
@@ -71,9 +71,12 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
 
     write_queue_.push(ret.dump());
     if (write_queue_.size() == 1)
+    {
+        wg::log::point("[WebSocket] Launching write.");
         websocket_.async_write(
             asio::buffer(write_queue_.front()),
             beast::bind_front_handler(&WebSocketSession::on_write, shared_from_this()));
+    }
 
     websocket_.async_read(
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));
@@ -83,9 +86,11 @@ void wg::WebSocketSession::on_write(beast::error_code ec, std::size_t)
 {
     if (wg::log::opt_err(ec, "[WebSocket] Failed to write")) return;
 
+    wg::log::point("[WebSocket] Successfully completed write.");
     write_queue_.pop();
 
     if (write_queue_.empty()) return;
+    wg::log::point("[WebSocket] Launching write.");
     websocket_.async_write(
         asio::buffer(write_queue_.front()),
         beast::bind_front_handler(&WebSocketSession::on_write, shared_from_this()));

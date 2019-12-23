@@ -109,7 +109,7 @@ void wg::WebSocketClient::on_read(beast::error_code ec, std::size_t)
     if (str) {  // This could probably be its own function, really
         const std::lock_guard<std::mutex> lock(recv_mutex_);
         recv_queue_.push(std::move(*str));
-    }
+    } else wg::log::warn("[Client] Discarded read data.");
 
     // Launch another async read!
     ws_.async_read(buffer_, std::bind(&WebSocketClient::on_read, shared_from_this(),
@@ -156,6 +156,7 @@ std::optional<std::string> wg::WebSocketClient::parse_message(std::string messag
 {
     const auto data = nlohmann::json::parse(message);
     if (data["type"] != "ack") return data["msg"];
+    wg::log::data("Received ACK", data.dump());
     return {};
 }
 
