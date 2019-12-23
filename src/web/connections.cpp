@@ -1,6 +1,6 @@
 #include "connections.hpp"
 
-#include "wg_session.hpp"
+#include "ws_session.hpp"
 
 void wg::Connections::alert_connections(WebSocketSession* ignore, std::string message)
 {
