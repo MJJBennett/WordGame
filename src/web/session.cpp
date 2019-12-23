@@ -1,14 +1,14 @@
 #include "session.hpp"
 
-#include "debug/log.hpp"
 #include <boost/beast/http.hpp>
 #include <boost/beast/websocket.hpp>
+#include "debug/log.hpp"
 #include "ws_session.hpp"
+#include "connections.hpp"
 
-using tcp           = boost::asio::ip::tcp;
+using tcp = boost::asio::ip::tcp;
 
-wg::Session::Session(boost::asio::ip::tcp::socket&& socket)
-    : tcp_stream_(std::move(socket))
+wg::Session::Session(boost::asio::ip::tcp::socket&& socket, wg::Connections* connections) : tcp_stream_(std::move(socket)), connections_(connections)
 {
     wg::log::point("[Session] Created a server session.");
 }
@@ -56,7 +56,7 @@ void wg::Session::on_read(beast::error_code ec, std::size_t)
         wg::log::point("[Session] Message was upgrade: Upgrading session to WebSocket.");
         // We're upgrading to a websocket connection with the remote client
         // Hooray!
-        std::make_shared<wg::WebSocketSession>(tcp_stream_.release_socket())
+        std::make_shared<wg::WebSocketSession>(tcp_stream_.release_socket(), connections_)
             ->launch(req_parser_->release());
     }
 }

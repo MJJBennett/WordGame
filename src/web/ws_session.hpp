@@ -17,10 +17,12 @@ namespace http  = boost::beast::http;
 namespace beast = boost::beast;
 namespace asio  = boost::asio;
 
+class Connections;
+
 class WebSocketSession : public std::enable_shared_from_this<WebSocketSession>
 {
 public:
-    WebSocketSession(asio::ip::tcp::socket&& socket);
+    WebSocketSession(asio::ip::tcp::socket&& socket, wg::Connections* connections);
     ~WebSocketSession();
 
     void launch(http::request<http::string_body> req);
@@ -30,9 +32,12 @@ public:
     void on_accept(beast::error_code);
     void shutdown();
 
+    void queue_write(std::string message);
+
 private:
     beast::websocket::stream<beast::tcp_stream> websocket_;
     beast::flat_buffer buffer_;
+    Connections* connections_;
 
     unsigned int rem_seq_ = 0;
 

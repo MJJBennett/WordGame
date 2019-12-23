@@ -15,10 +15,12 @@ namespace asio  = boost::asio;
 namespace beast = boost::beast;
 namespace http  = beast::http;
 
+class Connections;
+
 class Session : public std::enable_shared_from_this<Session>
 {
 public:
-    Session(asio::ip::tcp::socket&& socket);
+    Session(asio::ip::tcp::socket&& socket, wg::Connections* connections);
     ~Session();
 
     void launch();
@@ -30,6 +32,8 @@ private:
     std::optional<http::request_parser<http::string_body>> req_parser_;
     beast::tcp_stream tcp_stream_;
     beast::flat_buffer buffer_;
+
+    Connections* connections_;
 };
 }  // namespace wg
 

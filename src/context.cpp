@@ -35,11 +35,19 @@ void wg::GameContext::parse_text_entered(sf::Event& e)
     if (mode_ == Mode::SetTile)
     {
         const auto [col, row] = *pending_tile_;
-        auto& item            = table_.at(col, row);
-        item.character_       = (char)e.text.unicode;
-        mode_                 = Mode::Default;
+        const auto c          = (char)e.text.unicode;
+        set_tile(col, row, c);
+        mode_       = Mode::Default;
+        last_update = GameUpdate{int(col), int(row), c};
     }
 }
+
+void wg::GameContext::set_tile(int col, int row, char c)
+{
+    auto& item      = table_.at(col, row);
+    item.character_ = c;
+}
+
 void wg::GameContext::parse_mouse_released(sf::Event& e)
 {
     const auto x              = e.mouseButton.x;

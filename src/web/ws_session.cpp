@@ -3,11 +3,13 @@
 #include <boost/beast/core/buffers_to_string.hpp>
 #include <nlohmann/json.hpp>
 #include "debug/log.hpp"
+#include "connections.hpp"
 
 namespace websocket = boost::beast::websocket;
 using tcp           = boost::asio::ip::tcp;
 
-wg::WebSocketSession::WebSocketSession(tcp::socket&& socket) : websocket_(std::move(socket))
+wg::WebSocketSession::WebSocketSession(tcp::socket&& socket, wg::Connections* connections)
+    : websocket_(std::move(socket)), connections_(connections)
 {
     wg::log::point("[WebSocket] Created a websocket session.");
 }
@@ -20,6 +22,8 @@ void wg::WebSocketSession::launch(http::request<http::string_body> req)
         resp.set(http::field::server,
                  std::string{BOOST_BEAST_VERSION_STRING} + " websocket-wordgame");
     }));
+
+    connections_->add_connection(this);
 
     websocket_.async_accept(
         req, beast::bind_front_handler(&WebSocketSession::on_accept, shared_from_this()));
@@ -40,6 +44,18 @@ void wg::WebSocketSession::on_accept(beast::error_code ec)
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));
 }
 
+void wg::WebSocketSession::queue_write(std::string message)
+{
+    write_queue_.push(message);
+    if (write_queue_.size() == 1)
+    {
+        wg::log::point("[WebSocket] Launching write.");
+        websocket_.async_write(
+            asio::buffer(write_queue_.front()),
+            beast::bind_front_handler(&WebSocketSession::on_write, shared_from_this()));
+    }
+}
+
 void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
 {
     if (ec)
@@ -55,7 +71,7 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
     }
 
     const auto msg = beast::buffers_to_string(buffer_.data());
-    wg::log::data("Received message", msg);
+    wg::log::data("[WebSocket] Received message", msg);
     auto data     = nlohmann::json::parse(msg);
     const int seq = data["seq"];
     if (rem_seq_ == 0)
@@ -78,6 +94,8 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
             beast::bind_front_handler(&WebSocketSession::on_write, shared_from_this()));
     }
 
+    if (data["type"] == "msg") connections_->alert_connections(this, msg);
+
     websocket_.async_read(
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));
 }
@@ -98,6 +116,7 @@ void wg::WebSocketSession::on_write(beast::error_code ec, std::size_t)
 
 wg::WebSocketSession::~WebSocketSession()
 {
+    connections_->remove_connection(this);
     wg::log::point("[WebSocket] Destroyed a websocket session.");
 }
 
