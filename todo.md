@@ -13,3 +13,6 @@
 - Web:
     - All configuration should be in config files or arguments
         - Addresses, ports, etc
+
+- General:
+    - Logging is not threadsafe (or so I would assume). This needs fixing.
