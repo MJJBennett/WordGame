@@ -13,6 +13,7 @@
 #include "game/context.hpp"
 #include "game/item.hpp"
 #include "server.hpp"
+#include <nlohmann/json.hpp>
 
 int wg::Application::launch(Mode mode)
 {
@@ -86,8 +87,15 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
         while (window.getTarget().pollEvent(e))
         {
             if (e.type == sf::Event::Closed) window.close();
-            if (e.type == sf::Event::KeyReleased) web_client.send("KeyEvent occurred!");
+            //if (e.type == sf::Event::KeyReleased) web_client.send("KeyEvent occurred!");
             game.parse_input(e);
+            if (game.last_update)
+            {
+                const auto u = *game.last_update;
+                const auto j = nlohmann::json{{"col",u.col},{"row",u.row},{"char",u.c}};
+                game.last_update.reset();
+                web_client.send(j.dump());
+            }
         }
         game.update();
 
@@ -101,7 +109,15 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // check for messages on the web client...
         auto str = web_client.read_once();
-        if (str) wg::log::data("Client message found", *str);
+        if (str) {
+            wg::log::data("Client message found", *str);
+            // now let's make a hacky thing
+            const auto d = nlohmann::json::parse(*str);
+            const auto col = d["col"]; 
+            const auto row = d["row"]; 
+            const auto c = std::string{d["char"]}[0]; 
+            game.set_tile(col, row, c);
+        }
     }
 
     web_client.shutdown(true);

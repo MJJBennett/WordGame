@@ -3,6 +3,7 @@
 
 #include "game/item.hpp"
 #include "framework/table.hpp"
+#include "game/update.hpp"
 
 namespace sf
 {
@@ -32,6 +33,10 @@ public:
     void render(wg::Renderer& renderer);
 
     bool running() { return running_; }
+
+    void set_tile(int col, int row, char c);
+
+    std::optional<wg::GameUpdate> last_update;
 
 private:
     void parse_key_released(sf::Event&);
