@@ -121,7 +121,7 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
                 const auto d   = nlohmann::json::parse(*str);
                 const auto col = d["col"];
                 const auto row = d["row"];
-                const auto c   = std::string{d["char"]}[0];
+                const auto c   = char(int(d["char"]));
                 game.set_tile(col, row, c);
             }
             catch (nlohmann::json::parse_error e)
