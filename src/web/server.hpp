@@ -5,6 +5,7 @@
 #include <boost/beast.hpp>
 #include <optional>
 #include <memory>
+#include "connections.hpp"
 
 namespace wg
 {
@@ -23,6 +24,7 @@ private:
     asio::io_context ioc_;
     asio::signal_set signals_{ioc_, SIGINT, SIGTERM};
     asio::ip::tcp::acceptor tcp_acceptor_;
+    wg::Connections connections_;
 
     std::string address_;
     unsigned short port_;

@@ -49,7 +49,7 @@ void wg::Server::on_accept(boost::system::error_code const& ec, tcp::socket sock
     if (wg::log::opt_err(ec, "Could not accept a connection")) return;
     
     wg::log::point("[Server] Launching server session.");
-    std::make_shared<wg::Session>(std::move(socket))->launch();
+    std::make_shared<wg::Session>(std::move(socket), &connections_)->launch();
 
     wg::log::point("[Server] > Continuing to accept connections.");
     tcp_acceptor_.async_accept(asio::make_strand(ioc_),
