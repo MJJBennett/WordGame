@@ -56,6 +56,9 @@ if __name__ == '__main__':
         debug = True
     files = []
     for d in args:
+        if isfile(d):
+            files.append(d)
+            continue
         l = get_files_recurse(d)
         files.extend(l if l is not None else [])
         if debug:
