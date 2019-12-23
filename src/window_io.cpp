@@ -1,6 +1,7 @@
 #include "framework/window_io.hpp"
 
 #include <SFML/Graphics.hpp>
+#include <optional>
 #include <thread>
 #include <vector>
 #include "debug/log.hpp"

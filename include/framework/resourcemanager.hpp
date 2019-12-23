@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "resourceidentifier.hpp"
+#include "assert.h" // for windows
 
 namespace wg
 {

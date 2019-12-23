@@ -1,6 +1,7 @@
 #include "framework/window_item.hpp"
 
 #include "framework/window_io.hpp"
+#include "assert.h"
 
 wg::Button::Button(std::string text, const sf::Font& font, float x, float y, float w, float h)
     : x_(x), y_(y), w_(w), h_(h)
