@@ -14,8 +14,9 @@
 #include "game/item.hpp"
 #include "server.hpp"
 
-int wg::Application::launch()
+int wg::Application::launch(Mode mode)
 {
+    if (mode & ApplicationMode::Windowless) return run_windowless();
     wg::WindowContext window(sf::VideoMode(800, 600), "WordGame");
     wg::ResourceManager manager;
     wg::Renderer renderer(window, manager);
@@ -49,7 +50,21 @@ int wg::Application::run_webserver(wg::WindowContext& window, wg::ResourceManage
     if (!window.isOpen()) return 0;
     window.close();
     window.getTarget().setVisible(false);
-    wg::Server s(addr);
+    return run_webserver(addr);
+}
+
+int wg::Application::run_windowless()
+{
+    std::string input;
+    std::cout << "Starting webserver. Enter IP:\n";
+    std::getline(std::cin, input);
+    std::cout << "Running with IP: " << input << std::endl;
+    return run_webserver(input);
+}
+
+int wg::Application::run_webserver(std::string address)
+{
+    wg::Server s(address);
     return 0;
 }
 
