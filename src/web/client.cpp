@@ -1,10 +1,18 @@
 #include "client.hpp"
 
+#include <nlohmann/json.hpp>
+#include <random>
 #include "debug/log.hpp"
 
 wg::WebSocketClient::WebSocketClient(std::string target, std::string port)
     : resolver_(ioc_), ws_(ioc_), target_(std::move(target)), port_(std::move(port))
 {
+    // Random sequence number, temporary I hope
+    std::random_device random_device;
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<> dist(314, 728);
+    seq_ = dist(generator);
+
     wg::log::point("[Client] Constructed a websocket wrapper.");
 }
 
@@ -67,7 +75,7 @@ void wg::WebSocketClient::on_handshake(beast::error_code ec)
 
     // Now we need to authenticate with the server.
 
-    ws_.async_write(asio::buffer(*message_),
+    ws_.async_write(asio::buffer(format_message(*message_)),
                     beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
 
     ws_.async_read(buffer_, std::bind(&WebSocketClient::on_read, shared_from_this(),
@@ -85,7 +93,7 @@ void wg::WebSocketClient::on_write(beast::error_code ec, std::size_t)
     {
         message_ = message_queue_.front();
         message_queue_.pop();
-        ws_.async_write(asio::buffer(*message_),
+        ws_.async_write(asio::buffer(format_message(*message_)),
                         beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
     }
 }
@@ -94,13 +102,13 @@ void wg::WebSocketClient::on_read(beast::error_code ec, std::size_t)
 {
     if (wg::log::opt_err(ec, "[Client] Read failed")) return;
 
-    auto str = beast::buffers_to_string(buffer_.data());
+    auto str = parse_message(beast::buffers_to_string(buffer_.data()));
 
     buffer_.consume(buffer_.size());
 
-    { // This could probably be its own function, really
+    if (str) {  // This could probably be its own function, really
         const std::lock_guard<std::mutex> lock(recv_mutex_);
-        recv_queue_.push(std::move(str));
+        recv_queue_.push(std::move(*str));
     }
 
     // Launch another async read!
@@ -138,6 +146,19 @@ void wg::WebSocketClient::queue_shutdown()
     asio::post(ioc_, std::bind(&WebSocketClient::shutdown, shared_from_this()));
 }
 
+std::string wg::WebSocketClient::format_message(std::string message)
+{
+    const auto data = nlohmann::json{{"type", "msg"}, {"msg", std::move(message)}, {"seq", seq_++}};
+    return data.dump();
+}
+
+std::optional<std::string> wg::WebSocketClient::parse_message(std::string message)
+{
+    const auto data = nlohmann::json::parse(message);
+    if (data["type"] != "ack") return data["msg"];
+    return {};
+}
+
 // Launches async operation - async_write
 void wg::WebSocketClient::send(std::string message)
 {
@@ -150,7 +171,7 @@ void wg::WebSocketClient::send(std::string message)
     // Great, no write currently happening
     message_ = message_queue_.front();
     message_queue_.pop();
-    ws_.async_write(asio::buffer(*message_),
+    ws_.async_write(asio::buffer(format_message(*message_)),
                     beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
 }
 

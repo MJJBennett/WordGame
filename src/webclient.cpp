@@ -9,6 +9,7 @@ void wg::web::Client::launch(std::string address, std::string port)
     // This is actually extremely scary and I'm pretty sure very wrong
     // But hey if it works for now, it works for now!
     launched_      = true;
+
     client_        = std::make_shared<WebSocketClient>(std::move(address), std::move(port));
     client_thread_ = std::thread(&WebSocketClient::launch, client_);
 }

@@ -7,6 +7,8 @@ project(TestServer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(WordGame_Build_TestClient FALSE)
+set(WordGame_Build_TestServer FALSE)
 
 add_definitions(-g -stdlib=libc++)
 
@@ -56,6 +58,7 @@ target_link_libraries(WordGame PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(WordGame PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(WordGame PRIVATE ${Boost_LIBRARIES})
 
+if (WordGame_Build_TestServer)
 add_executable(TestServer
     ${CMAKE_SOURCE_DIR}/src/web/ws_session.cpp ${CMAKE_SOURCE_DIR}/src/web/ws_session.hpp
     ${CMAKE_SOURCE_DIR}/src/web/session.cpp ${CMAKE_SOURCE_DIR}/src/web/session.hpp
@@ -65,7 +68,9 @@ add_executable(TestServer
 target_link_libraries(TestServer PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(TestServer PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(TestServer PRIVATE ${Boost_LIBRARIES})
+endif()
 
+if (WordGame_Build_TestClient)
 add_executable(TestClient
     ${CMAKE_SOURCE_DIR}/src/web/client.cpp ${CMAKE_SOURCE_DIR}/src/web/client.hpp ${CMAKE_SOURCE_DIR}/src/web/testclient.cpp
 )
@@ -73,3 +78,4 @@ add_executable(TestClient
 target_link_libraries(TestClient PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(TestClient PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(TestClient PRIVATE ${Boost_LIBRARIES})
+endif()

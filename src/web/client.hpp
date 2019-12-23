@@ -35,6 +35,9 @@ public:
     std::optional<std::string> read_once();
     std::queue<std::string> read_all();
 
+    std::string format_message(std::string);
+    std::optional<std::string> parse_message(std::string);
+
 private:
     // Async handlers
     void on_resolve(beast::error_code, resolver::results_type);
@@ -62,12 +65,14 @@ private:
     // Message queue - messages that still need to be sent
     std::queue<std::string> message_queue_;
     // Current message waiting to be sent.
-    std::optional<std::string> message_{"***REQ_ID: "};
+    std::optional<std::string> message_;
 
     // Received queue - messages waiting to be read
     std::queue<std::string> recv_queue_;
     // Mutex for threadsafe queue access
     std::mutex recv_mutex_;
+
+    unsigned int seq_{0};
 
     // Read message will be here
     beast::flat_buffer buffer_;

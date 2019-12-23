@@ -28,10 +28,13 @@ public:
     void on_read(beast::error_code, std::size_t);
     void on_write(beast::error_code, std::size_t);
     void on_accept(beast::error_code);
+    void shutdown();
 
 private:
     beast::websocket::stream<beast::tcp_stream> websocket_;
     beast::flat_buffer buffer_;
+
+    unsigned int rem_seq_ = 0;
 
     std::queue<std::string> write_queue_;
 };
