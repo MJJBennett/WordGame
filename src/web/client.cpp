@@ -90,9 +90,22 @@ void wg::WebSocketClient::on_write(beast::error_code ec, std::size_t)
     }
 }
 
-void wg::WebSocketClient::on_read(beast::error_code, std::size_t)
+void wg::WebSocketClient::on_read(beast::error_code ec, std::size_t)
 {
-    // do nothing for now, because we're not calling this (I hope...)
+    if (wg::log::opt_err(ec, "[Client] Read failed")) return;
+
+    auto str = beast::buffers_to_string(buffer_.data());
+
+    buffer_.consume(buffer_.size());
+
+    { // This could probably be its own function, really
+        const std::lock_guard<std::mutex> lock(recv_mutex_);
+        recv_queue_.push(std::move(str));
+    }
+
+    // Launch another async read!
+    ws_.async_read(buffer_, std::bind(&WebSocketClient::on_read, shared_from_this(),
+                                      std::placeholders::_1, std::placeholders::_2));
 }
 
 void wg::WebSocketClient::shutdown()
@@ -125,9 +138,6 @@ void wg::WebSocketClient::queue_shutdown()
     asio::post(ioc_, std::bind(&WebSocketClient::shutdown, shared_from_this()));
 }
 
-// This should probably be queue_read when it actually works
-std::optional<std::string> wg::WebSocketClient::read() { return {}; }
-
 // Launches async operation - async_write
 void wg::WebSocketClient::send(std::string message)
 {
@@ -142,4 +152,27 @@ void wg::WebSocketClient::send(std::string message)
     message_queue_.pop();
     ws_.async_write(asio::buffer(*message_),
                     beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
+}
+
+size_t wg::WebSocketClient::num_waiting()
+{
+    const std::lock_guard<std::mutex> lock(recv_mutex_);
+    return recv_queue_.size();
+}
+
+std::optional<std::string> wg::WebSocketClient::read_once()
+{
+    const std::lock_guard<std::mutex> lock(recv_mutex_);
+    if (recv_queue_.size() == 0) return {};
+    const auto str(std::move(recv_queue_.front()));
+    recv_queue_.pop();
+    return str;
+}
+
+std::queue<std::string> wg::WebSocketClient::read_all()
+{
+    const std::lock_guard<std::mutex> lock(recv_mutex_);
+    std::queue<std::string> q;
+    q.swap(recv_queue_);
+    return q;
 }

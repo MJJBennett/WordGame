@@ -8,6 +8,7 @@
 #include <optional>
 #include <queue>
 #include <string>
+#include <mutex>
 
 namespace wg
 {
@@ -29,8 +30,10 @@ public:
 
     // Sends a single string message over the connection
     void queue_send(std::string message);
-    // Reads a single string message across the connection
-    std::optional<std::string> read();
+
+    size_t num_waiting();
+    std::optional<std::string> read_once();
+    std::queue<std::string> read_all();
 
 private:
     // Async handlers
@@ -60,6 +63,11 @@ private:
     std::queue<std::string> message_queue_;
     // Current message waiting to be sent.
     std::optional<std::string> message_{"***REQ_ID: "};
+
+    // Received queue - messages waiting to be read
+    std::queue<std::string> recv_queue_;
+    // Mutex for threadsafe queue access
+    std::mutex recv_mutex_;
 
     // Read message will be here
     beast::flat_buffer buffer_;

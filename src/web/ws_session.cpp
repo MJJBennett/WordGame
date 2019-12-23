@@ -53,12 +53,31 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
         return;
     }
 
-    wg::log::data("Received message", beast::buffers_to_string(buffer_.data()));
+    const auto msg = beast::buffers_to_string(buffer_.data());
+    wg::log::data("Received message", msg);
 
     buffer_.consume(buffer_.size());
 
+    write_queue_.push("ACK_PREV");
+    if (write_queue_.size() == 1)
+        websocket_.async_write(
+            asio::buffer(write_queue_.front()),
+            beast::bind_front_handler(&WebSocketSession::on_write, shared_from_this()));
+
     websocket_.async_read(
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));
+}
+
+void wg::WebSocketSession::on_write(beast::error_code ec, std::size_t)
+{
+    if (wg::log::opt_err(ec, "[WebSocket] Failed to write")) return;
+
+    write_queue_.pop();
+
+    if (write_queue_.empty()) return;
+    websocket_.async_write(
+        asio::buffer(write_queue_.front()),
+        beast::bind_front_handler(&WebSocketSession::on_write, shared_from_this()));
 }
 
 wg::WebSocketSession::~WebSocketSession()
