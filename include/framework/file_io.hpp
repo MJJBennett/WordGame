@@ -35,7 +35,7 @@ bool has_chars(R r)
     return false;
 }
 
-std::vector<std::string> get_lines(std::string filename, ReadMode r = ReadMode::NonEmpty)
+static std::vector<std::string> get_lines(std::string filename, ReadMode r = ReadMode::NonEmpty)
 {
     std::ifstream input_file(filename);
 
@@ -57,7 +57,7 @@ std::vector<std::string> get_lines(std::string filename, ReadMode r = ReadMode::
     return list;
 }
 
-void add_line(std::string filename, std::string line)
+static void add_line(std::string filename, std::string line)
 {
     std::ofstream output_file(filename, std::ios_base::app | std::ios_base::out);
     output_file << line;

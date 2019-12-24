@@ -2,6 +2,7 @@
 #define WG_BOARD_HPP
 
 #include <string>
+#include "framework/table.hpp"
 #include "item.hpp"
 
 namespace wg

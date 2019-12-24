@@ -1,9 +1,9 @@
-#include "board.hpp"
+#include "game/board.hpp"
 
 #include <nlohmann/json.hpp>
-#include "file_io.hpp"
+#include "framework/file_io.hpp"
 
-wg::Board::load_config(std::string filename)
+void wg::Board::load_config(std::string filename)
 {
 
 }
