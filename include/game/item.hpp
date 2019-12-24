@@ -13,6 +13,11 @@ struct Item
     std::optional<char> character_;
     std::optional<MultiplierMask> multipliers_;
     sf::Color colour_{198, 178, 188};
+
+    void set_colour(unsigned int r, unsigned int g, unsigned int b)
+    {
+        colour_ = sf::Color{(sf::Uint8)r, (sf::Uint8)g, (sf::Uint8)b};
+    }
 };
 }  // namespace wg
 

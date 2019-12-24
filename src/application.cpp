@@ -9,8 +9,8 @@
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
 #include "framework/webclient.hpp"
-#include "framework/window_io.hpp"
 #include "framework/window_context.hpp"
+#include "framework/window_io.hpp"
 #include "game/context.hpp"
 #include "game/item.hpp"
 #include "server.hpp"
@@ -89,8 +89,10 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
 
         while (window.getTarget().pollEvent(e))
         {
-            if (e.type == sf::Event::Closed) {
-                window.close(); continue;
+            if (e.type == sf::Event::Closed)
+            {
+                window.close();
+                continue;
             }
             game.parse_input(e);
             if (game.last_update)

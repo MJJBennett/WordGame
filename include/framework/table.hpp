@@ -22,10 +22,7 @@ public:
         return items_[col_num];
     }
 
-    CellType& at(unsigned int col_num, unsigned int row_pos)
-    {
-        return items_[col_num][row_pos];
-    }
+    CellType& at(unsigned int col_num, unsigned int row_pos) { return items_[col_num][row_pos]; }
 
     float get_width() const
     {
@@ -41,6 +38,17 @@ public:
     std::array<unsigned int, 2> get_tile_dimensions() const { return {tile_width, tile_height}; }
     std::array<unsigned int, 2> get_tile_offsets() const { return {offset_x, offset_y}; }
     std::array<float, 2> get_dimensions() const { return {get_width(), get_height()}; }
+
+    void set_colour(unsigned int r, unsigned int g, unsigned int b)
+    {
+        for (auto&& col : items_)
+        {
+            for (auto&& i : col)
+            {
+                i.set_colour(r, g, b);
+            }
+        }
+    }
 
 private:
     void calculate_width() const { width_ = (float)table_size * (tile_width + offset_x); }

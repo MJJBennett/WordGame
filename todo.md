@@ -16,3 +16,4 @@
 
 - General:
     - Logging is not threadsafe (or so I would assume). This needs fixing.
+    - `abort_if` does the exact opposite of what it says it does.
