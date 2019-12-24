@@ -113,7 +113,7 @@ bool wg::GameContext::load_config(std::string filename)
     return true;
 }
 
-bool wg::Board::parse_config(const nlohmann::json& config)
+bool wg::GameContext::parse_config(const nlohmann::json& config)
 {
     wg::log::data("Using configuration", config.dump(2));
 
@@ -133,14 +133,14 @@ bool wg::Board::parse_config(const nlohmann::json& config)
                 }
                 else
                 {
-                    wg::log::point(">>> Loading string array for key: ", k);
+                    wg::log::point(">>> Loading string array for key: ", k.key());
                     set_config(k.key(), k.value().get<std::vector<std::string>>());
                 }
                 break;
             }
             case json::value_t::string:
             {
-                wg::log::point(">>> Loading string for key: ", k);
+                wg::log::point(">>> Loading string for key: ", k.key());
                 set_config(k.key(), k.value().get<std::string>());
                 break;
             }

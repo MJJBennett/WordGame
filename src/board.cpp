@@ -27,14 +27,14 @@ bool wg::Board::parse_config(const nlohmann::json& config)
                 }
                 else
                 {
-                    wg::log::point(">>> Loading string array for key: ", k);
+                    wg::log::point(">>> Loading string array for key: ", k.key());
                     set_config(k.key(), k.value().get<std::vector<std::string>>());
                 }
                 break;
             }
             case json::value_t::string:
             {
-                wg::log::point(">>> Loading string for key: ", k);
+                wg::log::point(">>> Loading string for key: ", k.key());
                 set_config(k.key(), k.value().get<std::string>());
                 break;
             }
@@ -52,10 +52,6 @@ bool wg::Board::set_config(std::string name, std::vector<std::string> value) { r
 bool wg::Board::set_config(std::string name, std::vector<unsigned int> value)
 {
     if (name == "tile-colour")
-    {
-        table_.set_colour(value[0], value[1], value[2]);
-    }
-    if (name == "background-colour")
     {
         table_.set_colour(value[0], value[1], value[2]);
     }
