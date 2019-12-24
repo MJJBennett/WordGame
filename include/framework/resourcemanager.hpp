@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 #include "resourceidentifier.hpp"
-#include "assert.h" // for windows
+#include "assert.hpp"
 
 namespace wg
 {
@@ -25,7 +25,7 @@ public:
     // Convenience
     FontResource* defaultFont()
     {
-        assert(default_font_ != nullptr);
+        wg::abort_if(default_font_ != nullptr);
         return default_font_;
     }
 

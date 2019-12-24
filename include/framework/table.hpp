@@ -3,6 +3,7 @@
 
 #include <array>
 #include <optional>
+#include "assert.hpp"
 
 namespace wg
 {
@@ -17,7 +18,7 @@ public:
 public:
     const std::array<CellType, table_size>& get_column(unsigned int col_num) const
     {
-        assert(col_num < table_size);
+        wg::abort_if(col_num < table_size);
         return items_[col_num];
     }
 
@@ -42,8 +43,8 @@ public:
     std::array<float, 2> get_dimensions() const { return {get_width(), get_height()}; }
 
 private:
-    void calculate_width() const { width_ = table_size * (tile_width + offset_x); }
-    void calculate_height() const { height_ = table_size * (tile_height + offset_y); }
+    void calculate_width() const { width_ = (float)table_size * (tile_width + offset_x); }
+    void calculate_height() const { height_ = (float)table_size * (tile_height + offset_y); }
 
 private:
     std::array<std::array<CellType, table_size>, table_size> items_;

@@ -2,6 +2,7 @@
 
 #include "client.hpp"  // the actual web client that we're wrapping
 #include "debug/log.hpp"
+#include "assert.hpp"
 
 void wg::web::Client::launch(std::string address, std::string port)
 {
@@ -21,19 +22,19 @@ void wg::web::Client::send(std::string message)
         wg::log::warn("Tried to send a message over web client before launch:\n", message);
         return;
     }
-    assert(client_ != nullptr);
+    wg::abort_if(client_ != nullptr);
     client_->queue_send(message);
 }
 
 std::optional<std::string> wg::web::Client::read_once()
 {
-    assert(client_ != nullptr);
+    wg::abort_if(client_ != nullptr);
     return client_->read_once();
 }
 
 std::queue<std::string> wg::web::Client::read_all()
 {
-    assert(client_ != nullptr);
+    wg::abort_if(client_ != nullptr);
     return client_->read_all();
 }
 
@@ -46,7 +47,7 @@ size_t wg::web::Client::num_waiting()
 void wg::web::Client::shutdown(bool block)
 {
     if (!launched_) return;
-    assert(client_ != nullptr);
+    wg::abort_if(client_ != nullptr);
     client_->queue_shutdown();
     if (block) client_thread_.join();
 }

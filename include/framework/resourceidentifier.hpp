@@ -24,7 +24,7 @@ struct ResourceIdentifier
 
 namespace default_resource
 {
-const ResourceIdentifier font{ResourceType::font, "../resources/Roboto/Roboto-Black.ttf"};
+const ResourceIdentifier font{ResourceType::font, "Roboto-Black.ttf"};
 }
 }  // namespace wg
 

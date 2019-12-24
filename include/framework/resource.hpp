@@ -8,17 +8,14 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
-
-#ifdef _WIN32
-#include <cassert>
-#endif
+#include "assert.hpp"
 
 namespace wg
 {
 struct Resource
 {
-    virtual sf::Drawable& asDrawable() { assert(false); abort();  }
-    virtual void setPosition(float, float) { assert(false); }
+    virtual sf::Drawable& asDrawable() { WG_ABORT();  }
+    virtual void setPosition(float, float) { wg::abort_if(false); }
 };
 
 struct FontResource : public Resource
