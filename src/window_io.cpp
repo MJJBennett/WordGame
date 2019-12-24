@@ -5,11 +5,11 @@
 #include <thread>
 #include <vector>
 #include "debug/log.hpp"
-#include "framework/fileio.hpp"
+#include "framework/file_io.hpp"
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
 #include "framework/window_item.hpp"
-#include "framework/windowcontext.hpp"
+#include "framework/window_context.hpp"
 #include "assert.hpp"
 
 static std::optional<std::string> try_get_text(wg::WindowContext& target, sf::Text& text,

@@ -10,7 +10,7 @@
 #include "framework/resourcemanager.hpp"
 #include "framework/webclient.hpp"
 #include "framework/window_io.hpp"
-#include "framework/windowcontext.hpp"
+#include "framework/window_context.hpp"
 #include "game/context.hpp"
 #include "game/item.hpp"
 #include "server.hpp"

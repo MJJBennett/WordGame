@@ -65,12 +65,12 @@ add_executable(WordGame
     # Add class and function definitions
     ${CMAKE_SOURCE_DIR}/src/table.cpp ${CMAKE_SOURCE_DIR}/include/framework/table.hpp
     ${CMAKE_SOURCE_DIR}/src/render.cpp ${CMAKE_SOURCE_DIR}/include/framework/render.hpp
-    ${CMAKE_SOURCE_DIR}/src/windowcontext.cpp ${CMAKE_SOURCE_DIR}/include/framework/windowcontext.hpp
+    ${CMAKE_SOURCE_DIR}/src/windowcontext.cpp ${CMAKE_SOURCE_DIR}/include/framework/window_context.hpp
     ${CMAKE_SOURCE_DIR}/src/window_io.cpp ${CMAKE_SOURCE_DIR}/include/framework/window_io.hpp
     ${CMAKE_SOURCE_DIR}/src/window_items.cpp ${CMAKE_SOURCE_DIR}/include/framework/window_item.hpp
     ${CMAKE_SOURCE_DIR}/src/resourcemanager.cpp ${CMAKE_SOURCE_DIR}/include/framework/resourcemanager.hpp
     ${CMAKE_SOURCE_DIR}/include/framework/resource.hpp
-    ${CMAKE_SOURCE_DIR}/include/framework/fileio.hpp
+    ${CMAKE_SOURCE_DIR}/include/framework/file_io.hpp
     ${CMAKE_SOURCE_DIR}/include/graphics/display_mode.hpp
 
     ${CMAKE_SOURCE_DIR}/src/context.cpp ${CMAKE_SOURCE_DIR}/include/game/context.hpp
@@ -95,6 +95,10 @@ if(WORDGAME_RELEASE)
 message("Adding boost library directory: " ${Boost_LIBRARY_DIR})
 #link_directories(${Boost_LIBRARY_DIR})
 endif()
+
+if (WORDGAME_DEBUG AND APPLE)
+    target_compile_options(WordGame PRIVATE -Werror -Wall -Wextra)
+endif ()
 
 # Link the application
 target_link_libraries(WordGame PUBLIC sfml-graphics)
