@@ -2,10 +2,7 @@
 
 #include <SFML/Window/Event.hpp>
 #include "framework/render.hpp"
-
-#ifdef _WIN32
-#include <assert.h>
-#endif
+#include "assert.hpp"
 
 void wg::GameContext::parse_input(sf::Event& e)
 {
@@ -65,7 +62,7 @@ void wg::GameContext::parse_mouse_released(sf::Event& e)
         // TODO - This should all be cached 100%, I think
         // But only if this is a noticeable performance hit, unlikely
 
-        assert(row < table_.table_size && row >= 0 && col < table_.table_size && col >= 0);
+        wg::abort_if(row < table_.table_size && row >= 0 && col < table_.table_size && col >= 0);
 
         pending_tile_ = {row, col};
         mode_         = Mode::SetTile;

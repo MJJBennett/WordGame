@@ -10,6 +10,7 @@
 #include "framework/resourcemanager.hpp"
 #include "framework/window_item.hpp"
 #include "framework/windowcontext.hpp"
+#include "assert.hpp"
 
 static std::optional<std::string> try_get_text(wg::WindowContext& target, sf::Text& text,
                                                std::vector<wg::Button> buttons)
@@ -60,7 +61,7 @@ static std::optional<std::string> try_get_text(wg::WindowContext& target, sf::Te
 
 static std::optional<char> get_ascii(sf::Event e)
 {
-    assert(e.type == sf::Event::TextEntered);
+    wg::abort_if(e.type == sf::Event::TextEntered);
     if (e.text.unicode < 128 && e.text.unicode > 31) return static_cast<char>(e.text.unicode);
     return {};
 }
@@ -84,8 +85,8 @@ std::string wg::window_io::get_string(wg::WindowContext& target, wg::ResourceMan
     unsigned int pos_y{25 + 64};
     for (auto&& opt : options)
     {
-        buttons.emplace_back(opt, manager.defaultFont()->font, 25, pos_y, target.width() * 0.8,
-                             80);
+        buttons.emplace_back(opt, manager.defaultFont()->font, 25.f, (float)pos_y, (float)((float)target.width() * 0.8),
+                             80.f);
         buttons.back().set_x(center(float(target.width()), buttons.back().w_));
         pos_y += 125;
     }
@@ -177,7 +178,7 @@ void wg::window_io::back_screen(wg::WindowContext& target, wg::ResourceManager& 
     text.setPosition(center(float(target.width()), text.getGlobalBounds().width), 16);
 
     std::vector<wg::Button> buttons;
-    buttons.emplace_back(button_message, manager.defaultFont()->font, 0, 128, 250, 64);
+    buttons.emplace_back(button_message, manager.defaultFont()->font, 0.f, 128.f, 250.f, 64.f);
     buttons.back().set_x(center(float(target.width()), buttons.back().w_));
     try_get_text(target, text, buttons);
 }

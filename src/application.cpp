@@ -89,8 +89,9 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
 
         while (window.getTarget().pollEvent(e))
         {
-            if (e.type == sf::Event::Closed) window.close();
-            // if (e.type == sf::Event::KeyReleased) web_client.send("KeyEvent occurred!");
+            if (e.type == sf::Event::Closed) {
+                window.close(); continue;
+            }
             game.parse_input(e);
             if (game.last_update)
             {

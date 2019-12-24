@@ -26,8 +26,8 @@ void wg::Renderer::render(const Table<Item>& i)
     // This is beautiful, I've truly fallen in love
     const auto [width, height]      = i.get_tile_dimensions();
     const auto [offset_x, offset_y] = i.get_tile_offsets();
-    const float move_x              = width + offset_x;
-    const float move_y              = height + offset_y;
+    const float move_x              = (float)(width + offset_x);
+    const float move_y              = (float)(height + offset_y);
 
     for (unsigned int col_num = 0; col_num < i.table_size; col_num++)
     {
