@@ -52,7 +52,7 @@ void wg::GameIO::text_entered(unsigned int c)
             }
             else
             {
-                partial_action_ = {Action::Type::BoardWord, std::string{*ch}};
+                partial_action_ = {Action::Type::ChatWord, std::string{*ch}};
             }
             chat_text_.setString((*partial_action_).input_);
         }
@@ -77,6 +77,14 @@ void wg::GameIO::key_released(sf::Keyboard::Key k)
             mode_ = Mode::ChatEdit;
             return;
         }
+        case sf::Keyboard::Key::BackSpace:
+        {
+            if (mode_ == Mode::ChatEdit && partial_action_ && partial_action_->input_.size() != 0)
+            {
+                partial_action_->input_.pop_back();
+                chat_text_.setString((*partial_action_).input_);
+            }
+        }
         default: return;
     }
 }
@@ -93,13 +101,18 @@ void wg::GameIO::do_enter()
         }
         case Mode::ChatEdit:
         {
-            if (partial_action_ && partial_action_->type_ == Action::Type::ChatWord)
+            if (partial_action_ && partial_action_->type_ == Action::Type::ChatWord &&
+                (*partial_action_).input_.length() > 0)
             {
                 wg::log::point("Sending message: ", (*partial_action_).input_);
+                for (auto&& ct : chat_bar_)
+                {
+                    ct.move(0, -35);
+                }
                 queue_.push(*partial_action_);
-                chat_text_.move(0, -38);
+                chat_text_.move(0, -35);
                 chat_bar_.push_back(chat_text_);
-                chat_text_.move(0, 38);
+                chat_text_.move(0, 35);
                 chat_text_.setString("");
                 partial_action_.reset();
             }

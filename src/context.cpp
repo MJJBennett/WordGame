@@ -15,7 +15,9 @@ wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r) : io_
 
 void wg::GameContext::parse_input(sf::Event& e)
 {
+    const bool ret = io_.mode_ == GameIO::Mode::Normal;
     io_.do_event(e);
+    if (!ret || io_.mode_ != GameIO::Mode::Normal) return;
         
     switch (e.type)
     {
