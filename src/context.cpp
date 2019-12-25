@@ -6,6 +6,8 @@
 #include "debug/log.hpp"
 #include "framework/file_io.hpp"
 #include "framework/render.hpp"
+#include "framework/tools.hpp"
+#include "game/game_io.hpp"
 
 using json = nlohmann::json;
 
@@ -44,11 +46,14 @@ void wg::GameContext::parse_text_entered(sf::Event& e)
 {
     if (mode_ == Mode::SetTile)
     {
-        const auto [col, row] = *pending_tile_;
-        const auto c          = (char)e.text.unicode;
-        set_tile(col, row, c);
-        mode_       = Mode::Default;
-        last_update = GameUpdate{int(col), int(row), c};
+        const auto c = get_char<std::optional<char>>(e.text.unicode);
+        if (c)
+        {
+            const auto [col, row] = *pending_tile_;
+            set_tile(col, row, *c);
+            last_update = GameUpdate{int(col), int(row), *c};
+        }
+        mode_ = Mode::Default;
     }
 }
 
@@ -76,7 +81,7 @@ void wg::GameContext::parse_mouse_released(sf::Event& e)
         // But only if this is a noticeable performance hit, unlikely
 
         wg::assert_true(row < board_.table_.table_size && row >= 0 &&
-                     col < board_.table_.table_size && col >= 0);
+                        col < board_.table_.table_size && col >= 0);
 
         pending_tile_ = {row, col};
         mode_         = Mode::SetTile;
