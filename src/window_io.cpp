@@ -4,13 +4,13 @@
 #include <optional>
 #include <thread>
 #include <vector>
+#include "assert.hpp"
 #include "debug/log.hpp"
 #include "framework/file_io.hpp"
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
-#include "framework/window_item.hpp"
 #include "framework/window_context.hpp"
-#include "assert.hpp"
+#include "framework/window_item.hpp"
 
 static std::optional<std::string> try_get_text(wg::WindowContext& target, sf::Text& text,
                                                std::vector<wg::Button> buttons)
@@ -85,8 +85,8 @@ std::string wg::window_io::get_string(wg::WindowContext& target, wg::ResourceMan
     unsigned int pos_y{25 + 64};
     for (auto&& opt : options)
     {
-        buttons.emplace_back(opt, manager.defaultFont()->font, 25.f, (float)pos_y, (float)((float)target.width() * 0.8),
-                             80.f);
+        buttons.emplace_back(opt, manager.defaultFont()->font, 25.f, (float)pos_y,
+                             (float)((float)target.width() * 0.8), 80.f);
         buttons.back().set_x(center(float(target.width()), buttons.back().w_));
         pos_y += 125;
     }

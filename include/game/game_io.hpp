@@ -1,7 +1,10 @@
 #ifndef WG_GAME_IO_HPP
 #define WG_GAME_IO_HPP
 
+#include <queue>
 #include <string>
+#include <optional>
+#include <SFML/Window/Keyboard.hpp>
 #include "wg_forward.hpp"
 
 namespace wg
@@ -30,9 +33,28 @@ struct Action
 class GameIO
 {
 public:
-    GameIO();
+    enum class Mode
+    {
+        BoardEdit,
+        ChatEdit,
+        Normal,
+    } mode_ = Mode::Normal;
+
+public:
+    GameIO(wg::WindowContext& target, wg::ResourceManager& manager);
+
+    bool do_event(const sf::Event&);
+    void text_entered(unsigned int c);
+    void key_pressed(sf::Keyboard::Key k);
+    void do_enter();
+
+    std::optional<Action> partial_action_;
+    std::queue<Action> queue_;
+    void log_queue();
 
 private:
+    wg::WindowContext& target_;
+    wg::ResourceManager& manager_;
 };
 }  // namespace wg
 

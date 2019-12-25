@@ -14,6 +14,7 @@ struct Action;
 class ResourceManager;
 class Board;
 class GameContext;
+class WindowContext;
 class Renderer;
 }  // namespace wg
 
