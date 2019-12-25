@@ -11,8 +11,12 @@
 
 using json = nlohmann::json;
 
+wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r) : io_(c, r) {}
+
 void wg::GameContext::parse_input(sf::Event& e)
 {
+    io_.do_event(e);
+        
     switch (e.type)
     {
         case sf::Event::KeyReleased:
@@ -30,7 +34,11 @@ void wg::GameContext::parse_input(sf::Event& e)
     }
 }
 
-void wg::GameContext::render(wg::Renderer& renderer) { renderer.render(board_.table_); }
+void wg::GameContext::render(wg::Renderer& renderer)
+{
+    renderer.render(board_.table_);
+    renderer.render(io_);
+}
 
 // Event handling
 void wg::GameContext::parse_key_released(sf::Event& e)

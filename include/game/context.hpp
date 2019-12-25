@@ -3,22 +3,15 @@
 
 #include "game/board.hpp"
 #include "game/update.hpp"
-
-namespace sf
-{
-    class Event;
-}
+#include "game/game_io.hpp"
+#include "wg_forward.hpp"
 
 namespace wg
 {
-class Renderer;
-
 class GameContext
 {
 public:
-    // A game has a table, a chat, a network context, and a few other things
-    // Let's deal with the table first of all
-    wg::Board board_;
+    GameContext(wg::WindowContext& c, wg::ResourceManager& r);
 
     // Everything we have that can be drawn, can receive input
     // We want to be able to manage that - so:
@@ -35,15 +28,22 @@ public:
 
     void set_tile(int col, int row, char c);
 
-    std::optional<wg::GameUpdate> last_update;
-
-    sf::Color background_;
-
     bool load_config(std::string filename);
     bool parse_config(const nlohmann::json& config);
     bool set_config(std::string name, std::vector<std::string> value);
     bool set_config(std::string name, std::vector<unsigned int> value);
     bool set_config(std::string name, std::string value);
+
+public:
+    // A game has a table, a chat, a network context, and a few other things
+    // Let's deal with the table first of all
+    wg::Board board_;
+
+    // We set the background here, the application takes it for us.
+    sf::Color background_;
+
+    // This is posted to the web client / logs / etc
+    std::optional<wg::GameUpdate> last_update;
 
 private:
     void parse_key_released(sf::Event&);
@@ -61,6 +61,8 @@ private:
     std::optional<std::array<unsigned int, 2>> pending_tile_;
 
     bool running_{true};
+
+    GameIO io_;
 };
 }  // namespace wg
 

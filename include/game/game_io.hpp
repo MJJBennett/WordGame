@@ -5,6 +5,8 @@
 #include <string>
 #include <optional>
 #include <SFML/Window/Keyboard.hpp>
+#include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include "wg_forward.hpp"
 
 namespace wg
@@ -30,7 +32,7 @@ struct Action
     std::string input_;
 };
 
-class GameIO
+class GameIO : public sf::Drawable
 {
 public:
     enum class Mode
@@ -46,6 +48,7 @@ public:
     bool do_event(const sf::Event&);
     void text_entered(unsigned int c);
     void key_pressed(sf::Keyboard::Key k);
+    void key_released(sf::Keyboard::Key k);
     void do_enter();
 
     std::optional<Action> partial_action_;
@@ -53,8 +56,13 @@ public:
     void log_queue();
 
 private:
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+private:
     wg::WindowContext& target_;
     wg::ResourceManager& manager_;
+    std::vector<sf::Text> chat_bar_;
+    sf::Text chat_text_;
 };
 }  // namespace wg
 

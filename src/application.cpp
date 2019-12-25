@@ -77,7 +77,7 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
 {
     const auto addr =
         wg::window_io::get_from_file(window, manager, "Enter Remote IP Address", "ip.txt");
-    wg::GameContext game;
+    wg::GameContext game(window, manager);
     wg::web::Client web_client;
     // TODO - add 'connecting' pane here
     // when connection fails (if), use wg::window_io::back_screen and go back to main menu

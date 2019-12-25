@@ -1,6 +1,7 @@
 #include "game/game_io.hpp"
 
 #include "debug/log.hpp"
+#include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
 #include "framework/tools.hpp"
 #include "framework/window_context.hpp"
@@ -11,6 +12,10 @@
 wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager)
     : target_(target), manager_(manager)
 {
+    chat_text_.setFont(manager.defaultFont()->font);
+    chat_text_.setCharacterSize(24);
+    chat_text_.setFillColor(sf::Color::Black);
+    chat_text_.setPosition(28, target.height() - 60);
 }
 
 bool wg::GameIO::do_event(const sf::Event& e)
@@ -19,6 +24,7 @@ bool wg::GameIO::do_event(const sf::Event& e)
     {
         case sf::Event::TextEntered: text_entered(e.text.unicode); break;
         case sf::Event::KeyPressed: key_pressed(e.key.code); break;
+        case sf::Event::KeyReleased: key_released(e.key.code); break;
         default: return false;
     }
     return true;
@@ -48,6 +54,7 @@ void wg::GameIO::text_entered(unsigned int c)
             {
                 partial_action_ = {Action::Type::BoardWord, std::string{*ch}};
             }
+            chat_text_.setString((*partial_action_).input_);
         }
     }
 }
@@ -57,6 +64,19 @@ void wg::GameIO::key_pressed(sf::Keyboard::Key k)
     switch (k)
     {
         case sf::Keyboard::Key::Enter: return do_enter();
+        default: return;
+    }
+}
+
+void wg::GameIO::key_released(sf::Keyboard::Key k)
+{
+    switch (k)
+    {
+        case sf::Keyboard::Key::E:
+        {
+            mode_ = Mode::ChatEdit;
+            return;
+        }
         default: return;
     }
 }
@@ -75,13 +95,24 @@ void wg::GameIO::do_enter()
         {
             if (partial_action_ && partial_action_->type_ == Action::Type::ChatWord)
             {
+                wg::log::point("Sending message: ", (*partial_action_).input_);
                 queue_.push(*partial_action_);
+                chat_text_.move(0, -38);
+                chat_bar_.push_back(chat_text_);
+                chat_text_.move(0, 38);
+                chat_text_.setString("");
                 partial_action_.reset();
             }
             mode_ = Mode::Normal;
             return;
         }
     }
+}
+
+void wg::GameIO::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    target.draw(chat_text_);
+    for (auto&& t : chat_bar_) target.draw(t);
 }
 
 // Logging, serializing, etc
