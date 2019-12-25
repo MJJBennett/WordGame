@@ -65,7 +65,7 @@ add_executable(WordGame
     # Add class and function definitions
     ${CMAKE_SOURCE_DIR}/src/table.cpp ${CMAKE_SOURCE_DIR}/include/framework/table.hpp
     ${CMAKE_SOURCE_DIR}/src/render.cpp ${CMAKE_SOURCE_DIR}/include/framework/render.hpp
-    ${CMAKE_SOURCE_DIR}/src/windowcontext.cpp ${CMAKE_SOURCE_DIR}/include/framework/window_context.hpp
+    ${CMAKE_SOURCE_DIR}/src/window_context.cpp ${CMAKE_SOURCE_DIR}/include/framework/window_context.hpp
     ${CMAKE_SOURCE_DIR}/src/window_io.cpp ${CMAKE_SOURCE_DIR}/include/framework/window_io.hpp
     ${CMAKE_SOURCE_DIR}/src/window_items.cpp ${CMAKE_SOURCE_DIR}/include/framework/window_item.hpp
     ${CMAKE_SOURCE_DIR}/src/resourcemanager.cpp ${CMAKE_SOURCE_DIR}/include/framework/resourcemanager.hpp
