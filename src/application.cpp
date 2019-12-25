@@ -105,7 +105,7 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
         }
         game.update();
 
-        window.getTarget().clear();
+        window.getTarget().clear(game.background_);
 
         game.render(renderer);
 
