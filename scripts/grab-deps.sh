@@ -9,6 +9,8 @@ cd $script_dir/..
 mkdir include/deps
 mkdir resources/Roboto
 
+# Note - this doesn't actually work for whatever reason
+# The cURL might not be working properly, hard to say, or we need to follow redirects maybe
 if [ ! -e "resources/Roboto/LICENSE.txt" ]; then
 curl https://raw.githubusercontent.com/google/fonts/master/apache/robotomono/LICENSE.txt -o resources/Roboto/LICENSE.txt
 fi
