@@ -7,12 +7,11 @@
 
 namespace wg
 {
-static void abort_if(bool assertion)
+static void assert_true(bool assertion)
 {
 	assert(assertion);
 #if defined(WIN32) || defined(_WIN32)
-	if (!assertion)
-	abort();
+	if (!assertion) abort();
 #endif
 }
 }

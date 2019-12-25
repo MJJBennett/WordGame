@@ -61,7 +61,7 @@ static std::optional<std::string> try_get_text(wg::WindowContext& target, sf::Te
 
 static std::optional<char> get_ascii(sf::Event e)
 {
-    wg::abort_if(e.type == sf::Event::TextEntered);
+    wg::assert_true(e.type == sf::Event::TextEntered);
     if (e.text.unicode < 128 && e.text.unicode > 31) return static_cast<char>(e.text.unicode);
     return {};
 }

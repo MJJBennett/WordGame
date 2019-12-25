@@ -15,7 +15,7 @@ namespace wg
 struct Resource
 {
     virtual sf::Drawable& asDrawable() { WG_ABORT();  }
-    virtual void setPosition(float, float) { wg::abort_if(false); }
+    virtual void setPosition(float, float) { wg::assert_true(false); }
 };
 
 struct FontResource : public Resource

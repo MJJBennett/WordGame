@@ -18,7 +18,7 @@ public:
 public:
     const std::array<CellType, table_size>& get_column(unsigned int col_num) const
     {
-        wg::abort_if(col_num < table_size);
+        wg::assert_true(col_num < table_size);
         return items_[col_num];
     }
 

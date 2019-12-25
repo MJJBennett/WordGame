@@ -23,7 +23,7 @@ wg::Button::Button(std::string text, const sf::Font& font, float x, float y, flo
 
 bool wg::Button::accept_click(const sf::Event& e)
 {
-    wg::abort_if(e.type == sf::Event::MouseButtonPressed);
+    wg::assert_true(e.type == sf::Event::MouseButtonPressed);
 
     if (is_inside(e.mouseButton.x, e.mouseButton.y)) clicked_ = true;
     return clicked_;
@@ -31,7 +31,7 @@ bool wg::Button::accept_click(const sf::Event& e)
 
 bool wg::Button::accept_release(const sf::Event& e)
 {
-    wg::abort_if(e.type == sf::Event::MouseButtonReleased);
+    wg::assert_true(e.type == sf::Event::MouseButtonReleased);
 
     bool full_click = clicked_ && is_inside(e.mouseButton.x, e.mouseButton.y);
     reset();

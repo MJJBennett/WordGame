@@ -33,7 +33,7 @@ void wg::GameContext::render(wg::Renderer& renderer) { renderer.render(board_.ta
 // Event handling
 void wg::GameContext::parse_key_released(sf::Event& e)
 {
-    wg::abort_if(e.type == sf::Event::KeyReleased);
+    wg::assert_true(e.type == sf::Event::KeyReleased);
     if (e.key.code == sf::Keyboard::Key::C)
     {
         load_config("config.json");
@@ -75,7 +75,7 @@ void wg::GameContext::parse_mouse_released(sf::Event& e)
         // TODO - This should all be cached 100%, I think
         // But only if this is a noticeable performance hit, unlikely
 
-        wg::abort_if(row < board_.table_.table_size && row >= 0 &&
+        wg::assert_true(row < board_.table_.table_size && row >= 0 &&
                      col < board_.table_.table_size && col >= 0);
 
         pending_tile_ = {row, col};

@@ -22,19 +22,19 @@ void wg::web::Client::send(std::string message)
         wg::log::warn("Tried to send a message over web client before launch:\n", message);
         return;
     }
-    wg::abort_if(client_ != nullptr);
+    wg::assert_true(client_ != nullptr);
     client_->queue_send(message);
 }
 
 std::optional<std::string> wg::web::Client::read_once()
 {
-    wg::abort_if(client_ != nullptr);
+    wg::assert_true(client_ != nullptr);
     return client_->read_once();
 }
 
 std::queue<std::string> wg::web::Client::read_all()
 {
-    wg::abort_if(client_ != nullptr);
+    wg::assert_true(client_ != nullptr);
     return client_->read_all();
 }
 
@@ -47,7 +47,7 @@ size_t wg::web::Client::num_waiting()
 void wg::web::Client::shutdown(bool block)
 {
     if (!launched_) return;
-    wg::abort_if(client_ != nullptr);
+    wg::assert_true(client_ != nullptr);
     client_->queue_shutdown();
     if (block) client_thread_.join();
 }
