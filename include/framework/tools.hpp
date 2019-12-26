@@ -42,6 +42,12 @@ auto get_char(unsigned int c) -> Optional
 {
     return (c < 128 && c > 31) ? (Optional{(char)c}) : Optional{};
 }
+
+template <typename String>
+inline bool startswith(const String& str, const String& start)
+{
+    return ((start.size() <= str.size()) && str.substr(0, start.size()) == start);
+}
 }  // namespace wg
 
 #endif  // WG_TOOLS_HPP
