@@ -13,12 +13,14 @@
 using json = nlohmann::json;
 
 wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u)
-    : io_(c, r), update_handler(u)
+    : io_(c, r, u), update_handler(u)
 {
 }
 
 void wg::GameContext::update()
 {
+    // Poll once per tick for now
+    // This is input, not output
     const auto ou = update_handler.poll_game(true);
     if (ou)
     {

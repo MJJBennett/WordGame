@@ -82,6 +82,7 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
     // when connection fails (if), use wg::window_io::back_screen and go back to main menu
     web_client.launch(addr, "27600");
     wg::GameContext game(window, manager, web_client);
+    game.load_config("config.json");
 
     while (window.isOpen() && game.running())
     {

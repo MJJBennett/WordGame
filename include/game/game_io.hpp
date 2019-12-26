@@ -43,7 +43,7 @@ public:
     } mode_ = Mode::Normal;
 
 public:
-    GameIO(wg::WindowContext& target, wg::ResourceManager& manager);
+    GameIO(wg::WindowContext& target, wg::ResourceManager& manager, wg::UpdateHandler& update_handler);
 
     bool do_event(const sf::Event&);
     void text_entered(unsigned int c);
@@ -63,6 +63,7 @@ private:
 private:
     wg::WindowContext& target_;
     wg::ResourceManager& manager_;
+    wg::UpdateHandler& update_handler_;
     std::vector<sf::Text> chat_bar_;
     sf::Text chat_text_;
 };

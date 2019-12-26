@@ -4,6 +4,7 @@
 #include "assert.hpp"
 #include "client.hpp"  // the actual web client that we're wrapping
 #include "debug/log.hpp"
+#include "framework/tools.hpp"
 
 void wg::web::Client::launch(std::string address, std::string port)
 {
@@ -19,12 +20,14 @@ void wg::web::Client::launch(std::string address, std::string port)
 void wg::web::Client::update(const wg::GameUpdate& u)
 {
     const auto j = nlohmann::json{{"col", u.col}, {"row", u.row}, {"char", u.c}};
+    wg::log::point(__func__, ": Sending data: ", j.dump());
     send(j.dump());
 }
 
 void wg::web::Client::update(const wg::ChatUpdate& u)
 {
     const auto j = nlohmann::json{{"message", u.message}, {"sender", u.sender}};
+    wg::log::point(__func__, ": Sending data: ", j.dump());
     send(j.dump());
 }
 
@@ -34,7 +37,7 @@ std::optional<wg::GameUpdate> wg::web::Client::poll_game(bool clear)
     const auto str = *cache_;
     try
     {
-        const auto d   = nlohmann::json::parse(str);
+        const auto d = nlohmann::json::parse(str);
         if (d.find("col") == d.end()) return {};
         const auto col = d["col"];
         const auto row = d["row"];
@@ -45,6 +48,7 @@ std::optional<wg::GameUpdate> wg::web::Client::poll_game(bool clear)
     catch (nlohmann::json::parse_error e)
     {
         wg::log::warn(__func__, ": Got json parse error: ", e.what());
+        wg::log::warn("\t\tWhile parsing string: ", str);
         return {};
     }
 }
@@ -55,7 +59,7 @@ std::optional<wg::ChatUpdate> wg::web::Client::poll_chat(bool clear)
     const auto str = *cache_;
     try
     {
-        const auto d       = nlohmann::json::parse(str);
+        const auto d = nlohmann::json::parse(str);
         if (d.find("sender") == d.end()) return {};
         const auto message = d["message"];
         const auto sender  = d["sender"];
@@ -65,6 +69,7 @@ std::optional<wg::ChatUpdate> wg::web::Client::poll_chat(bool clear)
     catch (nlohmann::json::parse_error e)
     {
         wg::log::warn(__func__, ": Got json parse error: ", e.what());
+        wg::log::warn("\t\tWhile parsing string: ", str);
         return {};
     }
 }
@@ -86,7 +91,11 @@ std::optional<std::string> wg::web::Client::read_once()
     return client_->read_once();
 }
 
-void wg::web::Client::cache_once() { cache_ = read_once(); }
+void wg::web::Client::cache_once()
+{
+    auto str = read_once();
+    if (has_chars(*str)) cache_ = *str;
+}
 
 std::queue<std::string> wg::web::Client::read_all()
 {

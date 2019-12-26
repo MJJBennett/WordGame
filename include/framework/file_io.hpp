@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "framework/tools.hpp"
 
 namespace wg
 {
@@ -14,26 +15,6 @@ enum class ReadMode
     NonEmpty,
     HasChars
 };
-
-template <typename T, typename R>
-bool in(T t, const R& r)
-{
-    for (auto&& t2 : r)
-        if (t == t2) return true;
-    return false;
-}
-
-template <typename R>
-bool has_chars(R r)
-{
-    std::array<char, 3> non_chars = {' ', '\r', '\n'};
-    for (auto&& c : r)
-    {
-        if (in(c, non_chars)) continue;
-        return true;
-    }
-    return false;
-}
 
 static std::vector<std::string> get_lines(std::string filename, ReadMode r = ReadMode::NonEmpty)
 {

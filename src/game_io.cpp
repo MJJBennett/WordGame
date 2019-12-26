@@ -1,5 +1,6 @@
 #include "game/game_io.hpp"
 
+#include "update_handler.hpp"
 #include "debug/log.hpp"
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
@@ -9,8 +10,8 @@
 // This is basically just meant to be a better version of the
 // 'window io' static functions.
 
-wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager)
-    : target_(target), manager_(manager)
+wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager, wg::UpdateHandler& update_handler)
+    : target_(target), manager_(manager), update_handler_(update_handler)
 {
     chat_text_.setFont(manager.defaultFont()->font);
     chat_text_.setCharacterSize(24);
@@ -59,13 +60,15 @@ void wg::GameIO::text_entered(unsigned int c)
     }
 }
 
-void wg::GameIO::chat(std::string msg, std::string auth) {
+void wg::GameIO::chat(std::string msg, std::string auth)
+{
     sf::Text chat_message;
     chat_message.setFont(manager_.defaultFont()->font);
     chat_message.setCharacterSize(24);
     chat_message.setFillColor(sf::Color::Black);
     chat_message.setPosition(28, target_.height() - 60 - 35);
-        chat_bar_.push_back(chat_message);
+    chat_message.setString(msg);
+    chat_bar_.push_back(std::move(chat_message));
 }
 
 void wg::GameIO::key_pressed(sf::Keyboard::Key k)
@@ -114,6 +117,7 @@ void wg::GameIO::do_enter()
                 (*partial_action_).input_.length() > 0)
             {
                 wg::log::point("Sending message: ", (*partial_action_).input_);
+                update_handler_.update(wg::ChatUpdate{(*partial_action_).input_, ""});
                 for (auto&& ct : chat_bar_)
                 {
                     ct.move(0, -35);
