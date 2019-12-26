@@ -27,19 +27,29 @@ int wg::Application::launch(Mode mode)
     manager.load({wg::ResourceType::text, "Hello world!"});
     auto& text = manager.get({wg::ResourceType::text, "WordGame"})->asDrawable();
 
-    std::vector<std::string> opts;
-    opts.push_back("Launch Server");
-    opts.push_back("Connect to Server");
-    opts.push_back("Play Singleplayer (Lonely Mode)");
-    const auto choice = wg::window_io::get_string(window, manager, "Game Menu", opts);
-    wg::log::point("Entering mode: ", choice);
+    while (true)
+    {
+        std::vector<std::string> opts;
+        opts.push_back("Launch Server");
+        opts.push_back("Connect to Server");
+        opts.push_back("Play Singleplayer (Lonely Mode)");
+        const auto choice = wg::window_io::get_string(window, manager, "Game Menu", opts);
+        wg::log::point("Entering mode: ", choice);
 
-    if (choice == "Launch Server")
-        run_webserver(window, manager, renderer);
-    else if (choice == "Connect to Server")
-        run_webclient(window, manager, renderer);
-    else if (choice == "Play Singleplayer (Lonely Mode)")
-        run_local(window, manager, renderer);
+        if (choice == "Launch Server")
+        {
+            if (run_webserver(window, manager, renderer) == 0) break;
+        }
+        else if (choice == "Connect to Server")
+        {
+            if (run_webclient(window, manager, renderer) == 0) break;
+        }
+        else if (choice == "Play Singleplayer (Lonely Mode)")
+        {
+            if (run_local(window, manager, renderer) == 0) break;
+        }
+        else break;
+    }
 
     return 0;
 }
@@ -84,9 +94,11 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
 {
     const auto addr =
         wg::window_io::get_from_file(window, manager, "Enter Remote IP Address", "ip.txt");
+    std::string user = wg::window_io::get_from_file(window, manager, "Enter Username", "name.txt");
     wg::web::Client web_client;
     // TODO - add 'connecting' pane here
     // when connection fails (if), use wg::window_io::back_screen and go back to main menu
+    // basically, we want a blocking "wait" on connection
     web_client.launch(addr, "27600");
     wg::GameContext game(window, manager, web_client);
     game.load_config("config.json");
@@ -116,25 +128,6 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
         std::this_thread::sleep_for(std::chrono::milliseconds(80));
         // check for messages on the web client...
         web_client.cache_once();
-        /*
-        if (str)
-        {
-            wg::log::data("Client message found", *str);
-            // now let's make a hacky thing
-            try
-            {
-                const auto d   = nlohmann::json::parse(*str);
-                const auto col = d["col"];
-                const auto row = d["row"];
-                const auto c   = char(int(d["char"]));
-                game.set_tile(col, row, c);
-            }
-            catch (nlohmann::json::parse_error e)
-            {
-                wg::log::warn("Got json parse error: ", e.what());
-            }
-        }
-        */
     }
 
     web_client.shutdown(true);
