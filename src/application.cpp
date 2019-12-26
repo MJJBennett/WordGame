@@ -105,9 +105,10 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
         window.getTarget().display();
 
         // let's just wait for a little bit
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(80));
         // check for messages on the web client...
-        auto str = web_client.read_once();
+        web_client.cache_once();
+        /*
         if (str)
         {
             wg::log::data("Client message found", *str);
@@ -125,6 +126,7 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
                 wg::log::warn("Got json parse error: ", e.what());
             }
         }
+        */
     }
 
     web_client.shutdown(true);

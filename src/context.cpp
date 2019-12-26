@@ -17,6 +17,23 @@ wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::U
 {
 }
 
+void wg::GameContext::update()
+{
+    const auto ou = update_handler.poll_game(true);
+    if (ou)
+    {
+        const auto u = *ou;
+        set_tile(u.col, u.row, u.c);
+    }
+    else
+    {
+        const auto ocu = update_handler.poll_chat(true);
+        if (!ocu) return;
+        const auto cu = *ocu;
+        io_.chat(cu.message, cu.sender);
+    }
+}
+
 void wg::GameContext::parse_input(sf::Event& e)
 {
     const bool ret = io_.mode_ == GameIO::Mode::Normal;

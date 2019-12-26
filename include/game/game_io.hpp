@@ -51,6 +51,8 @@ public:
     void key_released(sf::Keyboard::Key k);
     void do_enter();
 
+    void chat(std::string msg, std::string auth);
+
     std::optional<Action> partial_action_;
     std::queue<Action> queue_;
     void log_queue();

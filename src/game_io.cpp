@@ -59,6 +59,15 @@ void wg::GameIO::text_entered(unsigned int c)
     }
 }
 
+void wg::GameIO::chat(std::string msg, std::string auth) {
+    sf::Text chat_message;
+    chat_message.setFont(manager_.defaultFont()->font);
+    chat_message.setCharacterSize(24);
+    chat_message.setFillColor(sf::Color::Black);
+    chat_message.setPosition(28, target_.height() - 60 - 35);
+        chat_bar_.push_back(chat_message);
+}
+
 void wg::GameIO::key_pressed(sf::Keyboard::Key k)
 {
     switch (k)
@@ -110,9 +119,7 @@ void wg::GameIO::do_enter()
                     ct.move(0, -35);
                 }
                 queue_.push(*partial_action_);
-                chat_text_.move(0, -35);
-                chat_bar_.push_back(chat_text_);
-                chat_text_.move(0, 35);
+                chat((*partial_action_).input_, "");
                 chat_text_.setString("");
                 partial_action_.reset();
             }

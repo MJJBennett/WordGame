@@ -19,7 +19,7 @@ public:
 
     // We're going to add this for now as empty, but it'll come in handy
     // This runs once per game tick
-    void update(){}
+    void update();
 
     // This is where we render everything!
     void render(wg::Renderer& renderer);
