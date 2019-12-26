@@ -1,16 +1,17 @@
 #include "game/game_io.hpp"
 
-#include "update_handler.hpp"
 #include "debug/log.hpp"
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
 #include "framework/tools.hpp"
 #include "framework/window_context.hpp"
+#include "update_handler.hpp"
 
 // This is basically just meant to be a better version of the
 // 'window io' static functions.
 
-wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager, wg::UpdateHandler& update_handler)
+wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
+                   wg::UpdateHandler& update_handler)
     : target_(target), manager_(manager), update_handler_(update_handler)
 {
     chat_text_.setFont(manager.defaultFont()->font);
@@ -62,12 +63,21 @@ void wg::GameIO::text_entered(unsigned int c)
 
 void wg::GameIO::chat(std::string msg, std::string auth)
 {
+    // Move up all the other messages
+    for (auto&& ct : chat_bar_)
+    {
+        ct.move(0, -35);
+    }
+    // Create an object for the new message
     sf::Text chat_message;
+    // Configure the new message object
     chat_message.setFont(manager_.defaultFont()->font);
     chat_message.setCharacterSize(24);
     chat_message.setFillColor(sf::Color::Black);
     chat_message.setPosition(28, target_.height() - 60 - 35);
+    // Add the message string
     chat_message.setString(msg);
+    // Add the new message to the list of messages
     chat_bar_.push_back(std::move(chat_message));
 }
 
@@ -84,11 +94,6 @@ void wg::GameIO::key_released(sf::Keyboard::Key k)
 {
     switch (k)
     {
-        case sf::Keyboard::Key::E:
-        {
-            mode_ = Mode::ChatEdit;
-            return;
-        }
         case sf::Keyboard::Key::BackSpace:
         {
             if (mode_ == Mode::ChatEdit && partial_action_ && partial_action_->input_.size() != 0)
@@ -96,6 +101,11 @@ void wg::GameIO::key_released(sf::Keyboard::Key k)
                 partial_action_->input_.pop_back();
                 chat_text_.setString((*partial_action_).input_);
             }
+        }
+        case sf::Keyboard::Key::Enter:
+        {
+            mode_ = Mode::ChatEdit;
+            return;
         }
         default: return;
     }
@@ -105,7 +115,10 @@ void wg::GameIO::do_enter()
 {
     switch (mode_)
     {
-        case Mode::Normal: return;
+        case Mode::Normal:
+        {
+            return;
+        }
         case Mode::BoardEdit:
         {
             mode_ = Mode::Normal;
@@ -118,10 +131,6 @@ void wg::GameIO::do_enter()
             {
                 wg::log::point("Sending message: ", (*partial_action_).input_);
                 update_handler_.update(wg::ChatUpdate{(*partial_action_).input_, ""});
-                for (auto&& ct : chat_bar_)
-                {
-                    ct.move(0, -35);
-                }
                 queue_.push(*partial_action_);
                 chat((*partial_action_).input_, "");
                 chat_text_.setString("");
