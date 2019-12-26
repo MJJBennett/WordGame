@@ -59,11 +59,18 @@ int wg::Application::run_webserver(wg::WindowContext& window, wg::ResourceManage
 
 int wg::Application::run_windowless()
 {
-    std::string input;
-    std::cout << "Starting webserver. Enter IP:\n";
-    std::getline(std::cin, input);
-    std::cout << "Running with IP: " << input << std::endl;
-    return run_webserver(input);
+    std::cout << "Starting webserver.";
+    if (address_.size() < 4)
+    {
+        std::cout << " Enter IP:\n";
+        std::getline(std::cin, address_);
+    }
+    else
+    {
+        std::cout << "\n";
+    }
+    std::cout << "Running with IP: " << address_ << std::endl;
+    return run_webserver(address_);
 }
 
 int wg::Application::run_webserver(std::string address)
@@ -139,4 +146,17 @@ int wg::Application::run_local(wg::WindowContext& window, wg::ResourceManager& m
 {
     wg::window_io::back_screen(window, manager, "This mode is currently unsupported.", "Oh... :(");
     return 0;
+}
+
+void wg::Application::set_address(std::string address)
+{
+    wg::log::point("Application: Setting address to: '", address, "'");
+    address_ = address;
+}
+
+void wg::Application::set_port(std::string port)
+{
+    wg::log::point("Application: Setting port to: '", port, "'");
+    wg::log::point("(Note: This does nothing)");
+    port_ = port;
 }
