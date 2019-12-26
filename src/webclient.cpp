@@ -1,18 +1,31 @@
 #include "framework/webclient.hpp"
 
+#include <nlohmann/json.hpp>
+#include "assert.hpp"
 #include "client.hpp"  // the actual web client that we're wrapping
 #include "debug/log.hpp"
-#include "assert.hpp"
 
 void wg::web::Client::launch(std::string address, std::string port)
 {
     // Launches a web client!
     // This is actually extremely scary and I'm pretty sure very wrong
     // But hey if it works for now, it works for now!
-    launched_      = true;
+    launched_ = true;
 
     client_        = std::make_shared<WebSocketClient>(std::move(address), std::move(port));
     client_thread_ = std::thread(&WebSocketClient::launch, client_);
+}
+
+void wg::web::Client::update(const wg::GameUpdate& u)
+{
+    const auto j = nlohmann::json{{"col", u.col}, {"row", u.row}, {"char", u.c}};
+    send(j.dump());
+}
+
+void wg::web::Client::update(const wg::ChatUpdate& u)
+{
+    const auto j = nlohmann::json{{"message", u.message}, {"sender", u.sender}};
+    send(j.dump());
 }
 
 void wg::web::Client::send(std::string message)

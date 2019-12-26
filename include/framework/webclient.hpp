@@ -6,19 +6,23 @@
 #include <string>
 #include <optional>
 #include <queue>
+#include "update_handler.hpp"
 
 namespace wg
 {
 class WebSocketClient;
 namespace web
 {
-class Client
+class Client : public wg::UpdateHandler
 {
 public:
     void launch(std::string address, std::string port);
 
     void send(std::string message);
     void shutdown(bool block = false);
+
+    void update(const wg::GameUpdate& u) override;
+    void update(const wg::ChatUpdate& u) override;
 
     std::optional<std::string> read_once();
     std::queue<std::string> read_all();

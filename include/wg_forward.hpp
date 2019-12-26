@@ -16,6 +16,7 @@ class Board;
 class GameContext;
 class WindowContext;
 class Renderer;
+class UpdateHandler;
 }  // namespace wg
 
 #endif  // WG_FORWARD_HPP

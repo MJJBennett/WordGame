@@ -8,17 +8,21 @@
 #include "framework/render.hpp"
 #include "framework/tools.hpp"
 #include "game/game_io.hpp"
+#include "update_handler.hpp"
 
 using json = nlohmann::json;
 
-wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r) : io_(c, r) {}
+wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u)
+    : io_(c, r), update_handler(u)
+{
+}
 
 void wg::GameContext::parse_input(sf::Event& e)
 {
     const bool ret = io_.mode_ == GameIO::Mode::Normal;
     io_.do_event(e);
     if (!ret || io_.mode_ != GameIO::Mode::Normal) return;
-        
+
     switch (e.type)
     {
         case sf::Event::KeyReleased:
@@ -61,7 +65,7 @@ void wg::GameContext::parse_text_entered(sf::Event& e)
         {
             const auto [col, row] = *pending_tile_;
             set_tile(col, row, *c);
-            last_update = GameUpdate{int(col), int(row), *c};
+            update_handler.update(GameUpdate{int(col), int(row), *c});
         }
         mode_ = Mode::Default;
     }

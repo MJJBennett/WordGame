@@ -11,7 +11,7 @@ namespace wg
 class GameContext
 {
 public:
-    GameContext(wg::WindowContext& c, wg::ResourceManager& r);
+    GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u);
 
     // Everything we have that can be drawn, can receive input
     // We want to be able to manage that - so:
@@ -42,9 +42,6 @@ public:
     // We set the background here, the application takes it for us.
     sf::Color background_;
 
-    // This is posted to the web client / logs / etc
-    std::optional<wg::GameUpdate> last_update;
-
 private:
     void parse_key_released(sf::Event&);
     void parse_text_entered(sf::Event&);
@@ -59,6 +56,7 @@ private:
     } mode_ = Mode::Default;
 
     std::optional<std::array<unsigned int, 2>> pending_tile_;
+    wg::UpdateHandler& update_handler;
 
     bool running_{true};
 
