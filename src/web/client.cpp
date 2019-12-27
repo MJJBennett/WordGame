@@ -134,6 +134,7 @@ void wg::WebSocketClient::shutdown()
     {
         wg::log::err("[Client (", __func__, ")] ", e.what());
     }
+    ioc_.stop();
 }
 
 void wg::WebSocketClient::queue_send(std::string message)

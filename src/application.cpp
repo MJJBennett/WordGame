@@ -101,6 +101,7 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
     web_client.launch(addr, "27600");
     wg::GameContext game(window, manager, web_client);
     game.init();
+    wg::log::point("Initialized game.");
 
     while (window.isOpen() && game.running())
     {
@@ -129,6 +130,7 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
         web_client.cache_once();
     }
 
+    wg::log::point("Shutting down web client.");
     web_client.shutdown(true);
     return 0;
 }

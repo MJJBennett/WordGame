@@ -17,3 +17,11 @@
 - General:
     - Logging is not threadsafe (or so I would assume). This needs fixing.
     - `abort_if` does the exact opposite of what it says it does.
+
+- Bugs:
+    - Critical:
+
+---
+
+- Fixed:
+    - Game freezes when clicking 'x' in text entry

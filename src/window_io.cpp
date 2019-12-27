@@ -105,13 +105,13 @@ std::string wg::window_io::get_string(wg::WindowContext& target, wg::ResourceMan
     text.setCharacterSize(32);
     text.setFillColor(sf::Color::Cyan);
     text.setPosition(center(float(target.width()), text.getGlobalBounds().width), 16);
+
     sf::Text input_text;
     input_text.setFont(manager.defaultFont()->font);
     input_text.setCharacterSize(48);
     input_text.setFillColor(sf::Color::Cyan);
     input_text.setPosition(center(float(target.width()), input_text.getGlobalBounds().width), 86);
     std::string input_str;
-    input_text.setString(input_str);
 
     while (target.isOpen())
     {

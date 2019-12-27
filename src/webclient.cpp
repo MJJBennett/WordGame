@@ -114,5 +114,6 @@ void wg::web::Client::shutdown(bool block)
     if (!launched_) return;
     wg::assert_true(client_ != nullptr);
     client_->queue_shutdown();
+    wg::log::point("Queued shutdown. Blocking.");
     if (block) client_thread_.join();
 }
