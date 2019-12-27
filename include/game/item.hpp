@@ -12,7 +12,7 @@ struct Item
 {
     std::optional<char> character_;
     std::optional<MultiplierMask> multipliers_;
-    sf::Color colour_{198, 178, 188};
+    sf::Color colour_{192, 87, 70};
 
     void set_colour(unsigned int r, unsigned int g, unsigned int b)
     {

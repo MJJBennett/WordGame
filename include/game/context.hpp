@@ -2,8 +2,8 @@
 #define WG_GAME_CONTEXT_HPP
 
 #include "game/board.hpp"
-#include "game/update.hpp"
 #include "game/game_io.hpp"
+#include "game/update.hpp"
 #include "wg_forward.hpp"
 
 namespace wg
@@ -40,13 +40,14 @@ public:
     wg::Board board_;
 
     // We set the background here, the application takes it for us.
-    sf::Color background_;
+    sf::Color background_{208, 227, 196};
 
 private:
     void parse_key_released(sf::Event&);
     void parse_text_entered(sf::Event&);
     void parse_mouse_released(sf::Event&);
     void parse_escape();
+
 private:
     enum class Mode
     {
