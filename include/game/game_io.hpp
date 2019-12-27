@@ -54,7 +54,9 @@ public:
     void do_enter();
 
     void chat(std::string msg, std::string auth);
+    void chat_broadcast(std::string msg, std::string auth);
 
+    std::string user_;
     std::optional<Action> partial_action_;
     std::queue<Action> queue_;
     void log_queue();
@@ -68,7 +70,6 @@ private:
     wg::UpdateHandler& update_handler_;
     std::vector<sf::Text> chat_bar_;
     sf::Text chat_text_;
-    std::string user_;
 };
 }  // namespace wg
 

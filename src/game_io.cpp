@@ -87,6 +87,12 @@ void wg::GameIO::chat(std::string msg, std::string auth)
     chat_bar_.push_back(std::move(chat_message));
 }
 
+void wg::GameIO::chat_broadcast(std::string msg, std::string auth)
+{
+    update_handler_.update(wg::ChatUpdate{msg, auth});
+    chat(msg, auth);
+}
+
 void wg::GameIO::key_pressed(sf::Keyboard::Key k)
 {
     switch (k)
@@ -142,9 +148,8 @@ void wg::GameIO::do_enter()
                 else
                 {
                     wg::log::point("Sending message: ", (*partial_action_).input_);
-                    update_handler_.update(wg::ChatUpdate{(*partial_action_).input_, user_});
-                    queue_.push(*partial_action_);
-                    chat((*partial_action_).input_, user_);
+                    chat_broadcast((*partial_action_).input_, user_);
+                    queue_.push(*partial_action_); // Record action
                 }
                 chat_text_.setString("");
                 partial_action_.reset();

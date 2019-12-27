@@ -14,15 +14,19 @@ int main(int argc, char* argv[])
     wg::Application app;
     for (int i = 0; i < argc; i++)
     {
-        if (sw(argv[i], "--server"))
+        if (sw(argv[i], "--s"))
         {
             mode |= wg::ApplicationMode::Windowless;
             if (auto arg = get_arg(argv[i]); arg.size() > 0) app.set_address(arg);
         }
-        if (sw(argv[i], "--port"))
+        else if (sw(argv[i], "--p"))
         {
             mode |= wg::ApplicationMode::CustomPort;
             if (auto arg = get_arg(argv[i]); arg.size() > 0) app.set_port(arg);
+        }
+        else if (sw(argv[i], "--d"))
+        {
+            mode |= wg::ApplicationMode::Developer;
         }
     }
     return app.launch(mode);

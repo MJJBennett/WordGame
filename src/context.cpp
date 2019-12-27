@@ -10,6 +10,7 @@
 #include "game/game_io.hpp"
 #include "update_handler.hpp"
 #include "framework/window_io.hpp"
+#include "commands.hpp"
 
 using json = nlohmann::json;
 
@@ -22,6 +23,7 @@ void wg::GameContext::init()
 {
     load_config("config.json");
     io_.init();
+    update_handler.update(wg::ConfUpdate{"join", io_.user_});
 }
 
 void wg::GameContext::update()
@@ -33,13 +35,39 @@ void wg::GameContext::update()
     {
         const auto u = *ou;
         set_tile(u.col, u.row, u.c);
+        return;
     }
-    else
+    const auto ocu = update_handler.poll_chat(true);
+    if (ocu)
     {
-        const auto ocu = update_handler.poll_chat(true);
-        if (!ocu) return;
         const auto cu = *ocu;
+        // wg::log::data("Received chat update", cu.message, cu.sender);
         io_.chat(cu.message, cu.sender);
+        return;
+    }
+    const auto oconf = update_handler.poll_conf(true);
+    if (ocu)
+    {
+        const auto conf = *oconf;
+        wg::log::point("Updating configuration in some way.");
+        if (conf.config == "command")
+        {
+            if (conf.setting == wg::command::host)
+            {
+                // We are now the host
+                io_.chat_broadcast(io_.user_ + " is now host!", "Server");
+                // This is a lie, this isn't the server...
+                return;
+            }
+            return;
+        }
+        if (conf.config == "join")
+        {
+            players_.insert(conf.setting);
+            io_.chat(conf.setting + " has joined the game!", "Server");
+            return;
+        }
+        return;
     }
 }
 

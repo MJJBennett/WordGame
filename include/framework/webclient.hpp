@@ -23,8 +23,10 @@ public:
 
     void update(const wg::GameUpdate& u) override;
     void update(const wg::ChatUpdate& u) override;
+    void update(const wg::ConfUpdate& u) override;
     std::optional<wg::GameUpdate> poll_game(bool) override;
     std::optional<wg::ChatUpdate> poll_chat(bool) override;
+    std::optional<wg::ConfUpdate> poll_conf(bool) override;
 
     std::optional<std::string> read_once();
     void cache_once();

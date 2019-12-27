@@ -31,6 +31,13 @@ void wg::web::Client::update(const wg::ChatUpdate& u)
     send(j.dump());
 }
 
+void wg::web::Client::update(const wg::ConfUpdate& u)
+{
+    const auto j = nlohmann::json{{u.config, u.setting}};
+    wg::log::point(__func__, ": Sending data: ", j.dump());
+    send(j.dump());
+}
+
 std::optional<wg::GameUpdate> wg::web::Client::poll_game(bool clear)
 {
     if (!cache_) return {};
@@ -65,6 +72,39 @@ std::optional<wg::ChatUpdate> wg::web::Client::poll_chat(bool clear)
         const auto sender  = d["sender"];
         if (clear) cache_.reset();
         return wg::ChatUpdate{message, sender};
+    }
+    catch (nlohmann::json::parse_error e)
+    {
+        wg::log::warn(__func__, ": Got json parse error: ", e.what());
+        wg::log::warn("\t\tWhile parsing string: ", str);
+        return {};
+    }
+}
+
+std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
+{
+    if (!cache_) return {};
+    const auto str = *cache_;
+    if (clear) cache_.reset();
+    try
+    {
+        const auto d = nlohmann::json::parse(str);
+        if (d.find("command") != d.end())
+        {
+            const std::string command = d["command"];
+            return wg::ConfUpdate{"command", command};
+        }
+        if (d.find("layout") != d.end())
+        {
+            const std::string layout = d["layout"];
+            return wg::ConfUpdate{"layout", layout};
+        }
+        if (d.find("join") != d.end())
+        {
+            const std::string join = d["join"];
+            return wg::ConfUpdate{"join", join};
+        }
+        return {};
     }
     catch (nlohmann::json::parse_error e)
     {

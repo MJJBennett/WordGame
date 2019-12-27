@@ -2,8 +2,9 @@
 
 #include <boost/beast/core/buffers_to_string.hpp>
 #include <nlohmann/json.hpp>
-#include "debug/log.hpp"
 #include "connections.hpp"
+#include "debug/log.hpp"
+#include "commands.hpp"
 
 namespace websocket = boost::beast::websocket;
 using tcp           = boost::asio::ip::tcp;
@@ -39,6 +40,11 @@ void wg::WebSocketSession::on_accept(beast::error_code ec)
     }
 
     // might want to track that this is an active session here
+    if (connections_->claim_host(this))
+    {
+        queue_write(nlohmann::json{{"type", "configure"},
+                                   {"msg", nlohmann::json{{"command", wg::command::host}}.dump()}});
+    }
 
     websocket_.async_read(
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));

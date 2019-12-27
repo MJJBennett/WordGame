@@ -5,9 +5,17 @@
 #include "game/game_io.hpp"
 #include "game/update.hpp"
 #include "wg_forward.hpp"
+#include <unordered_set>
 
 namespace wg
 {
+namespace GameOption
+{
+constexpr unsigned int None = 0b0;
+constexpr unsigned int TurnsEnabled = 0b1;
+//constexpr unsigned int ? = 0b1 << 1;
+}
+
 class GameContext
 {
 public:
@@ -59,10 +67,11 @@ private:
 
     std::optional<std::array<unsigned int, 2>> pending_tile_;
     wg::UpdateHandler& update_handler;
-
     bool running_{true};
-
     GameIO io_;
+
+    // This is game state stuff, until we refactor it out
+    std::unordered_set<std::string> players_;
 };
 }  // namespace wg
 

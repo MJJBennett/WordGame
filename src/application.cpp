@@ -33,6 +33,7 @@ int wg::Application::launch(Mode mode)
         opts.push_back("Launch Server");
         opts.push_back("Connect to Server");
         opts.push_back("Play Singleplayer (Lonely Mode)");
+        if (mode & ApplicationMode::Developer) opts.push_back("Develop");
         const auto choice = wg::window_io::get_string(window, manager, "Game Menu", opts);
         wg::log::point("Entering mode: ", choice);
 
@@ -47,6 +48,10 @@ int wg::Application::launch(Mode mode)
         else if (choice == "Play Singleplayer (Lonely Mode)")
         {
             if (run_local(window, manager, renderer) == 0) break;
+        }
+        else if (choice == "Develop")
+        {
+            if (run_develop(window, manager, renderer) == 0) break;
         }
         else break;
     }
@@ -90,6 +95,52 @@ int wg::Application::run_webserver(std::string address)
 }
 
 int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManager& manager,
+                                   wg::Renderer& renderer)
+{
+    const auto addr =
+        wg::window_io::get_from_file(window, manager, "Enter Remote IP Address", "ip.txt");
+    wg::web::Client web_client;
+    // TODO - add 'connecting' pane here
+    // when connection fails (if), use wg::window_io::back_screen and go back to main menu
+    // basically, we want a blocking "wait" on connection
+    web_client.launch(addr, "27600");
+    wg::GameContext game(window, manager, web_client);
+    game.init();
+    wg::log::point("Initialized game.");
+
+    while (window.isOpen() && game.running())
+    {
+        sf::Event e;
+
+        while (window.getTarget().pollEvent(e))
+        {
+            if (e.type == sf::Event::Closed)
+            {
+                window.close();
+                continue;
+            }
+            game.parse_input(e);
+        }
+        game.update();
+
+        window.getTarget().clear(game.background_);
+
+        game.render(renderer);
+
+        window.getTarget().display();
+
+        // let's just wait for a little bit
+        std::this_thread::sleep_for(std::chrono::milliseconds(80));
+        // check for messages on the web client...
+        web_client.cache_once();
+    }
+
+    wg::log::point("Shutting down web client.");
+    web_client.shutdown(true);
+    return 0;
+}
+
+int wg::Application::run_develop(wg::WindowContext& window, wg::ResourceManager& manager,
                                    wg::Renderer& renderer)
 {
     const auto addr =

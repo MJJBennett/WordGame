@@ -17,6 +17,12 @@ struct ChatUpdate
     std::string message;
     std::string sender;
 };
+
+struct ConfUpdate
+{
+    std::string config;
+    std::string setting;
+};
 }  // namespace wg
 
 #endif  // WG_GAME_UPDATE_HPP
