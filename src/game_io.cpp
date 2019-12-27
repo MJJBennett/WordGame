@@ -104,8 +104,7 @@ void wg::GameIO::key_released(sf::Keyboard::Key k)
         }
         case sf::Keyboard::Key::Enter:
         {
-            mode_ = Mode::ChatEdit;
-            return;
+            return; // this is done on keypress, see do_enter
         }
         default: return;
     }
@@ -117,6 +116,7 @@ void wg::GameIO::do_enter()
     {
         case Mode::Normal:
         {
+            mode_ = Mode::ChatEdit;
             return;
         }
         case Mode::BoardEdit:
