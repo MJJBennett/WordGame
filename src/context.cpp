@@ -9,12 +9,19 @@
 #include "framework/tools.hpp"
 #include "game/game_io.hpp"
 #include "update_handler.hpp"
+#include "framework/window_io.hpp"
 
 using json = nlohmann::json;
 
 wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u)
     : io_(c, r, u), update_handler(u)
 {
+}
+
+void wg::GameContext::init()
+{
+    load_config("config.json");
+    io_.init();
 }
 
 void wg::GameContext::update()

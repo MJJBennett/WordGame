@@ -94,14 +94,13 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
 {
     const auto addr =
         wg::window_io::get_from_file(window, manager, "Enter Remote IP Address", "ip.txt");
-    std::string user = wg::window_io::get_from_file(window, manager, "Enter Username", "name.txt");
     wg::web::Client web_client;
     // TODO - add 'connecting' pane here
     // when connection fails (if), use wg::window_io::back_screen and go back to main menu
     // basically, we want a blocking "wait" on connection
     web_client.launch(addr, "27600");
     wg::GameContext game(window, manager, web_client);
-    game.load_config("config.json");
+    game.init();
 
     while (window.isOpen() && game.running())
     {

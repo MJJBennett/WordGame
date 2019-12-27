@@ -1,12 +1,12 @@
 #ifndef WG_GAME_IO_HPP
 #define WG_GAME_IO_HPP
 
-#include <queue>
-#include <string>
-#include <optional>
-#include <SFML/Window/Keyboard.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Text.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <optional>
+#include <queue>
+#include <string>
 #include "wg_forward.hpp"
 
 namespace wg
@@ -43,7 +43,9 @@ public:
     } mode_ = Mode::Normal;
 
 public:
-    GameIO(wg::WindowContext& target, wg::ResourceManager& manager, wg::UpdateHandler& update_handler);
+    GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
+           wg::UpdateHandler& update_handler);
+    void init();
 
     bool do_event(const sf::Event&);
     void text_entered(unsigned int c);
@@ -66,6 +68,7 @@ private:
     wg::UpdateHandler& update_handler_;
     std::vector<sf::Text> chat_bar_;
     sf::Text chat_text_;
+    std::string user_;
 };
 }  // namespace wg
 

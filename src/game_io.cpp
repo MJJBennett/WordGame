@@ -5,6 +5,7 @@
 #include "framework/resourcemanager.hpp"
 #include "framework/tools.hpp"
 #include "framework/window_context.hpp"
+#include "framework/window_io.hpp"
 #include "update_handler.hpp"
 
 // This is basically just meant to be a better version of the
@@ -18,6 +19,11 @@ wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
     chat_text_.setCharacterSize(24);
     chat_text_.setFillColor(sf::Color::Black);
     chat_text_.setPosition(28, target.height() - 60);
+}
+
+void wg::GameIO::init()
+{
+    user_ = wg::window_io::get_from_file(target_, manager_, "Enter Username", "name.txt");
 }
 
 bool wg::GameIO::do_event(const sf::Event& e)
@@ -76,7 +82,7 @@ void wg::GameIO::chat(std::string msg, std::string auth)
     chat_message.setFillColor(sf::Color::Black);
     chat_message.setPosition(28, target_.height() - 60 - 35);
     // Add the message string
-    chat_message.setString(msg);
+    chat_message.setString(auth + ": " + msg);
     // Add the new message to the list of messages
     chat_bar_.push_back(std::move(chat_message));
 }
@@ -104,7 +110,7 @@ void wg::GameIO::key_released(sf::Keyboard::Key k)
         }
         case sf::Keyboard::Key::Enter:
         {
-            return; // this is done on keypress, see do_enter
+            return;  // this is done on keypress, see do_enter
         }
         default: return;
     }
@@ -129,10 +135,17 @@ void wg::GameIO::do_enter()
             if (partial_action_ && partial_action_->type_ == Action::Type::ChatWord &&
                 (*partial_action_).input_.length() > 0)
             {
-                wg::log::point("Sending message: ", (*partial_action_).input_);
-                update_handler_.update(wg::ChatUpdate{(*partial_action_).input_, ""});
-                queue_.push(*partial_action_);
-                chat((*partial_action_).input_, "");
+                if (!has_chars((*partial_action_).input_))
+                {
+                    // clear input
+                }
+                else
+                {
+                    wg::log::point("Sending message: ", (*partial_action_).input_);
+                    update_handler_.update(wg::ChatUpdate{(*partial_action_).input_, user_});
+                    queue_.push(*partial_action_);
+                    chat((*partial_action_).input_, user_);
+                }
                 chat_text_.setString("");
                 partial_action_.reset();
             }

@@ -13,11 +13,12 @@ class GameContext
 public:
     GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u);
 
+    void init(); // Called once
+
     // Everything we have that can be drawn, can receive input
     // We want to be able to manage that - so:
     void parse_input(sf::Event&);
 
-    // We're going to add this for now as empty, but it'll come in handy
     // This runs once per game tick
     void update();
 
