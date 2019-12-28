@@ -5,12 +5,32 @@ namespace wg
 {
 namespace multiplier
 {
-constexpr unsigned char DoubleWord = 0b0000'0001;
-constexpr unsigned char DoubleChar = 0b0000'0001 << 1;
-constexpr unsigned char TripleWord = 0b0000'0001 << 2;
-constexpr unsigned char TripleChar = 0b0000'0001 << 3;
-constexpr unsigned char QuadWord   = 0b0000'0001 << 4;
-constexpr unsigned char QuadChar   = 0b0000'0001 << 5;
+constexpr unsigned char None       = 0b00;
+constexpr unsigned char DoubleWord = 0b01;
+constexpr unsigned char DoubleChar = 0b01 << 1;
+constexpr unsigned char TripleWord = 0b01 << 2;
+constexpr unsigned char TripleChar = 0b01 << 3;
+constexpr unsigned char QuadWord   = 0b01 << 4;
+constexpr unsigned char QuadChar   = 0b01 << 5;
+
+unsigned char decode(int i)
+{
+    // We're going to go with just a small subset of sane possibilities for now
+    switch (i)
+    {
+        case 0: return ::wg::multiplier::None;
+        case 1: return ::wg::multiplier::DoubleChar;
+        case 2: return ::wg::multiplier::DoubleWord;
+        case 3: return ::wg::multiplier::TripleChar;
+        case 4: return ::wg::multiplier::TripleWord;
+        case 5: return ::wg::multiplier::QuadWord;
+        case 6: return ::wg::multiplier::QuadChar;
+        case 7: return ::wg::multiplier::DoubleChar & ::wg::multiplier::DoubleWord;
+        case 8: return ::wg::multiplier::TripleChar & ::wg::multiplier::DoubleWord;
+        case 9: return ::wg::multiplier::DoubleChar & ::wg::multiplier::TripleWord;
+        default: return ::wg::multiplier::None;
+    }
+}
 };  // namespace multiplier
 
 struct MultiplierMask
