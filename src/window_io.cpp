@@ -4,13 +4,13 @@
 #include <optional>
 #include <thread>
 #include <vector>
+#include "assert.hpp"
 #include "debug/log.hpp"
-#include "framework/fileio.hpp"
+#include "framework/file_io.hpp"
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
+#include "framework/window_context.hpp"
 #include "framework/window_item.hpp"
-#include "framework/windowcontext.hpp"
-#include "assert.hpp"
 
 static std::optional<std::string> try_get_text(wg::WindowContext& target, sf::Text& text,
                                                std::vector<wg::Button> buttons)
@@ -61,7 +61,7 @@ static std::optional<std::string> try_get_text(wg::WindowContext& target, sf::Te
 
 static std::optional<char> get_ascii(sf::Event e)
 {
-    wg::abort_if(e.type == sf::Event::TextEntered);
+    wg::assert_true(e.type == sf::Event::TextEntered);
     if (e.text.unicode < 128 && e.text.unicode > 31) return static_cast<char>(e.text.unicode);
     return {};
 }
@@ -85,8 +85,8 @@ std::string wg::window_io::get_string(wg::WindowContext& target, wg::ResourceMan
     unsigned int pos_y{25 + 64};
     for (auto&& opt : options)
     {
-        buttons.emplace_back(opt, manager.defaultFont()->font, 25.f, (float)pos_y, (float)((float)target.width() * 0.8),
-                             80.f);
+        buttons.emplace_back(opt, manager.defaultFont()->font, 25.f, (float)pos_y,
+                             (float)((float)target.width() * 0.8), 80.f);
         buttons.back().set_x(center(float(target.width()), buttons.back().w_));
         pos_y += 125;
     }
@@ -105,13 +105,13 @@ std::string wg::window_io::get_string(wg::WindowContext& target, wg::ResourceMan
     text.setCharacterSize(32);
     text.setFillColor(sf::Color::Cyan);
     text.setPosition(center(float(target.width()), text.getGlobalBounds().width), 16);
+
     sf::Text input_text;
     input_text.setFont(manager.defaultFont()->font);
     input_text.setCharacterSize(48);
     input_text.setFillColor(sf::Color::Cyan);
     input_text.setPosition(center(float(target.width()), input_text.getGlobalBounds().width), 86);
     std::string input_str;
-    input_text.setString(input_str);
 
     while (target.isOpen())
     {

@@ -25,7 +25,7 @@ public:
     // Convenience
     FontResource* defaultFont()
     {
-        wg::abort_if(default_font_ != nullptr);
+        wg::assert_true(default_font_ != nullptr);
         return default_font_;
     }
 

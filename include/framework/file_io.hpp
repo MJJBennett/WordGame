@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "framework/tools.hpp"
 
 namespace wg
 {
@@ -15,27 +16,18 @@ enum class ReadMode
     HasChars
 };
 
-template <typename T, typename R>
-bool in(T t, const R& r)
+static void ensure_file_exists(std::string filename, const std::string& data = "")
 {
-    for (auto&& t2 : r)
-        if (t == t2) return true;
-    return false;
-}
+    std::ifstream input_file(filename);
 
-template <typename R>
-bool has_chars(R r)
-{
-    std::array<char, 3> non_chars = {' ', '\r', '\n'};
-    for (auto&& c : r)
+    if (input_file.fail())
     {
-        if (in(c, non_chars)) continue;
-        return true;
+        std::ofstream output_file(filename);
+        output_file << data;
     }
-    return false;
 }
 
-std::vector<std::string> get_lines(std::string filename, ReadMode r = ReadMode::NonEmpty)
+static std::vector<std::string> get_lines(std::string filename, ReadMode r = ReadMode::NonEmpty)
 {
     std::ifstream input_file(filename);
 
@@ -57,7 +49,7 @@ std::vector<std::string> get_lines(std::string filename, ReadMode r = ReadMode::
     return list;
 }
 
-void add_line(std::string filename, std::string line)
+static void add_line(std::string filename, std::string line)
 {
     std::ofstream output_file(filename, std::ios_base::app | std::ios_base::out);
     output_file << line;

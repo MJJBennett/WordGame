@@ -5,7 +5,7 @@
 #include "framework/table.hpp"
 #include "framework/tools.hpp"
 #include "game/item.hpp"
-#include "framework/windowcontext.hpp"
+#include "framework/window_context.hpp"
 
 #include <SFML/Graphics/Drawable.hpp>
 

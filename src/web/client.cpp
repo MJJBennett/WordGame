@@ -134,6 +134,7 @@ void wg::WebSocketClient::shutdown()
     {
         wg::log::err("[Client (", __func__, ")] ", e.what());
     }
+    ioc_.stop();
 }
 
 void wg::WebSocketClient::queue_send(std::string message)
@@ -156,9 +157,26 @@ std::string wg::WebSocketClient::format_message(std::string message)
 
 std::optional<std::string> wg::WebSocketClient::parse_message(std::string message)
 {
+    wg::log::data("Received message", message);
     const auto data = nlohmann::json::parse(message);
-    if (data["type"] != "ack") return data["msg"];
-    wg::log::data("Received ACK", data.dump());
+    if (data["type"] == "ack")
+    {
+        return {};
+    }
+    else if (data["type"] == "host")
+    {
+        wg::log::point("[Client] Became host!");
+        return data["msg"];
+    }
+    else if (data["type"] == "msg")
+    {
+        return data["msg"];
+    }
+    else
+    {
+        wg::log::point("Received unknown data type: ", data["type"], ", with contents:\n",
+                       data.dump(1));
+    }
     return {};
 }
 

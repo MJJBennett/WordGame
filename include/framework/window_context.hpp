@@ -8,8 +8,10 @@ namespace wg
 class WindowContext
 {
 public:
-    template<typename... Args>
-    WindowContext(Args... args) : window_(std::forward<Args>(args)...) {}
+    template <typename... Args>
+    WindowContext(Args... args) : window_(std::forward<Args>(args)...)
+    {
+    }
 
     ~WindowContext();
 
@@ -18,7 +20,8 @@ public:
     bool shouldClose(const sf::Event& e) { return e.type == sf::Event::Closed; }
     void close() { window_.close(); }
 
-    unsigned int width() { return window_.getSize().x; } 
+    unsigned int width() { return window_.getSize().x; }
+    unsigned int height() { return window_.getSize().y; }
 
 private:
     sf::RenderWindow window_;

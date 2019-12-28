@@ -1,11 +1,82 @@
 #include "game/context.hpp"
 
 #include <SFML/Window/Event.hpp>
-#include "framework/render.hpp"
+#include <nlohmann/json.hpp>
 #include "assert.hpp"
+#include "debug/log.hpp"
+#include "framework/file_io.hpp"
+#include "framework/render.hpp"
+#include "framework/tools.hpp"
+#include "game/game_io.hpp"
+#include "update_handler.hpp"
+#include "framework/window_io.hpp"
+#include "commands.hpp"
+
+using json = nlohmann::json;
+
+wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u)
+    : io_(c, r, u), update_handler(u)
+{
+}
+
+void wg::GameContext::init()
+{
+    load_config("config.json");
+    io_.init();
+    update_handler.update(wg::ConfUpdate{"join", io_.user_});
+}
+
+void wg::GameContext::update()
+{
+    // Poll once per tick for now
+    // This is input, not output
+    const auto ou = update_handler.poll_game(true);
+    if (ou)
+    {
+        const auto u = *ou;
+        set_tile(u.col, u.row, u.c);
+        return;
+    }
+    const auto ocu = update_handler.poll_chat(true);
+    if (ocu)
+    {
+        const auto cu = *ocu;
+        // wg::log::data("Received chat update", cu.message, cu.sender);
+        io_.chat(cu.message, cu.sender);
+        return;
+    }
+    const auto oconf = update_handler.poll_conf(true);
+    if (oconf)
+    {
+        const auto conf = *oconf;
+        wg::log::point("Updating configuration in some way.");
+        if (conf.config == "command")
+        {
+            if (conf.setting == wg::command::host)
+            {
+                // We are now the host
+                io_.chat_broadcast(io_.user_ + " is now host!", "Server");
+                // This is a lie, this isn't the server...
+                return;
+            }
+            return;
+        }
+        if (conf.config == "join")
+        {
+            players_.insert(conf.setting);
+            io_.chat(conf.setting + " has joined the game!", "Server");
+            return;
+        }
+        return;
+    }
+}
 
 void wg::GameContext::parse_input(sf::Event& e)
 {
+    const bool ret = io_.mode_ == GameIO::Mode::Normal;
+    io_.do_event(e);
+    if (!ret || io_.mode_ != GameIO::Mode::Normal) return;
+
     switch (e.type)
     {
         case sf::Event::KeyReleased:
@@ -23,25 +94,40 @@ void wg::GameContext::parse_input(sf::Event& e)
     }
 }
 
-void wg::GameContext::render(wg::Renderer& renderer) { renderer.render(table_); }
+void wg::GameContext::render(wg::Renderer& renderer)
+{
+    renderer.render(board_.table_);
+    renderer.render(io_);
+}
 
 // Event handling
-void wg::GameContext::parse_key_released(sf::Event& e) {}
+void wg::GameContext::parse_key_released(sf::Event& e)
+{
+    wg::assert_true(e.type == sf::Event::KeyReleased);
+    if (e.key.code == sf::Keyboard::Key::C)
+    {
+        load_config("config.json");
+    }
+}
+
 void wg::GameContext::parse_text_entered(sf::Event& e)
 {
     if (mode_ == Mode::SetTile)
     {
-        const auto [col, row] = *pending_tile_;
-        const auto c          = (char)e.text.unicode;
-        set_tile(col, row, c);
-        mode_       = Mode::Default;
-        last_update = GameUpdate{int(col), int(row), c};
+        const auto c = get_char<std::optional<char>>(e.text.unicode);
+        if (c)
+        {
+            const auto [col, row] = *pending_tile_;
+            set_tile(col, row, *c);
+            update_handler.update(GameUpdate{int(col), int(row), *c});
+        }
+        mode_ = Mode::Default;
     }
 }
 
 void wg::GameContext::set_tile(int col, int row, char c)
 {
-    auto& item      = table_.at(col, row);
+    auto& item      = board_.table_.at(col, row);
     item.character_ = c;
 }
 
@@ -49,10 +135,10 @@ void wg::GameContext::parse_mouse_released(sf::Event& e)
 {
     const auto x              = e.mouseButton.x;
     const auto y              = e.mouseButton.y;
-    const auto [tw, th]       = table_.get_dimensions();
-    const auto [tx, ty]       = table_.position_;
-    const auto [tilew, tileh] = table_.get_tile_dimensions();
-    const auto [offx, offy]   = table_.get_tile_offsets();
+    const auto [tw, th]       = board_.table_.get_dimensions();
+    const auto [tx, ty]       = board_.table_.position_;
+    const auto [tilew, tileh] = board_.table_.get_tile_dimensions();
+    const auto [offx, offy]   = board_.table_.get_tile_offsets();
 
     if (x > tx && x < tx + tw && y > ty && y < ty + th)
     {
@@ -62,10 +148,93 @@ void wg::GameContext::parse_mouse_released(sf::Event& e)
         // TODO - This should all be cached 100%, I think
         // But only if this is a noticeable performance hit, unlikely
 
-        wg::abort_if(row < table_.table_size && row >= 0 && col < table_.table_size && col >= 0);
+        wg::assert_true(row < board_.table_.table_size && row >= 0 &&
+                        col < board_.table_.table_size && col >= 0);
 
         pending_tile_ = {row, col};
         mode_         = Mode::SetTile;
     }
 }
 void wg::GameContext::parse_escape() { running_ = false; }
+
+bool wg::GameContext::load_config(std::string filename)
+{
+    wg::log::point(__func__, ": Loading configuration data.");
+    std::ifstream input_file(filename);
+    if (!input_file.good())
+    {
+        wg::log::warn(__func__, ": Could not open file: ", filename);
+        return false;
+    }
+    json config;
+    try
+    {
+        config = json::parse(input_file);
+    }
+    catch (const json::parse_error& e)
+    {
+        wg::log::warn(__func__, ": Could not parse json in file: ", filename);
+        return false;
+    }
+
+    input_file.close();
+
+    if (config.find("board") != config.end()) board_.parse_config(config.at("board"));
+
+    if (config.find("game") != config.end()) parse_config(config.at("game"));
+
+    return true;
+}
+
+bool wg::GameContext::parse_config(const nlohmann::json& config)
+{
+    wg::log::data("Using configuration", config.dump(2));
+
+    // So we can set things like tile colour, etc
+    for (const auto& k : config.items())
+    {
+        switch (k.value().type())
+        {
+            case json::value_t::array:
+            {
+                json arr = k.value().get<json>();
+                if (arr.size() == 0) continue;
+                if (arr[0].type() == json::value_t::number_unsigned)
+                {
+                    wg::log::point(">>> Loading unsigned array for key: ", k.key());
+                    set_config(k.key(), k.value().get<std::vector<unsigned int>>());
+                }
+                else
+                {
+                    wg::log::point(">>> Loading string array for key: ", k.key());
+                    set_config(k.key(), k.value().get<std::vector<std::string>>());
+                }
+                break;
+            }
+            case json::value_t::string:
+            {
+                wg::log::point(">>> Loading string for key: ", k.key());
+                set_config(k.key(), k.value().get<std::string>());
+                break;
+            }
+            default:
+                wg::log::warn(__func__, ": Tried to load unsupported JSON: ", k.value().dump(1));
+                break;
+        }
+    }
+
+    return true;
+}
+
+bool wg::GameContext::set_config(std::string name, std::vector<std::string> value) { return true; }
+
+bool wg::GameContext::set_config(std::string name, std::vector<unsigned int> value)
+{
+    if (name == "background-colour")
+    {
+        background_ = sf::Color{(sf::Uint8)value[0], (sf::Uint8)value[1], (sf::Uint8)value[2]};
+    }
+    return true;
+}
+
+bool wg::GameContext::set_config(std::string name, std::string value) { return true; }

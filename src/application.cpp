@@ -9,11 +9,12 @@
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
 #include "framework/webclient.hpp"
+#include "framework/window_context.hpp"
 #include "framework/window_io.hpp"
-#include "framework/windowcontext.hpp"
 #include "game/context.hpp"
 #include "game/item.hpp"
 #include "server.hpp"
+#include "dev/devclient.hpp"
 
 int wg::Application::launch(Mode mode)
 {
@@ -27,19 +28,34 @@ int wg::Application::launch(Mode mode)
     manager.load({wg::ResourceType::text, "Hello world!"});
     auto& text = manager.get({wg::ResourceType::text, "WordGame"})->asDrawable();
 
-    std::vector<std::string> opts;
-    opts.push_back("Launch Server");
-    opts.push_back("Connect to Server");
-    opts.push_back("Play Singleplayer (Lonely Mode)");
-    const auto choice = wg::window_io::get_string(window, manager, "Game Menu", opts);
-    wg::log::point("Entering mode: ", choice);
+    while (true)
+    {
+        std::vector<std::string> opts;
+        opts.push_back("Launch Server");
+        opts.push_back("Connect to Server");
+        opts.push_back("Play Singleplayer (Lonely Mode)");
+        if (mode & ApplicationMode::Developer) opts.push_back("Develop");
+        const auto choice = wg::window_io::get_string(window, manager, "Game Menu", opts);
+        wg::log::point("Entering mode: ", choice);
 
-    if (choice == "Launch Server")
-        run_webserver(window, manager, renderer);
-    else if (choice == "Connect to Server")
-        run_webclient(window, manager, renderer);
-    else if (choice == "Play Singleplayer (Lonely Mode)")
-        run_local(window, manager, renderer);
+        if (choice == "Launch Server")
+        {
+            if (run_webserver(window, manager, renderer) == 0) break;
+        }
+        else if (choice == "Connect to Server")
+        {
+            if (run_webclient(window, manager, renderer) == 0) break;
+        }
+        else if (choice == "Play Singleplayer (Lonely Mode)")
+        {
+            if (run_local(window, manager, renderer) == 0) break;
+        }
+        else if (choice == "Develop")
+        {
+            if (run_develop(window, manager, renderer) == 0) break;
+        }
+        else break;
+    }
 
     return 0;
 }
@@ -59,11 +75,18 @@ int wg::Application::run_webserver(wg::WindowContext& window, wg::ResourceManage
 
 int wg::Application::run_windowless()
 {
-    std::string input;
-    std::cout << "Starting webserver. Enter IP:\n";
-    std::getline(std::cin, input);
-    std::cout << "Running with IP: " << input << std::endl;
-    return run_webserver(input);
+    std::cout << "Starting webserver.";
+    if (address_.size() < 4)
+    {
+        std::cout << " Enter IP:\n";
+        std::getline(std::cin, address_);
+    }
+    else
+    {
+        std::cout << "\n";
+    }
+    std::cout << "Running with IP: " << address_ << std::endl;
+    return run_webserver(address_);
 }
 
 int wg::Application::run_webserver(std::string address)
@@ -77,11 +100,14 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
 {
     const auto addr =
         wg::window_io::get_from_file(window, manager, "Enter Remote IP Address", "ip.txt");
-    wg::GameContext game;
     wg::web::Client web_client;
     // TODO - add 'connecting' pane here
     // when connection fails (if), use wg::window_io::back_screen and go back to main menu
+    // basically, we want a blocking "wait" on connection
     web_client.launch(addr, "27600");
+    wg::GameContext game(window, manager, web_client);
+    game.init();
+    wg::log::point("Initialized game.");
 
     while (window.isOpen() && game.running())
     {
@@ -89,50 +115,66 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
 
         while (window.getTarget().pollEvent(e))
         {
-            if (e.type == sf::Event::Closed) {
-                window.close(); continue;
+            if (e.type == sf::Event::Closed)
+            {
+                window.close();
+                continue;
             }
             game.parse_input(e);
-            if (game.last_update)
-            {
-                const auto u = *game.last_update;
-                const auto j = nlohmann::json{{"col", u.col}, {"row", u.row}, {"char", u.c}};
-                game.last_update.reset();
-                web_client.send(j.dump());
-            }
         }
         game.update();
 
-        window.getTarget().clear();
+        window.getTarget().clear(game.background_);
 
         game.render(renderer);
 
         window.getTarget().display();
 
         // let's just wait for a little bit
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(80));
         // check for messages on the web client...
-        auto str = web_client.read_once();
-        if (str)
-        {
-            wg::log::data("Client message found", *str);
-            // now let's make a hacky thing
-            try
-            {
-                const auto d   = nlohmann::json::parse(*str);
-                const auto col = d["col"];
-                const auto row = d["row"];
-                const auto c   = char(int(d["char"]));
-                game.set_tile(col, row, c);
-            }
-            catch (nlohmann::json::parse_error e)
-            {
-                wg::log::warn("Got json parse error: ", e.what());
-            }
-        }
+        web_client.cache_once();
     }
 
+    wg::log::point("Shutting down web client.");
     web_client.shutdown(true);
+    return 0;
+}
+
+int wg::Application::run_develop(wg::WindowContext& window, wg::ResourceManager& manager,
+                                   wg::Renderer& renderer)
+{
+    wg::dev::Client client;
+    wg::GameContext game(window, manager, client);
+    game.init();
+    wg::log::point("Initialized game.");
+
+    while (window.isOpen() && game.running())
+    {
+        sf::Event e;
+
+        while (window.getTarget().pollEvent(e))
+        {
+            if (e.type == sf::Event::Closed)
+            {
+                window.close();
+                continue;
+            }
+            game.parse_input(e);
+        }
+        game.update();
+
+        window.getTarget().clear(game.background_);
+
+        game.render(renderer);
+
+        window.getTarget().display();
+
+        // let's just wait for a little bit
+        std::this_thread::sleep_for(std::chrono::milliseconds(80));
+        // check for messages on the web client...
+    }
+
     return 0;
 }
 
@@ -141,4 +183,17 @@ int wg::Application::run_local(wg::WindowContext& window, wg::ResourceManager& m
 {
     wg::window_io::back_screen(window, manager, "This mode is currently unsupported.", "Oh... :(");
     return 0;
+}
+
+void wg::Application::set_address(std::string address)
+{
+    wg::log::point("Application: Setting address to: '", address, "'");
+    address_ = address;
+}
+
+void wg::Application::set_port(std::string port)
+{
+    wg::log::point("Application: Setting port to: '", port, "'");
+    wg::log::point("(Note: This does nothing)");
+    port_ = port;
 }
