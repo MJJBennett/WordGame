@@ -48,6 +48,14 @@ inline bool startswith(const String& str, const String& start)
 {
     return ((start.size() <= str.size()) && str.substr(0, start.size()) == start);
 }
+
+template <typename String>
+auto get_arg(const String& str) -> String
+{
+    const auto it = str.find("=");
+    if (it == String::npos) return "";
+    return str.substr(it + 1, str.size());
+};
 }  // namespace wg
 
 #endif  // WG_TOOLS_HPP

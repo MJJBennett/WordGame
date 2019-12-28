@@ -16,6 +16,17 @@ enum class ReadMode
     HasChars
 };
 
+static void ensure_file_exists(std::string filename, const std::string& data = "")
+{
+    std::ifstream input_file(filename);
+
+    if (input_file.fail())
+    {
+        std::ofstream output_file(filename);
+        output_file << data;
+    }
+}
+
 static std::vector<std::string> get_lines(std::string filename, ReadMode r = ReadMode::NonEmpty)
 {
     std::ifstream input_file(filename);
