@@ -78,6 +78,10 @@ void wg::GameContext::update()
             wg::log::point("Rewriting the board.");
             board_.parse_board_update(jsonu.json_);
         }
+        else
+        {
+            wg::log::warn("Found JSON update that could not be understood by the game context:\n", jsonu.json_.dump(2));
+        }
     }
 }
 

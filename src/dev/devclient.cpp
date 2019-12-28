@@ -25,13 +25,20 @@ const std::string default_layout_str{default_layout.dump()};
 
 void wg::dev::Client::update(const wg::GameUpdate& u) {
     const char row_id = u.row + 'A';
+    try {
     data_["layout"][std::string(1, row_id)][u.col] = u.c - '0';
+    }
+    catch(const nlohmann::json::type_error& e){
+        wg::log::err("JSON parsing error: ", e.what());
+        wg::log::err("When trying to update JSON:\n", data_.dump(2));
+    }
 }
 
 void wg::dev::Client::update(const wg::ChatUpdate& u)
 {
     std::string msg = u.message;
     std::string arg = wg::get_arg(msg);
+    wg::log::point("[Developer Client] Parsing chat update.");
 
     if (wg::startswith(msg, std::string{"open"}))
     {
@@ -57,6 +64,7 @@ void wg::dev::Client::update(const wg::ChatUpdate& u)
         }
         input_file.close();
 
+        chat_.push("Now editing file: " + file_);
         // We need to pass this JSON to the board so it can get caught up
         needs_update_ = true;
         return;
