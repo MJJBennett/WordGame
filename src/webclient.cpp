@@ -102,6 +102,7 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
         if (d.find("join") != d.end())
         {
             const std::string join = d["join"];
+            wg::log::point("New player joined: ", join);
             return wg::ConfUpdate{"join", join};
         }
         return {};

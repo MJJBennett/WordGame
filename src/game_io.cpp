@@ -16,9 +16,9 @@ wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
     : target_(target), manager_(manager), update_handler_(update_handler)
 {
     chat_text_.setFont(manager.defaultFont()->font);
-    chat_text_.setCharacterSize(24);
+    chat_text_.setCharacterSize(message_character_size_);
     chat_text_.setFillColor(sf::Color::Black);
-    chat_text_.setPosition(28, target.height() - 60);
+    chat_text_.setPosition(message_left_offset_, target.height() - message_bar_height_);
 }
 
 void wg::GameIO::init()
@@ -72,15 +72,15 @@ void wg::GameIO::chat(std::string msg, std::string auth)
     // Move up all the other messages
     for (auto&& ct : chat_bar_)
     {
-        ct.move(0, -35);
+        ct.move(0, -message_bar_height_);
     }
     // Create an object for the new message
     sf::Text chat_message;
     // Configure the new message object
     chat_message.setFont(manager_.defaultFont()->font);
-    chat_message.setCharacterSize(24);
+    chat_message.setCharacterSize(message_character_size_);
     chat_message.setFillColor(sf::Color::Black);
-    chat_message.setPosition(28, target_.height() - 60 - 35);
+    chat_message.setPosition(message_left_offset_, target_.height() - message_bar_height_ - message_bar_height_);
     // Add the message string
     chat_message.setString(auth + ": " + msg);
     // Add the new message to the list of messages

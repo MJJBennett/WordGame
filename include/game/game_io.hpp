@@ -70,6 +70,11 @@ private:
     wg::UpdateHandler& update_handler_;
     std::vector<sf::Text> chat_bar_;
     sf::Text chat_text_;
+
+    // Appearance
+    const int message_bar_height_{24}; // height of a message
+    const int message_character_size_{18}; // size of character in message
+    const int message_left_offset_{12}; // left offset of the chat
 };
 }  // namespace wg
 
