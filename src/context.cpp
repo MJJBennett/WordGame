@@ -46,7 +46,7 @@ void wg::GameContext::update()
         return;
     }
     const auto oconf = update_handler.poll_conf(true);
-    if (ocu)
+    if (oconf)
     {
         const auto conf = *oconf;
         wg::log::point("Updating configuration in some way.");
