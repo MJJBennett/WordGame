@@ -7,6 +7,19 @@
 
 using json = nlohmann::json;
 
+void wg::Board::parse_board_update(const nlohmann::json& update){
+    for (const auto& k : update.items()){
+        const char row_id_char = k.key()[0];
+        const int row_id = row_id_char - 'A';
+        const std::vector<int>& row = k.value().get<std::vector<int>>();
+        for (size_t col_id = 0; col_id < row.size(); col_id++){
+            // This might be some of the ugliest framework code I've ever made
+            // Rough times
+            table_.at(col_id, row_id).character_ = row.at(col_id) + '0';
+        }
+    }
+}
+
 bool wg::Board::parse_config(const nlohmann::json& config)
 {
     wg::log::data("Using configuration", config.dump(2));

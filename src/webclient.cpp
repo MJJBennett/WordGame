@@ -115,6 +115,8 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
     }
 }
 
+std::optional<wg::JSONUpdate> wg::web::Client::poll_json(bool) { return {}; }
+
 void wg::web::Client::send(std::string message)
 {
     if (!launched_)

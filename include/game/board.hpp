@@ -13,6 +13,9 @@ class Board
 {
 public:
     wg::Table<Item> table_;
+
+    void parse_board_update(const nlohmann::json&);
+
     bool parse_config(const nlohmann::json&);
 
     bool set_config(std::string name, std::vector<std::string> value);

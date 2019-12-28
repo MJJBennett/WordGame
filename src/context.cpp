@@ -3,14 +3,14 @@
 #include <SFML/Window/Event.hpp>
 #include <nlohmann/json.hpp>
 #include "assert.hpp"
+#include "commands.hpp"
 #include "debug/log.hpp"
 #include "framework/file_io.hpp"
 #include "framework/render.hpp"
 #include "framework/tools.hpp"
+#include "framework/window_io.hpp"
 #include "game/game_io.hpp"
 #include "update_handler.hpp"
-#include "framework/window_io.hpp"
-#include "commands.hpp"
 
 using json = nlohmann::json;
 
@@ -68,6 +68,16 @@ void wg::GameContext::update()
             return;
         }
         return;
+    }
+    const auto ojsonu = update_handler.poll_json(true);
+    if (ojsonu)
+    {
+        const auto jsonu = *ojsonu;
+        if (jsonu.json_.find("layout") != jsonu.json_.end())
+        {
+            wg::log::point("Rewriting the board.");
+            board_.parse_board_update(jsonu.json_);
+        }
     }
 }
 

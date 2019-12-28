@@ -27,6 +27,7 @@ public:
     std::optional<wg::GameUpdate> poll_game(bool) override;
     std::optional<wg::ChatUpdate> poll_chat(bool) override;
     std::optional<wg::ConfUpdate> poll_conf(bool) override;
+    std::optional<wg::JSONUpdate> poll_json(bool) override;
 
     std::optional<std::string> read_once();
     void cache_once();

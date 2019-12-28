@@ -1,6 +1,7 @@
 #ifndef WG_GAME_UPDATE_HPP
 #define WG_GAME_UPDATE_HPP
 
+#include <nlohmann/json.hpp> // Should be json_fwd
 #include <string>
 
 namespace wg
@@ -22,6 +23,11 @@ struct ConfUpdate
 {
     std::string config;
     std::string setting;
+};
+
+struct JSONUpdate
+{
+    const nlohmann::json& json_;
 };
 }  // namespace wg
 
