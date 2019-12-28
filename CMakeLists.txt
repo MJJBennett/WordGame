@@ -78,6 +78,8 @@ add_executable(WordGame
     ${CMAKE_SOURCE_DIR}/src/context.cpp ${CMAKE_SOURCE_DIR}/include/game/context.hpp
     ${CMAKE_SOURCE_DIR}/src/game_io.cpp ${CMAKE_SOURCE_DIR}/include/game/game_io.hpp
 
+    ${CMAKE_SOURCE_DIR}/src/dev/devclient.cpp ${CMAKE_SOURCE_DIR}/src/dev/devclient.hpp
+
     ${CMAKE_SOURCE_DIR}/src/web/connections.cpp ${CMAKE_SOURCE_DIR}/src/web/connections.hpp
     ${CMAKE_SOURCE_DIR}/src/web/ws_session.cpp ${CMAKE_SOURCE_DIR}/src/web/ws_session.hpp
     ${CMAKE_SOURCE_DIR}/src/web/session.cpp ${CMAKE_SOURCE_DIR}/src/web/session.hpp

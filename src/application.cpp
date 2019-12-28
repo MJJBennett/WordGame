@@ -14,6 +14,7 @@
 #include "game/context.hpp"
 #include "game/item.hpp"
 #include "server.hpp"
+#include "dev/devclient.hpp"
 
 int wg::Application::launch(Mode mode)
 {
@@ -143,14 +144,8 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
 int wg::Application::run_develop(wg::WindowContext& window, wg::ResourceManager& manager,
                                    wg::Renderer& renderer)
 {
-    const auto addr =
-        wg::window_io::get_from_file(window, manager, "Enter Remote IP Address", "ip.txt");
-    wg::web::Client web_client;
-    // TODO - add 'connecting' pane here
-    // when connection fails (if), use wg::window_io::back_screen and go back to main menu
-    // basically, we want a blocking "wait" on connection
-    web_client.launch(addr, "27600");
-    wg::GameContext game(window, manager, web_client);
+    wg::dev::Client client;
+    wg::GameContext game(window, manager, client);
     game.init();
     wg::log::point("Initialized game.");
 
@@ -178,11 +173,8 @@ int wg::Application::run_develop(wg::WindowContext& window, wg::ResourceManager&
         // let's just wait for a little bit
         std::this_thread::sleep_for(std::chrono::milliseconds(80));
         // check for messages on the web client...
-        web_client.cache_once();
     }
 
-    wg::log::point("Shutting down web client.");
-    web_client.shutdown(true);
     return 0;
 }
 
