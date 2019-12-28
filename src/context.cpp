@@ -76,7 +76,7 @@ void wg::GameContext::update()
         if (jsonu.json_.find("layout") != jsonu.json_.end())
         {
             wg::log::point("Rewriting the board.");
-            board_.parse_board_update(jsonu.json_);
+            board_.parse_board_update(jsonu.json_["layout"]);
         }
         else
         {

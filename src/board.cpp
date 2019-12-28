@@ -3,20 +3,31 @@
 #include <nlohmann/json.hpp>
 #include "debug/log.hpp"
 #include "framework/file_io.hpp"
-#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-void wg::Board::parse_board_update(const nlohmann::json& update){
-    for (const auto& k : update.items()){
-        const char row_id_char = k.key()[0];
-        const int row_id = row_id_char - 'A';
-        const std::vector<int>& row = k.value().get<std::vector<int>>();
-        for (size_t col_id = 0; col_id < row.size(); col_id++){
-            // This might be some of the ugliest framework code I've ever made
-            // Rough times
-            table_.at(col_id, row_id).character_ = row.at(col_id) + '0';
+void wg::Board::parse_board_update(const nlohmann::json& update)
+{
+    try
+    {
+        for (const auto& k : update.items())
+        {
+            const char row_id_char      = k.key()[0];
+            const int row_id            = row_id_char - 'A';
+            wg::log::point(k.value().dump());
+            const std::vector<int>& row = k.value().get<std::vector<int>>();
+            for (size_t col_id = 0; col_id < row.size(); col_id++)
+            {
+                // This might be some of the ugliest framework code I've ever made
+                // Rough times
+                table_.at(col_id, row_id).character_ = decode(row.at(col_id));
+            }
         }
+    }
+    catch (const json::type_error& e)
+    {
+        wg::log::err("[Board] JSON parsing error: ", e.what());
+        wg::log::err("When trying to update JSON:\n", update.dump(2));
     }
 }
 

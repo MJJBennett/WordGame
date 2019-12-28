@@ -21,6 +21,9 @@ public:
     bool set_config(std::string name, std::vector<std::string> value);
     bool set_config(std::string name, std::vector<unsigned int> value);
     bool set_config(std::string name, std::string value);
+
+    static int encode(char board_char) { return board_char - '0'; }
+    static int decode(char board_char) { return board_char + '0'; }
 };
 }  // namespace wg
 
