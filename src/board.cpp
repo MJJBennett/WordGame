@@ -65,7 +65,7 @@ sf::Color wg::Board::multiplier_colour(unsigned char multipliers)
         case wg::multiplier::DoubleWord: return colours_[2];
         case wg::multiplier::TripleChar: return colours_[3];
         case wg::multiplier::TripleWord: return colours_[4];
-        case (wg::multiplier::DoubleWord & wg::multiplier::DoubleChar): return colours_[5];
+        case (wg::multiplier::DoubleWord | wg::multiplier::DoubleChar): return colours_[5];
         default: return colours_[0];
     }
 }
