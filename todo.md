@@ -20,6 +20,8 @@
 
 - Bugs:
     - Critical:
+        - Host leaving the game does not allow reassignment of the host.
+        - Reloading config wipes the layout.
 
 ---
 

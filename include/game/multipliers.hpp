@@ -36,6 +36,7 @@ inline unsigned char decode(int i)
 struct MultiplierMask
 {
     unsigned char multipliers_;
+    MultiplierMask(unsigned char multipliers) : multipliers_(multipliers) {}
 
     unsigned int get_word() const
     {

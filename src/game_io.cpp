@@ -1,5 +1,7 @@
 #include "game/game_io.hpp"
 
+#include <fstream>
+#include "game/board.hpp"
 #include "debug/log.hpp"
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
@@ -12,8 +14,8 @@
 // 'window io' static functions.
 
 wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
-                   wg::UpdateHandler& update_handler)
-    : target_(target), manager_(manager), update_handler_(update_handler)
+                   wg::UpdateHandler& update_handler, wg::Board& board)
+    : target_(target), manager_(manager), update_handler_(update_handler), board_(board)
 {
     chat_text_.setFont(manager.defaultFont()->font);
     chat_text_.setCharacterSize(message_character_size_);
@@ -80,7 +82,8 @@ void wg::GameIO::chat(std::string msg, std::string auth)
     chat_message.setFont(manager_.defaultFont()->font);
     chat_message.setCharacterSize(message_character_size_);
     chat_message.setFillColor(sf::Color::Black);
-    chat_message.setPosition(message_left_offset_, target_.height() - message_bar_height_ - message_bar_height_);
+    chat_message.setPosition(message_left_offset_,
+                             target_.height() - message_bar_height_ - message_bar_height_);
     // Add the message string
     chat_message.setString(auth + ": " + msg);
     // Add the new message to the list of messages
@@ -141,15 +144,20 @@ void wg::GameIO::do_enter()
             if (partial_action_ && partial_action_->type_ == Action::Type::ChatWord &&
                 (*partial_action_).input_.length() > 0)
             {
-                if (!has_chars((*partial_action_).input_))
+                const std::string input = (*partial_action_).input_;
+                if (!has_chars(input))
                 {
                     // clear input
                 }
                 else
                 {
-                    wg::log::point("Sending message: ", (*partial_action_).input_);
-                    chat_broadcast((*partial_action_).input_, user_);
-                    queue_.push(*partial_action_); // Record action
+                    wg::log::point("Sending message: ", input);
+
+                    if (!handle_command(input))
+                    {
+                        chat_broadcast(input, user_);
+                        queue_.push(*partial_action_);  // Record action
+                    }
                 }
                 chat_text_.setString("");
                 partial_action_.reset();
@@ -188,4 +196,50 @@ void wg::GameIO::log_queue()
         }
         msg += a.input_;
     }
+}
+
+bool wg::GameIO::handle_command(const std::string& command)
+{
+    if (startswith(command, std::string{"/"}))
+    {
+        if (startswith(command, std::string{"/layout"}))
+        {
+            // Load layout
+            const auto fn = wg::get_arg(command);
+            wg::log::point("[GameIO] Loading new layout from file: ", fn);
+
+            std::ifstream input_file(fn);
+            nlohmann::json data;
+            if (!input_file.good())
+            {
+                wg::log::warn(__func__, ": Could not open file: ", fn);
+                chat("Could not open file: " + fn, "Error");  // Error is the author, hm
+                return true;
+            }
+            try
+            {
+                data = nlohmann::json::parse(input_file);
+            }
+            catch (const nlohmann::json::parse_error& e)
+            {
+                wg::log::warn(__func__, ": Could not parse json in file: ", fn);
+                chat("Could not parse json in file: " + fn, "Error");
+                return true;
+            }
+            input_file.close();
+            
+            // Note to self:
+            // In a future where GameIO does all i/o, including board i/o, there may
+            // be a better way to do this. In this case, I've just gone ahead and passed
+            // the board directly into the GameIO object.
+            assert(data.find("layout") != data.end());
+            board_.set_layout(data["layout"]);
+        }
+        return true;
+    }
+    if (startswith(command, std::string{"?"}))
+    {
+        return true;
+    }
+    return false;
 }

@@ -15,7 +15,7 @@
 using json = nlohmann::json;
 
 wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u)
-    : io_(c, r, u), update_handler(u)
+    : io_(c, r, u, board_), update_handler(u)
 {
 }
 
@@ -57,6 +57,10 @@ void wg::GameContext::update()
                 // We are now the host
                 io_.chat_broadcast(io_.user_ + " is now host!", "Server");
                 // This is a lie, this isn't the server...
+                // Oh well.
+                
+                // We're the host now.
+                is_host_ = true;
                 return;
             }
             return;
@@ -66,6 +70,12 @@ void wg::GameContext::update()
             players_.insert(conf.setting);
             io_.chat(conf.setting + " has joined the game!", "Server");
             return;
+        }
+        else
+        {
+            wg::log::warn(
+                "Found configuration update that could not be understood by the game context:",
+                "\n\tName: ", conf.config, "\n\tValue: ", conf.setting);
         }
         return;
     }
@@ -80,7 +90,8 @@ void wg::GameContext::update()
         }
         else
         {
-            wg::log::warn("Found JSON update that could not be understood by the game context:\n", jsonu.json_.dump(2));
+            wg::log::warn("Found JSON update that could not be understood by the game context:\n",
+                          jsonu.json_.dump(2));
         }
     }
 }

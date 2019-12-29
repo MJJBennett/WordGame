@@ -72,6 +72,7 @@ private:
 
     // This is game state stuff, until we refactor it out
     std::unordered_set<std::string> players_;
+    bool is_host_{false};
 };
 }  // namespace wg
 

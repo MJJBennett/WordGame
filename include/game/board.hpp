@@ -1,6 +1,7 @@
 #ifndef WG_BOARD_HPP
 #define WG_BOARD_HPP
 
+#include <array>
 #include <nlohmann/json.hpp>  // TODO - should be json_fwd.hpp, which seems to be missing
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@ public:
     wg::Table<Item> table_;
 
     void parse_board_update(const nlohmann::json&);
+    void set_layout(const nlohmann::json&);
 
     bool parse_config(const nlohmann::json&);
 
@@ -22,8 +24,13 @@ public:
     bool set_config(std::string name, std::vector<unsigned int> value);
     bool set_config(std::string name, std::string value);
 
+    // Converts '0' to 0, '1' to 1, etc
     static int encode(char board_char) { return board_char - '0'; }
-    static int decode(char board_char) { return board_char + '0'; }
+    // Converts 0 to '0', 1 to '1', etc
+    static char decode(int board_num) { return board_num + '0'; }
+
+    sf::Color multiplier_colour(unsigned char multipliers);
+    std::array<sf::Color, 8> colours_;
 };
 }  // namespace wg
 

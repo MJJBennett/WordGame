@@ -44,7 +44,7 @@ public:
 
 public:
     GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
-           wg::UpdateHandler& update_handler);
+           wg::UpdateHandler& update_handler, wg::Board& board);
     void init();
 
     bool do_event(const sf::Event&);
@@ -61,6 +61,8 @@ public:
     std::queue<Action> queue_;
     void log_queue();
 
+    bool handle_command(const std::string& command);
+
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
@@ -68,13 +70,14 @@ private:
     wg::WindowContext& target_;
     wg::ResourceManager& manager_;
     wg::UpdateHandler& update_handler_;
+    wg::Board& board_;
     std::vector<sf::Text> chat_bar_;
     sf::Text chat_text_;
 
     // Appearance
-    const int message_bar_height_{24}; // height of a message
-    const int message_character_size_{18}; // size of character in message
-    const int message_left_offset_{12}; // left offset of the chat
+    const int message_bar_height_{24};      // height of a message
+    const int message_character_size_{18};  // size of character in message
+    const int message_left_offset_{12};     // left offset of the chat
 };
 }  // namespace wg
 

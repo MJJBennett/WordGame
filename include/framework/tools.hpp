@@ -1,6 +1,7 @@
 #ifndef WG_TOOLS_HPP
 #define WG_TOOLS_HPP
 
+#include <SFML/Graphics/Color.hpp>
 #include <array>
 
 namespace wg
@@ -56,6 +57,11 @@ auto get_arg(const String& str) -> String
     if (it == String::npos) return "";
     return str.substr(it + 1, str.size());
 };
+
+inline sf::Color colour(unsigned int r, unsigned int g, unsigned int b)
+{
+    return {(sf::Uint8)r, (sf::Uint8)g, (sf::Uint8)b};
+}
 }  // namespace wg
 
 #endif  // WG_TOOLS_HPP
