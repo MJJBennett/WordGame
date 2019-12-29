@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <random>
 #include "debug/log.hpp"
+#include "assert.hpp"
 
 wg::WebSocketClient::WebSocketClient(std::string target, std::string port)
     : resolver_(ioc_), ws_(ioc_), target_(std::move(target)), port_(std::move(port))
@@ -75,6 +76,7 @@ void wg::WebSocketClient::on_handshake(beast::error_code ec)
 
     // Now we need to authenticate with the server.
 
+    assert(message_); // Fix from 052f329
     ws_.async_write(asio::buffer(format_message(*message_)),
                     beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
 
