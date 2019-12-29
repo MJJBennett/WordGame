@@ -65,7 +65,7 @@ private:
     // Message queue - messages that still need to be sent
     std::queue<std::string> message_queue_;
     // Current message waiting to be sent.
-    std::optional<std::string> message_;
+    std::optional<std::string> message_{""};
 
     // Received queue - messages waiting to be read
     std::queue<std::string> recv_queue_;
