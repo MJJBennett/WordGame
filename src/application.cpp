@@ -1,6 +1,7 @@
 #include "application.hpp"
 
 #include <SFML/Graphics.hpp>
+#include "game/multipliers.hpp"
 #include <nlohmann/json.hpp>
 #include <thread>
 #include "client.hpp"
@@ -148,6 +149,15 @@ int wg::Application::run_develop(wg::WindowContext& window, wg::ResourceManager&
     wg::GameContext game(window, manager, client);
     game.init();
     wg::log::point("Initialized game.");
+    std::vector<sf::Text> help;
+    for (int i = 0; i < 6; i++)
+    {
+        // Ah, reflection
+        const std::string s = std::to_string(i) + " is: " + wg::multiplier::to_string(wg::multiplier::decode(i));
+        help.push_back(sf::Text{s, manager.defaultFont()->font, 24});
+        help.back().setPosition(window.width() - 170, i*32);
+        help.back().setFillColor(sf::Color{1,1,1});
+    }
 
     while (window.isOpen() && game.running())
     {
@@ -167,6 +177,7 @@ int wg::Application::run_develop(wg::WindowContext& window, wg::ResourceManager&
         window.getTarget().clear(game.background_);
 
         game.render(renderer);
+        for (auto&& t : help) window.getTarget().draw(t);
 
         window.getTarget().display();
 

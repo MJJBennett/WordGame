@@ -75,6 +75,7 @@ void wg::dev::Client::update(const wg::ChatUpdate& u)
     }
     if (wg::startswith(msg, std::string{"save"}))
     {
+        if (file_.length() == 0) return;
         std::ofstream output_file(file_);
         output_file << std::setw(2) << data_ << std::endl;
         chat_.push("Saved to file: " + file_);
