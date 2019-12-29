@@ -202,7 +202,7 @@ bool wg::GameContext::load_config(std::string filename)
 
 bool wg::GameContext::parse_config(const nlohmann::json& config)
 {
-    wg::log::data("Using configuration", config.dump(2));
+    wg::log::data("Using configuration", config.dump());
 
     // So we can set things like tile colour, etc
     for (const auto& k : config.items())

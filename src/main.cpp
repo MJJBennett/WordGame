@@ -1,4 +1,5 @@
 #include "application.hpp"
+#include "debug/log.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -14,6 +15,10 @@ int main(int argc, char* argv[])
     wg::Application app;
     for (int i = 0; i < argc; i++)
     {
+        wg::log::point("Parsing command line argument: ", argv[i]);
+        // Note: The first argument, the relative file path, should be
+        // parsed so that the application can be launched from another
+        // directory without needing to worry about relative paths.
         if (sw(argv[i], "--s"))
         {
             mode |= wg::ApplicationMode::Windowless;

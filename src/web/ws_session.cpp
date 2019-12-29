@@ -2,9 +2,9 @@
 
 #include <boost/beast/core/buffers_to_string.hpp>
 #include <nlohmann/json.hpp>
+#include "commands.hpp"
 #include "connections.hpp"
 #include "debug/log.hpp"
-#include "commands.hpp"
 
 namespace websocket = boost::beast::websocket;
 using tcp           = boost::asio::ip::tcp;
@@ -40,10 +40,14 @@ void wg::WebSocketSession::on_accept(beast::error_code ec)
     }
 
     // might want to track that this is an active session here
+    wg::log::point("Attempting to claim host permissions.");
     if (connections_->claim_host(this))
     {
-        queue_write(nlohmann::json{{"type", "configure"},
-                                   {"msg", nlohmann::json{{"command", wg::command::host}}.dump()}});
+        wg::log::point("Claiming host permissions.");
+        queue_write(
+            nlohmann::json{{"type", "configure"},
+                           {"msg", (nlohmann::json{{"command", wg::command::host}}).dump()}}
+                .dump());
     }
 
     websocket_.async_read(

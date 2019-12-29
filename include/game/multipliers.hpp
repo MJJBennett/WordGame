@@ -13,7 +13,7 @@ constexpr unsigned char TripleChar = 0b01 << 3;
 constexpr unsigned char QuadWord   = 0b01 << 4;
 constexpr unsigned char QuadChar   = 0b01 << 5;
 
-unsigned char decode(int i)
+inline unsigned char decode(int i)
 {
     // We're going to go with just a small subset of sane possibilities for now
     switch (i)

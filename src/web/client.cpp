@@ -174,6 +174,10 @@ std::optional<std::string> wg::WebSocketClient::parse_message(std::string messag
     {
         return data["msg"];
     }
+    else if (data["type"] == "configure")
+    {
+        return data["msg"];
+    }
     else
     {
         wg::log::point("Received unknown data type: ", data["type"], ", with contents:\n",

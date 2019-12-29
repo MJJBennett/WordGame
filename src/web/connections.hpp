@@ -35,7 +35,7 @@ public:
 
 private:
     std::unordered_set<WebSocketSession*> connections_;
-    WebSocketSession* host_;
+    WebSocketSession* host_{nullptr};
 };
 }  // namespace wg
 
