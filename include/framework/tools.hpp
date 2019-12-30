@@ -79,6 +79,48 @@ inline std::vector<std::string> split(const std::string& str, char delim)
     return v;
 }
 
+inline std::string join(std::vector<char> vec, char delim = '\b')
+{
+    std::string s{};
+    if (delim != '\b')
+    {
+        for (auto&& v : vec)
+        {
+            s += v + delim;
+        }
+        if (s.size()) s.pop_back();
+    }
+    else
+    {
+        for (auto&& v : vec)
+        {
+            s += v;
+        }
+    }
+    return s;
+}
+
+inline std::string join(std::vector<std::string> vec, char delim = '\b')
+{
+    std::string s{};
+    if (delim != '\b')
+    {
+        for (auto&& v : vec)
+        {
+            s += v + delim;
+        }
+        if (s.size()) s.pop_back();
+    }
+    else
+    {
+        for (auto&& v : vec)
+        {
+            s += v;
+        }
+    }
+    return s;
+}
+
 template <typename t>
 inline std::string encode_range(const t& r)
 {
@@ -102,6 +144,7 @@ inline int atoi_default(const std::string& str, int dv = 0)
     catch (const std::invalid_argument& e)
     {
         wg::log::err_ignored(e.what());
+        return dv;
     }
 }
 }  // namespace wg

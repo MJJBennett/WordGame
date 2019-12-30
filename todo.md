@@ -24,6 +24,8 @@
     - Non-Critical:
         - Host leaving leads to playerlist being out of date, as with no host the next
             joining member (who becomes host) is not sent a playerlist.
+        - 'ChatEdit' mode means we shouldn't parse keypress/keyrelease in GameContext
+            - Probably 'BoardEdit' too? Wait, no
 
 ---
 

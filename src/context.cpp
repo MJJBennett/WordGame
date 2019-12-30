@@ -95,6 +95,7 @@ void wg::GameContext::update()
         if (conf.config == "turn")
         {
             do_turn(conf.setting);
+            return;
         }
         if (conf.config == "layout")
         {
@@ -105,12 +106,13 @@ void wg::GameContext::update()
             }
             return;
         }
-        else
+        if (conf.config == "charset")
         {
-            wg::log::warn(
-                "Found configuration update that could not be understood by the game context:",
-                "\n\tName: ", conf.config, "\n\tValue: ", conf.setting);
+            io_.charset_ = conf.setting;
         }
+        wg::log::warn(
+            "Found configuration update that could not be understood by the game context:",
+            "\n\tName: ", conf.config, "\n\tValue: ", conf.setting);
         return;
     }
     const auto ojsonu = update_handler.poll_json(true);
@@ -373,6 +375,7 @@ void wg::GameContext::print_debug()
     item_b("Is Running", is_host_);
     item_v("Other Users", players_);
     item("Charset", io_.charset_);
+    item("Hand", io_.hand_);
 
     wg::log::point(debug_str);
 }

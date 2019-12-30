@@ -77,6 +77,8 @@ public:
     void draw_tiles(int num);
 
     std::string charset_;
+    std::string hand_;
+    sf::Text hand_text_;
 
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
@@ -93,6 +95,7 @@ private:
     const int message_bar_height_{24};      // height of a message
     const int message_character_size_{18};  // size of character in message
     const int message_left_offset_{12};     // left offset of the chat
+    const int hand_character_size_{18};
 };
 }  // namespace wg
 

@@ -1,14 +1,15 @@
 #include "game/game_io.hpp"
 
 #include <fstream>
-#include "game/board.hpp"
-#include "framework/file_io.hpp"
 #include "debug/log.hpp"
+#include "framework/file_io.hpp"
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
+#include "framework/supertools.hpp"
 #include "framework/tools.hpp"
 #include "framework/window_context.hpp"
 #include "framework/window_io.hpp"
+#include "game/board.hpp"
 #include "update_handler.hpp"
 
 // This is basically just meant to be a better version of the
@@ -22,6 +23,10 @@ wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
     chat_text_.setCharacterSize(message_character_size_);
     chat_text_.setFillColor(sf::Color::Black);
     chat_text_.setPosition(message_left_offset_, target.height() - message_bar_height_);
+    hand_text_.setFont(manager.defaultFont()->font);
+    hand_text_.setCharacterSize(hand_character_size_);
+    hand_text_.setFillColor(sf::Color::Black);
+    hand_text_.setPosition(300, 300);
 }
 
 void wg::GameIO::init()
@@ -145,7 +150,8 @@ wg::GameIO::Result wg::GameIO::do_enter()
         }
         case Mode::ChatEdit:
         {
-            auto r = Result::ModeEdited;;
+            auto r = Result::ModeEdited;
+            ;
             if (partial_action_ && partial_action_->type_ == Action::Type::ChatWord &&
                 (*partial_action_).input_.length() > 0)
             {
@@ -163,13 +169,14 @@ wg::GameIO::Result wg::GameIO::do_enter()
                         chat_broadcast(input, user_);
                         queue_.push(*partial_action_);  // Record action
                     }
-                    else r = Result::Command;
+                    else
+                        r = Result::Command;
                 }
                 chat_text_.setString("");
                 partial_action_.reset();
             }
             mode_ = Mode::Normal;
-            return r; // not so sure about this but hey
+            return r;  // not so sure about this but hey
         }
     }
 }
@@ -178,6 +185,7 @@ void wg::GameIO::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(chat_text_);
     for (auto&& t : chat_bar_) target.draw(t);
+    target.draw(hand_text_);
 }
 
 // Logging, serializing, etc
@@ -199,7 +207,7 @@ void wg::GameIO::log_queue()
             case Action::Type::ChatCharacter: msg += "| ChatCharacter  | "; break;
             case Action::Type::ChatWord: msg += "| ChatWord       | "; break;
             case Action::Type::CommandBind: msg += "| CommandBind    | "; break;
-            case Action::Type::TurnStart: msg +=   "| TurnStart      | "; break;
+            case Action::Type::TurnStart: msg += "| TurnStart      | "; break;
         }
         msg += a.input_;
     }
@@ -234,7 +242,7 @@ bool wg::GameIO::handle_command(const std::string& command)
                 return true;
             }
             input_file.close();
-            
+
             // Note to self:
             // In a future where GameIO does all i/o, including board i/o, there may
             // be a better way to do this. In this case, I've just gone ahead and passed
@@ -256,7 +264,7 @@ bool wg::GameIO::handle_command(const std::string& command)
         if (startswith(command, std::string{"/draw"}))
         {
             // Draw tiles
-            draw_tiles(wg::atoi_default(wg::get_arg(command))); 
+            draw_tiles(wg::atoi_default(wg::get_arg(command)));
         }
         return true;
     }
@@ -269,10 +277,14 @@ bool wg::GameIO::handle_command(const std::string& command)
 
 void wg::GameIO::load_charset(std::string charset)
 {
-    charset_ = charset;
+    charset_ = std::move(charset);
+    update_handler_.update(wg::ConfUpdate{"charset", charset_});
 }
 
 void wg::GameIO::draw_tiles(int num)
 {
     if (num < 1) return;
+    hand_ += wg::join(wg::select_randomly_destructively(charset_, num));
+    hand_text_.setString("Hand: " + hand_);
+    update_handler_.update(wg::ConfUpdate{"charset", charset_});
 }
