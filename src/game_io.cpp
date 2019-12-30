@@ -234,6 +234,7 @@ bool wg::GameIO::handle_command(const std::string& command)
             // the board directly into the GameIO object.
             assert(data.find("layout") != data.end());
             board_.set_layout(data["layout"]);
+            update_handler_.update(wg::ConfUpdate{"layout", data["layout"].dump()});
         }
         return true;
     }

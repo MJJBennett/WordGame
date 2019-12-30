@@ -6,6 +6,7 @@
 #include "commands.hpp"
 #include "debug/log.hpp"
 #include "framework/file_io.hpp"
+#include "framework/json_tools.hpp"
 #include "framework/render.hpp"
 #include "framework/tools.hpp"
 #include "framework/window_io.hpp"
@@ -58,7 +59,7 @@ void wg::GameContext::update()
                 io_.chat_broadcast(io_.user_ + " is now host!", "Server");
                 // This is a lie, this isn't the server...
                 // Oh well.
-                
+
                 // We're the host now.
                 is_host_ = true;
                 return;
@@ -69,6 +70,15 @@ void wg::GameContext::update()
         {
             players_.insert(conf.setting);
             io_.chat(conf.setting + " has joined the game!", "Server");
+            return;
+        }
+        if (conf.config == "layout")
+        {
+            io_.chat("Updating layout.", "Server");
+            if (const auto l = wg::try_parse(conf.setting); l)
+            {
+                board_.set_layout(*l);
+            }
             return;
         }
         else
