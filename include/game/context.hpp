@@ -26,6 +26,7 @@ public:
     // Everything we have that can be drawn, can receive input
     // We want to be able to manage that - so:
     void parse_input(sf::Event&);
+    void maybe_command(const wg::Action& act);
 
     // This runs once per game tick
     void update();
@@ -57,6 +58,8 @@ private:
     void parse_text_entered(sf::Event&);
     void parse_mouse_released(sf::Event&);
     void parse_escape();
+
+    void do_turn(const std::string& player);
 
 private:
     enum class Mode

@@ -27,6 +27,7 @@ struct Action
         ChatWord,
 
         CommandBind,
+        TurnStart,
     } type_;
 
     std::string input_;
@@ -41,17 +42,27 @@ public:
         ChatEdit,
         Normal,
     } mode_ = Mode::Normal;
+    
+    enum class Result
+    {
+        None,
+        Command,
+        BoardEdited,
+        ChatEdited,
+        ModeEdited,
+        Ignore, // Like None, but makes Context ignore the event
+    };
 
 public:
     GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
            wg::UpdateHandler& update_handler, wg::Board& board);
     void init();
 
-    bool do_event(const sf::Event&);
-    void text_entered(unsigned int c);
-    void key_pressed(sf::Keyboard::Key k);
-    void key_released(sf::Keyboard::Key k);
-    void do_enter();
+    Result do_event(const sf::Event&);
+    Result text_entered(unsigned int c);
+    Result key_pressed(sf::Keyboard::Key k);
+    Result key_released(sf::Keyboard::Key k);
+    Result do_enter();
 
     void chat(std::string msg, std::string auth);
     void chat_broadcast(std::string msg, std::string auth);
@@ -62,6 +73,10 @@ public:
     void log_queue();
 
     bool handle_command(const std::string& command);
+    void load_charset(std::string charset);
+    void draw_tiles(int num);
+
+    std::string charset_;
 
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

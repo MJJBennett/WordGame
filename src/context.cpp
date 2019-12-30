@@ -72,7 +72,9 @@ void wg::GameContext::update()
             players_.insert(conf.setting);
             auto temp_playerlist = players_;
             temp_playerlist.insert(io_.user_);
-            if (is_host_) update_handler.update(wg::ConfUpdate{"playerlist", wg::encode_range(temp_playerlist)});
+            if (is_host_)
+                update_handler.update(
+                    wg::ConfUpdate{"playerlist", wg::encode_range(temp_playerlist)});
             io_.chat(conf.setting + " has joined the game!", "Server");
             return;
         }
@@ -85,9 +87,14 @@ void wg::GameContext::update()
         if (conf.config == "playerlist")
         {
             const auto np = wg::decode_range(conf.setting);
-            for (auto&& p : np) if (p != io_.user_) players_.insert(p);
+            for (auto&& p : np)
+                if (p != io_.user_) players_.insert(p);
             wg::log::point("Updated playerlist.");
             return;
+        }
+        if (conf.config == "turn")
+        {
+            do_turn(conf.setting);
         }
         if (conf.config == "layout")
         {
@@ -126,8 +133,17 @@ void wg::GameContext::update()
 void wg::GameContext::parse_input(sf::Event& e)
 {
     const bool ret = io_.mode_ == GameIO::Mode::Normal;
-    io_.do_event(e);
-    if (!ret || io_.mode_ != GameIO::Mode::Normal) return;
+    switch (io_.do_event(e))
+    {
+        case GameIO::Result::None: break;
+        case GameIO::Result::Command:
+        {
+            if (io_.queue_.size() == 0) return;
+            const auto& act = io_.queue_.back();
+            maybe_command(act);
+        }
+        default: return;
+    }
 
     switch (e.type)
     {
@@ -143,6 +159,40 @@ void wg::GameContext::parse_input(sf::Event& e)
             if (mode_ != Mode::Default) parse_text_entered(e);
         case sf::Event::MouseButtonReleased: parse_mouse_released(e); break;
         default: break;
+    }
+}
+
+void wg::GameContext::maybe_command(const wg::Action& act)
+{
+    switch (act.type_)
+    {
+        case wg::Action::Type::TurnStart:
+        {
+            // We need to start someone's turn!
+            const auto& p = act.input_;
+            const auto& u = io_.user_;
+            if (players_.find(p) == players_.end() && p != u)
+            {
+                wg::log::warn("Tried to start turn of non-existing player: '", p, "'");
+                return;
+            }
+            update_handler.update(wg::ConfUpdate{"turn", p});
+            do_turn(p);
+            break;
+        }
+        default: break;
+    }
+}
+
+void wg::GameContext::do_turn(const std::string& player)
+{
+    if (io_.user_ == player)
+    {
+        io_.chat("It's your turn!", "Game");
+    }
+    else
+    {
+        io_.chat("It's " + player + "'s turn!", "Game");
     }
 }
 
@@ -305,7 +355,7 @@ void wg::GameContext::print_debug()
     auto item             = [&debug_str](const std::string& name, const std::string& value) {
         debug_str += "\n\t - " + name + ": " + value;
     };
-    auto item_b             = [&debug_str](const std::string& name, bool value) {
+    auto item_b = [&debug_str](const std::string& name, bool value) {
         debug_str += "\n\t - " + name + ": " + (value ? "True" : "False");
     };
     // This is awesome! auto lambdas are so great!
@@ -322,6 +372,7 @@ void wg::GameContext::print_debug()
     item_b("Is Host", is_host_);
     item_b("Is Running", is_host_);
     item_v("Other Users", players_);
+    item("Charset", io_.charset_);
 
     wg::log::point(debug_str);
 }

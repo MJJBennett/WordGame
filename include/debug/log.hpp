@@ -58,6 +58,13 @@ void err(Ts... ts)
     _err("Error: ", std::forward<Ts>(ts)...);
 }
 
+/** Logs an error message. **/
+template <typename... Ts>
+void err_ignored(Ts... ts)
+{
+    _err("Ignored Error: ", std::forward<Ts>(ts)...);
+}
+
 /** Optionally logs an error message. **/
 template <typename error_type, typename... Ts>
 bool opt_err(error_type e, Ts... ts)

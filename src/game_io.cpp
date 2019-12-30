@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include "game/board.hpp"
+#include "framework/file_io.hpp"
 #include "debug/log.hpp"
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
@@ -28,19 +29,18 @@ void wg::GameIO::init()
     user_ = wg::window_io::get_from_file(target_, manager_, "Enter Username", "name.txt");
 }
 
-bool wg::GameIO::do_event(const sf::Event& e)
+wg::GameIO::Result wg::GameIO::do_event(const sf::Event& e)
 {
     switch (e.type)
     {
-        case sf::Event::TextEntered: text_entered(e.text.unicode); break;
-        case sf::Event::KeyPressed: key_pressed(e.key.code); break;
-        case sf::Event::KeyReleased: key_released(e.key.code); break;
-        default: return false;
+        case sf::Event::TextEntered: return text_entered(e.text.unicode);
+        case sf::Event::KeyPressed: return key_pressed(e.key.code);
+        case sf::Event::KeyReleased: return key_released(e.key.code);
+        default: return Result::None;
     }
-    return true;
 }
 
-void wg::GameIO::text_entered(unsigned int c)
+wg::GameIO::Result wg::GameIO::text_entered(unsigned int c)
 {
     // Where do we redirect this?
     // To the board, if we're in 'Board Edit' mode...
@@ -48,7 +48,7 @@ void wg::GameIO::text_entered(unsigned int c)
     {
         auto ch = get_char<std::optional<char>>(c);
         if (ch) queue_.push({Action::Type::BoardCharacter, std::string{*ch}});
-        return;
+        return Result::BoardEdited;
     }
     if (mode_ == Mode::ChatEdit)
     {
@@ -66,7 +66,9 @@ void wg::GameIO::text_entered(unsigned int c)
             }
             chat_text_.setString((*partial_action_).input_);
         }
+        return Result::ChatEdited;
     }
+    return Result::None;
 }
 
 void wg::GameIO::chat(std::string msg, std::string auth)
@@ -96,16 +98,16 @@ void wg::GameIO::chat_broadcast(std::string msg, std::string auth)
     chat(msg, auth);
 }
 
-void wg::GameIO::key_pressed(sf::Keyboard::Key k)
+wg::GameIO::Result wg::GameIO::key_pressed(sf::Keyboard::Key k)
 {
     switch (k)
     {
         case sf::Keyboard::Key::Enter: return do_enter();
-        default: return;
+        default: return Result::None;
     }
 }
 
-void wg::GameIO::key_released(sf::Keyboard::Key k)
+wg::GameIO::Result wg::GameIO::key_released(sf::Keyboard::Key k)
 {
     switch (k)
     {
@@ -119,28 +121,31 @@ void wg::GameIO::key_released(sf::Keyboard::Key k)
         }
         case sf::Keyboard::Key::Enter:
         {
-            return;  // this is done on keypress, see do_enter
+            return Result::None;  // this is done on keypress, see do_enter
         }
-        default: return;
+        default: return Result::None;
     }
+    if (mode_ == Mode::ChatEdit) return Result::ChatEdited;
+    return Result::None;
 }
 
-void wg::GameIO::do_enter()
+wg::GameIO::Result wg::GameIO::do_enter()
 {
     switch (mode_)
     {
         case Mode::Normal:
         {
             mode_ = Mode::ChatEdit;
-            return;
+            return Result::ModeEdited;
         }
         case Mode::BoardEdit:
         {
             mode_ = Mode::Normal;
-            return;
+            return Result::ModeEdited;
         }
         case Mode::ChatEdit:
         {
+            auto r = Result::ModeEdited;;
             if (partial_action_ && partial_action_->type_ == Action::Type::ChatWord &&
                 (*partial_action_).input_.length() > 0)
             {
@@ -158,12 +163,13 @@ void wg::GameIO::do_enter()
                         chat_broadcast(input, user_);
                         queue_.push(*partial_action_);  // Record action
                     }
+                    else r = Result::Command;
                 }
                 chat_text_.setString("");
                 partial_action_.reset();
             }
             mode_ = Mode::Normal;
-            return;
+            return r; // not so sure about this but hey
         }
     }
 }
@@ -193,6 +199,7 @@ void wg::GameIO::log_queue()
             case Action::Type::ChatCharacter: msg += "| ChatCharacter  | "; break;
             case Action::Type::ChatWord: msg += "| ChatWord       | "; break;
             case Action::Type::CommandBind: msg += "| CommandBind    | "; break;
+            case Action::Type::TurnStart: msg +=   "| TurnStart      | "; break;
         }
         msg += a.input_;
     }
@@ -236,6 +243,21 @@ bool wg::GameIO::handle_command(const std::string& command)
             board_.set_layout(data["layout"]);
             update_handler_.update(wg::ConfUpdate{"layout", data["layout"].dump()});
         }
+        else if (startswith(command, std::string{"/turn"}))
+        {
+            const auto user = wg::get_arg(command);
+            queue_.emplace(wg::Action{Action::Type::TurnStart, user});
+        }
+        if (startswith(command, std::string{"/charset"}))
+        {
+            // Load charset
+            load_charset(wg::get_single_line(wg::get_arg(command)));
+        }
+        if (startswith(command, std::string{"/draw"}))
+        {
+            // Draw tiles
+            draw_tiles(wg::atoi_default(wg::get_arg(command))); 
+        }
         return true;
     }
     if (startswith(command, std::string{"?"}))
@@ -243,4 +265,14 @@ bool wg::GameIO::handle_command(const std::string& command)
         return true;
     }
     return false;
+}
+
+void wg::GameIO::load_charset(std::string charset)
+{
+    charset_ = charset;
+}
+
+void wg::GameIO::draw_tiles(int num)
+{
+    if (num < 1) return;
 }

@@ -124,6 +124,18 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
             wg::log::point("New playerlist: ", playerlist);
             return wg::ConfUpdate{"playerlist", playerlist};
         }
+        if (d.find("turn") != d.end())
+        {
+            const std::string turn = d["turn"];
+            wg::log::point("New turn: ", turn);
+            return wg::ConfUpdate{"turn", turn};
+        }
+        if (d.find("charset") != d.end())
+        {
+            const std::string charset = d["charset"];
+            wg::log::point("New charset: ", charset);
+            return wg::ConfUpdate{"charset", charset};
+        }
         return {};
     }
     catch (nlohmann::json::parse_error e)

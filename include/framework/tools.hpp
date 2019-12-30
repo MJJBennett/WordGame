@@ -2,10 +2,11 @@
 #define WG_TOOLS_HPP
 
 #include <SFML/Graphics/Color.hpp>
-#include <array>
 #include <algorithm>
+#include <array>
 #include <string>
 #include <vector>
+#include "debug/log.hpp"
 
 namespace wg
 {
@@ -90,9 +91,18 @@ inline std::string encode_range(const t& r)
     return s;
 }
 
-inline std::vector<std::string> decode_range(const std::string& r)
+inline std::vector<std::string> decode_range(const std::string& r) { return ::wg::split(r, '|'); }
+
+inline int atoi_default(const std::string& str, int dv = 0)
 {
-    return ::wg::split(r, '|');
+    try
+    {
+        return std::stoi(str);
+    }
+    catch (const std::invalid_argument& e)
+    {
+        wg::log::err_ignored(e.what());
+    }
 }
 }  // namespace wg
 
