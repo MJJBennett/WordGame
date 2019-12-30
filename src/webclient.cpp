@@ -36,6 +36,10 @@ void wg::web::Client::update(const wg::ConfUpdate& u)
     const auto j = nlohmann::json{{u.config, u.setting}};
     wg::log::point(__func__, ": Sending data: ", j.dump());
     send(j.dump());
+    if (u.config == "join")
+    {
+        client_->queue_join(u.setting);
+    }
 }
 
 std::optional<wg::GameUpdate> wg::web::Client::poll_game(bool clear)
@@ -104,6 +108,18 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
             const std::string join = d["join"];
             wg::log::point("New player joined: ", join);
             return wg::ConfUpdate{"join", join};
+        }
+        if (d.find("disconnect") != d.end())
+        {
+            const std::string disconnect = d["disconnect"];
+            wg::log::point("Player disconnected: ", disconnect);
+            return wg::ConfUpdate{"disconnect", disconnect};
+        }
+        if (d.find("playerlist") != d.end())
+        {
+            const std::string playerlist = d["playerlist"];
+            wg::log::point("New playerlist: ", playerlist);
+            return wg::ConfUpdate{"playerlist", playerlist};
         }
         return {};
     }

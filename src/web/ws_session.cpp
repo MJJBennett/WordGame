@@ -54,6 +54,13 @@ void wg::WebSocketSession::on_accept(beast::error_code ec)
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));
 }
 
+void wg::WebSocketSession::queue_disconnect(std::string username)
+{
+    queue_write(nlohmann::json{{"type", "disconnect"},
+                               {"msg", (nlohmann::json{{"disconnect", username}}).dump()}}
+                    .dump());
+}
+
 void wg::WebSocketSession::queue_write(std::string message)
 {
     write_queue_.push(message);
@@ -89,9 +96,9 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
     else if (rem_seq_ + 1 != seq)
         wg::log::warn("[WebSocket] Received sequence number ", seq, " when ", rem_seq_ + 1,
                       " was expected.");
-    rem_seq_                  = seq;
-    const std::string payload = data["msg"];
-    const auto ret            = nlohmann::json{{"type", "ack"}, {"ack", seq + 1}};
+    rem_seq_ = seq;
+    // const std::string payload = data["msg"];
+    const auto ret = nlohmann::json{{"type", "ack"}, {"ack", seq + 1}};
 
     buffer_.consume(buffer_.size());
 
@@ -104,7 +111,13 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
             beast::bind_front_handler(&WebSocketSession::on_write, shared_from_this()));
     }
 
-    if (data["type"] == "msg") connections_->alert_connections(this, msg);
+    // This is where we forward the message elsewhere
+    if (data["type"] == "msg")
+        connections_->alert_connections(this, msg);
+    else if (data["type"] == "b") {
+        wg::log::point("Setting username using packet: ", data.dump());
+        connections_->set_user(this, data["msg"]);
+    }
 
     websocket_.async_read(
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));

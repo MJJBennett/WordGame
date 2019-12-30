@@ -20,10 +20,13 @@
 
 - Bugs:
     - Critical:
-        - Host leaving the game does not allow reassignment of the host.
-        - Reloading config wipes the layout.
+        - Reloading config wipes the layout. (Is this fixed?)
+    - Non-Critical:
+        - Host leaving leads to playerlist being out of date, as with no host the next
+            joining member (who becomes host) is not sent a playerlist.
 
 ---
 
 - Fixed:
     - Game freezes when clicking 'x' in text entry
+    - Host leaving the game does not allow reassignment of the host.

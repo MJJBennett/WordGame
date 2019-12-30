@@ -43,6 +43,7 @@ public:
     bool set_config(std::string name, std::vector<unsigned int> value);
     bool set_config(std::string name, std::string value);
 
+    void print_debug();
 public:
     // A game has a table, a chat, a network context, and a few other things
     // Let's deal with the table first of all

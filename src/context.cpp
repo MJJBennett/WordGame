@@ -69,7 +69,23 @@ void wg::GameContext::update()
         if (conf.config == "join")
         {
             players_.insert(conf.setting);
+            auto temp_playerlist = players_;
+            temp_playerlist.insert(io_.user_);
+            if (is_host_) update_handler.update(wg::ConfUpdate{"playerlist", wg::encode_range(players_)});
             io_.chat(conf.setting + " has joined the game!", "Server");
+            return;
+        }
+        if (conf.config == "disconnect")
+        {
+            players_.erase(conf.setting);
+            io_.chat(conf.setting + " has disconnected from the game!", "Server");
+            return;
+        }
+        if (conf.config == "playerlist")
+        {
+            const auto np = wg::decode_range(conf.setting);
+            for (auto&& p : np) if (p != io_.user_) players_.insert(p);
+            wg::log::point("Updated playerlist.");
             return;
         }
         if (conf.config == "layout")
@@ -139,9 +155,11 @@ void wg::GameContext::render(wg::Renderer& renderer)
 void wg::GameContext::parse_key_released(sf::Event& e)
 {
     wg::assert_true(e.type == sf::Event::KeyReleased);
-    if (e.key.code == sf::Keyboard::Key::C)
+    switch (e.key.code)
     {
-        load_config("config.json");
+        case sf::Keyboard::Key::C: load_config("config.json"); return;
+        case sf::Keyboard::Key::D: print_debug(); return;
+        default: return;
     }
 }
 
@@ -273,3 +291,30 @@ bool wg::GameContext::set_config(std::string name, std::vector<unsigned int> val
 }
 
 bool wg::GameContext::set_config(std::string name, std::string value) { return true; }
+
+void wg::GameContext::print_debug()
+{
+    std::string debug_str = "Debug information:";
+    auto item             = [&debug_str](const std::string& name, const std::string& value) {
+        debug_str += "\n\t - " + name + ": " + value;
+    };
+    auto item_b             = [&debug_str](const std::string& name, bool value) {
+        debug_str += "\n\t - " + name + ": " + (value ? "True" : "False");
+    };
+    // This is awesome! auto lambdas are so great!
+    auto item_v = [&debug_str](const std::string& name, const auto& range) {
+        debug_str += "\n\t - " + name + ": ";
+        for (auto&& val : range)
+        {
+            debug_str += "\n\t\t - " + val;
+        }
+    };
+
+    // Players
+    item("Username", io_.user_);
+    item_b("Is Host", is_host_);
+    item_b("Is Running", is_host_);
+    item_v("Other Users", players_);
+
+    wg::log::point(debug_str);
+}
