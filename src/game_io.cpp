@@ -26,7 +26,7 @@ wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
     hand_text_.setFont(manager.defaultFont()->font);
     hand_text_.setCharacterSize(hand_character_size_);
     hand_text_.setFillColor(sf::Color::Black);
-    hand_text_.setPosition(300, 300);
+    hand_text_.setPosition(target.width() - 200, target.height() / 2);
 }
 
 void wg::GameIO::init()

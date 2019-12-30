@@ -42,7 +42,7 @@ public:
         ChatEdit,
         Normal,
     } mode_ = Mode::Normal;
-    
+
     enum class Result
     {
         None,
@@ -50,7 +50,7 @@ public:
         BoardEdited,
         ChatEdited,
         ModeEdited,
-        Ignore, // Like None, but makes Context ignore the event
+        Ignore,  // Like None, but makes Context ignore the event
     };
 
 public:
@@ -79,6 +79,16 @@ public:
     std::string charset_;
     std::string hand_;
     sf::Text hand_text_;
+    bool play_tile(char c)
+    {
+        if (auto it = hand_.find(c); it != std::string::npos)
+        {
+            hand_.erase(it);
+            hand_text_.setString("Hand: " + hand_);
+            return true;
+        }
+        return false;
+    }
 
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

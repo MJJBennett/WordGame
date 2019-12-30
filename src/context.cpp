@@ -147,6 +147,8 @@ void wg::GameContext::parse_input(sf::Event& e)
         default: return;
     }
 
+    if (io_.mode_ == GameIO::Mode::ChatEdit) return;
+
     switch (e.type)
     {
         case sf::Event::KeyReleased:
@@ -225,6 +227,7 @@ void wg::GameContext::parse_text_entered(sf::Event& e)
         {
             const auto [col, row] = *pending_tile_;
             set_tile(col, row, *c);
+            io_.play_tile(c);
             update_handler.update(GameUpdate{int(col), int(row), *c});
         }
         mode_ = Mode::Default;
