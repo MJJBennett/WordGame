@@ -12,6 +12,7 @@ enc_temp_folder/
 # Local configurations
 compile_commands.json
 CMakeSettings.json
+scripts/save_setup.sh
 
 # Ignorable extensions
 *.swp

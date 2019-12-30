@@ -206,6 +206,7 @@ void wg::GameIO::log_queue()
             case Action::Type::ChatWord: msg += "| ChatWord       | "; break;
             case Action::Type::CommandBind: msg += "| CommandBind    | "; break;
             case Action::Type::TurnStart: msg += "| TurnStart      | "; break;
+            case Action::Type::PushInfo: msg += "| PushInfo       | "; break;
         }
         msg += a.input_;
     }
@@ -269,6 +270,8 @@ bool wg::GameIO::handle_command(const std::string& command)
             // Push information to others:
             //  - Charset
             update_handler_.update(wg::ConfUpdate{"charset", charset_});
+            //  - Player List, etc
+            queue_.emplace(wg::Action{Action::Type::PushInfo, ""});
         }
         return true;
     }

@@ -26,9 +26,20 @@ void wg::GameContext::init()
     io_.init();
     update_handler.update(wg::ServUpdate{"join", io_.user_});
     update_handler.update(wg::ConfUpdate{"join", io_.user_});
+    rect_.setSize(sf::Vector2f{25.f, 25.f});
+    std::string legend_str;
+    for (int i = 1; i < 5; i++)
+    {
+        legend_str += wg::multiplier::to_string(wg::multiplier::decode(i)) + '\n';
+    }
 
     io_.setup_text(playerlist_, playerlist_str_);
+    io_.setup_text(legend_, legend_str);
     io_.position_playerlist(playerlist_);
+    io_.position_playerlist(legend_);
+    legend_.move(25, -200);
+    legend_.setLineSpacing(1.2);
+    fix_playerlist();
 }
 
 void wg::GameContext::update()
@@ -74,11 +85,7 @@ void wg::GameContext::update()
         {
             players_.insert(conf.setting);
             fix_playerlist();
-            auto temp_playerlist = players_;
-            temp_playerlist.insert(io_.user_);
-            if (is_host_)
-                update_handler.update(
-                    wg::ConfUpdate{"playerlist", wg::encode_range(temp_playerlist)});
+            if (is_host_) send_playerlist();
             io_.chat(conf.setting + " has joined the game!", "Server");
             return;
         }
@@ -138,6 +145,13 @@ void wg::GameContext::update()
     }
 }
 
+void wg::GameContext::send_playerlist()
+{
+    auto temp_playerlist = players_;
+    temp_playerlist.insert(io_.user_);
+    update_handler.update(wg::ConfUpdate{"playerlist", wg::encode_range(temp_playerlist)});
+}
+
 void wg::GameContext::parse_input(sf::Event& e)
 {
     const bool ret = io_.mode_ == GameIO::Mode::Normal;
@@ -190,6 +204,13 @@ void wg::GameContext::maybe_command(const wg::Action& act)
             do_turn(p);
             break;
         }
+        case wg::Action::Type::PushInfo:
+        {
+            // Push all information about the current state to other users
+            // Yes, this might cause race conditions (to be honest, they definitely already
+            // existed) I don't think that's a big concern for this for a variety of reasons
+            send_playerlist();
+        }
         default: break;
     }
 }
@@ -208,8 +229,19 @@ void wg::GameContext::do_turn(const std::string& player)
 
 void wg::GameContext::render(wg::Renderer& renderer)
 {
+    renderer.render(playerlist_);
+    if (hide_things_) return;
     renderer.render(io_);
     renderer.render(board_.table_);
+    renderer.render(legend_);
+    io_.position_playerlist(rect_);  // I lied earlier, THIS is the worst thing
+    rect_.move(0, -200);
+    for (size_t i = 1; i < 5; i++)
+    {
+        rect_.setFillColor(board_.multiplier_colour(multiplier::decode(i)));
+        renderer.render(rect_);
+        rect_.move(0, 25);
+    }
 }
 
 // Event handling
@@ -220,6 +252,7 @@ void wg::GameContext::parse_key_released(sf::Event& e)
     {
         case sf::Keyboard::Key::C: load_config("config.json"); return;
         case sf::Keyboard::Key::D: print_debug(); return;
+        case sf::Keyboard::Key::H: hide_things_ = !hide_things_; return;
         default: return;
     }
 }

@@ -155,7 +155,7 @@ int wg::Application::run_develop(wg::WindowContext& window, wg::ResourceManager&
         // Ah, reflection
         const std::string s = std::to_string(i) + " is: " + wg::multiplier::to_string(wg::multiplier::decode(i));
         help.push_back(sf::Text{s, manager.defaultFont()->font, 24});
-        help.back().setPosition(window.width() - 170, i*32);
+        help.back().setPosition(window.width() - 270, i*32);
         help.back().setFillColor(sf::Color{1,1,1});
     }
 

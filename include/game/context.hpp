@@ -3,6 +3,7 @@
 
 #include <unordered_set>
 #include "game/board.hpp"
+#include <SFML/Graphics/RectangleShape.hpp>
 #include "game/game_io.hpp"
 #include "game/update.hpp"
 #include "wg_forward.hpp"
@@ -27,6 +28,7 @@ public:
     // We want to be able to manage that - so:
     void parse_input(sf::Event&);
     void maybe_command(const wg::Action& act);
+    void send_playerlist();
 
     // This runs once per game tick
     void update();
@@ -79,6 +81,9 @@ private:
     std::unordered_set<std::string> players_;
     bool is_host_{false};
 
+    sf::RectangleShape rect_;
+    sf::Text legend_;
+
     sf::Text playerlist_;
     std::string playerlist_str_;
     void fix_playerlist()
@@ -88,7 +93,10 @@ private:
         {
             playerlist_str_ += "\n- " + op;
         }
+        playerlist_.setString(playerlist_str_);
     }
+
+    bool hide_things_{false};
 };
 }  // namespace wg
 
