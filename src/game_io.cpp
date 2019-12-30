@@ -19,13 +19,11 @@ wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
                    wg::UpdateHandler& update_handler, wg::Board& board)
     : target_(target), manager_(manager), update_handler_(update_handler), board_(board)
 {
-    chat_text_.setFont(manager.defaultFont()->font);
+    setup_text(chat_text_);
     chat_text_.setCharacterSize(message_character_size_);
-    chat_text_.setFillColor(sf::Color::Black);
     chat_text_.setPosition(message_left_offset_, target.height() - message_bar_height_);
-    hand_text_.setFont(manager.defaultFont()->font);
+    setup_text(hand_text_);
     hand_text_.setCharacterSize(hand_character_size_);
-    hand_text_.setFillColor(sf::Color::Black);
     hand_text_.setPosition(target.width() - 200, target.height() / 2);
 }
 
@@ -266,6 +264,12 @@ bool wg::GameIO::handle_command(const std::string& command)
             // Draw tiles
             draw_tiles(wg::atoi_default(wg::get_arg(command)));
         }
+        if (startswith(command, std::string{"/push"}))
+        {
+            // Push information to others:
+            //  - Charset
+            update_handler_.update(wg::ConfUpdate{"charset", charset_});
+        }
         return true;
     }
     if (startswith(command, std::string{"?"}))
@@ -287,4 +291,17 @@ void wg::GameIO::draw_tiles(int num)
     hand_ += wg::join(wg::select_randomly_destructively(charset_, num));
     hand_text_.setString("Hand: " + hand_);
     update_handler_.update(wg::ConfUpdate{"charset", charset_});
+}
+
+void wg::GameIO::setup_text(sf::Text& text, const std::string& contents)
+{
+    text.setFont(manager_.defaultFont()->font);
+    text.setCharacterSize(default_character_size_);
+    text.setFillColor(sf::Color::Black);
+    text.setString(contents);
+}
+
+void wg::GameIO::position_playerlist(sf::Transformable& l)
+{
+    l.setPosition(target_.width() / 2 + 50, target_.height() - 200);
 }

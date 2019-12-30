@@ -48,6 +48,12 @@ auto get_char(unsigned int c) -> Optional
     return (c < 128 && c > 31) ? (Optional{(char)c}) : Optional{};
 }
 
+template <typename Optional>
+auto get_game_char(unsigned int c) -> Optional
+{
+    return (c < 128 && c > 31) ? (Optional{std::toupper((char)c)}) : Optional{};
+}
+
 inline bool startswith(const std::string& str, const std::string& start)
 {
     return ((start.size() <= str.size()) && str.substr(0, start.size()) == start);

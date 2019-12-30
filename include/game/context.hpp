@@ -1,27 +1,27 @@
 #ifndef WG_GAME_CONTEXT_HPP
 #define WG_GAME_CONTEXT_HPP
 
+#include <unordered_set>
 #include "game/board.hpp"
 #include "game/game_io.hpp"
 #include "game/update.hpp"
 #include "wg_forward.hpp"
-#include <unordered_set>
 
 namespace wg
 {
 namespace GameOption
 {
-constexpr unsigned int None = 0b0;
+constexpr unsigned int None         = 0b0;
 constexpr unsigned int TurnsEnabled = 0b1;
-//constexpr unsigned int ? = 0b1 << 1;
-}
+// constexpr unsigned int ? = 0b1 << 1;
+}  // namespace GameOption
 
 class GameContext
 {
 public:
     GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u);
 
-    void init(); // Called once
+    void init();  // Called once
 
     // Everything we have that can be drawn, can receive input
     // We want to be able to manage that - so:
@@ -45,6 +45,7 @@ public:
     bool set_config(std::string name, std::string value);
 
     void print_debug();
+
 public:
     // A game has a table, a chat, a network context, and a few other things
     // Let's deal with the table first of all
@@ -77,6 +78,17 @@ private:
     // This is game state stuff, until we refactor it out
     std::unordered_set<std::string> players_;
     bool is_host_{false};
+
+    sf::Text playerlist_;
+    std::string playerlist_str_;
+    void fix_playerlist()
+    {
+        playerlist_str_ = "Players:\n> " + io_.user_;
+        for (auto&& op : players_)
+        {
+            playerlist_str_ += "\n- " + op;
+        }
+    }
 };
 }  // namespace wg
 

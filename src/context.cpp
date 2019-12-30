@@ -26,6 +26,9 @@ void wg::GameContext::init()
     io_.init();
     update_handler.update(wg::ServUpdate{"join", io_.user_});
     update_handler.update(wg::ConfUpdate{"join", io_.user_});
+
+    io_.setup_text(playerlist_, playerlist_str_);
+    io_.position_playerlist(playerlist_);
 }
 
 void wg::GameContext::update()
@@ -70,6 +73,7 @@ void wg::GameContext::update()
         if (conf.config == "join")
         {
             players_.insert(conf.setting);
+            fix_playerlist();
             auto temp_playerlist = players_;
             temp_playerlist.insert(io_.user_);
             if (is_host_)
@@ -81,6 +85,7 @@ void wg::GameContext::update()
         if (conf.config == "disconnect")
         {
             players_.erase(conf.setting);
+            fix_playerlist();
             io_.chat(conf.setting + " has disconnected from the game!", "Server");
             return;
         }
@@ -90,6 +95,7 @@ void wg::GameContext::update()
             for (auto&& p : np)
                 if (p != io_.user_) players_.insert(p);
             wg::log::point("Updated playerlist.");
+            fix_playerlist();
             return;
         }
         if (conf.config == "turn")
@@ -222,7 +228,7 @@ void wg::GameContext::parse_text_entered(sf::Event& e)
 {
     if (mode_ == Mode::SetTile)
     {
-        const auto c = get_char<std::optional<char>>(e.text.unicode);
+        const auto c = get_game_char<std::optional<char>>(e.text.unicode);
         if (c)
         {
             const auto [col, row] = *pending_tile_;

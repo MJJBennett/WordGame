@@ -76,6 +76,9 @@ public:
     void load_charset(std::string charset);
     void draw_tiles(int num);
 
+    void setup_text(sf::Text& text, const std::string& contents = "");
+    void position_playerlist(sf::Transformable& l);
+
     std::string charset_;
     std::string hand_;
     sf::Text hand_text_;
@@ -83,7 +86,7 @@ public:
     {
         if (auto it = hand_.find(c); it != std::string::npos)
         {
-            hand_.erase(it);
+            hand_.erase(it, 1);
             hand_text_.setString("Hand: " + hand_);
             return true;
         }
@@ -106,6 +109,7 @@ private:
     const int message_character_size_{18};  // size of character in message
     const int message_left_offset_{12};     // left offset of the chat
     const int hand_character_size_{18};
+    const int default_character_size_{18};
 };
 }  // namespace wg
 
