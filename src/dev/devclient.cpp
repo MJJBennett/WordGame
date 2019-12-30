@@ -77,7 +77,12 @@ void wg::dev::Client::update(const wg::ChatUpdate& u)
     {
         if (file_.length() == 0) return;
         std::ofstream output_file(file_);
+
+#if defined(WIN32) || defined(_WIN32)
+        output_file << data_ << std::endl;
+#else
         output_file << std::setw(2) << data_ << std::endl;
+#endif
         chat_.push("Saved to file: " + file_);
     }
 }
