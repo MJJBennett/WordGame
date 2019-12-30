@@ -4,8 +4,8 @@
 #include "framework/resourcemanager.hpp"
 #include "framework/table.hpp"
 #include "framework/tools.hpp"
-#include "game/item.hpp"
 #include "framework/window_context.hpp"
+#include "game/item.hpp"
 
 #include <SFML/Graphics/Drawable.hpp>
 
@@ -29,6 +29,13 @@ void wg::Renderer::render(const Table<Item>& i)
     const float move_x              = (float)(width + offset_x);
     const float move_y              = (float)(height + offset_y);
 
+    // We'll draw the background first
+    rect_.setFillColor(wg::colour(i.bg_r, i.bg_g, i.bg_b));
+    rect_.setPosition(i.x, i.y);
+    rect_.setSize(sf::Vector2f{move_x * i.table_size, move_y * i.table_size});
+    window_.getTarget().draw(rect_);
+    rect_.setSize(sf::Vector2f{25, 25});
+
     for (unsigned int col_num = 0; col_num < i.table_size; col_num++)
     {
         const auto& column = i.get_column(col_num);
@@ -39,8 +46,8 @@ void wg::Renderer::render(const Table<Item>& i)
             // Pretty easy change to make once more implementation is done and it's actually
             // possible to test this hypothesis.
             const auto& item = column[row_num];
-            const auto pos_x = col_num * move_x;
-            const auto pos_y = row_num * move_y;
+            const auto pos_x = i.x + col_num * move_x;
+            const auto pos_y = i.y + row_num * move_y;
 
             // Colour
             rect_.setFillColor(item.colour_);

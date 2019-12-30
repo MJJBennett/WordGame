@@ -121,6 +121,7 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
         if (m && m->find("SERVER") != m->end())
         {
             const auto& sm = *m;
+            wg::log::point("[WebSocket] Parsing SERVER command: ", sm.dump());
             if (sm.find("join") != sm.end())
             {
                 connections_->set_user(this, sm["join"]);

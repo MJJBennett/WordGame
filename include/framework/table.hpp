@@ -50,6 +50,12 @@ public:
         }
     }
 
+    unsigned int bg_r = 0;
+    unsigned int bg_g = 0;
+    unsigned int bg_b = 0;
+    float x = 0;
+    float y = 0;
+
 private:
     void calculate_width() const { width_ = (float)table_size * (tile_width + offset_x); }
     void calculate_height() const { height_ = (float)table_size * (tile_height + offset_y); }

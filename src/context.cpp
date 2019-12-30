@@ -72,7 +72,7 @@ void wg::GameContext::update()
             players_.insert(conf.setting);
             auto temp_playerlist = players_;
             temp_playerlist.insert(io_.user_);
-            if (is_host_) update_handler.update(wg::ConfUpdate{"playerlist", wg::encode_range(players_)});
+            if (is_host_) update_handler.update(wg::ConfUpdate{"playerlist", wg::encode_range(temp_playerlist)});
             io_.chat(conf.setting + " has joined the game!", "Server");
             return;
         }
@@ -148,8 +148,8 @@ void wg::GameContext::parse_input(sf::Event& e)
 
 void wg::GameContext::render(wg::Renderer& renderer)
 {
-    renderer.render(board_.table_);
     renderer.render(io_);
+    renderer.render(board_.table_);
 }
 
 // Event handling
@@ -287,6 +287,12 @@ bool wg::GameContext::set_config(std::string name, std::vector<unsigned int> val
     if (name == "background-colour")
     {
         background_ = sf::Color{(sf::Uint8)value[0], (sf::Uint8)value[1], (sf::Uint8)value[2]};
+    }
+    if (name == "board-colour")
+    {
+        board_.table_.bg_r = value[0];
+        board_.table_.bg_g = value[1];
+        board_.table_.bg_b = value[2];
     }
     return true;
 }

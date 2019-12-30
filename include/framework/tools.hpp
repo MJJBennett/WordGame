@@ -84,14 +84,15 @@ inline std::string encode_range(const t& r)
     std::string s{};
     for (auto&& v : r)
     {
-        s += v + '\0';
+        s += v + '|';
     }
+    if (s.size()) s.pop_back();
     return s;
 }
 
 inline std::vector<std::string> decode_range(const std::string& r)
 {
-    return ::wg::split(r, '\0');
+    return ::wg::split(r, '|');
 }
 }  // namespace wg
 
