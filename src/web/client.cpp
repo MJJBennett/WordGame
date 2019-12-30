@@ -145,12 +145,6 @@ void wg::WebSocketClient::queue_send(std::string message)
                                                std::move(message)));
 }
 
-void wg::WebSocketClient::queue_join(std::string username)
-{
-    asio::post(ioc_, beast::bind_front_handler(&WebSocketClient::join, shared_from_this(),
-                                               std::move(username)));
-}
-
 void wg::WebSocketClient::queue_shutdown()
 {
     asio::post(ioc_, std::bind(&WebSocketClient::shutdown, shared_from_this()));
@@ -201,22 +195,6 @@ std::optional<std::string> wg::WebSocketClient::parse_message(std::string messag
                        data.dump(1));
     }
     return {};
-}
-
-// Launches async operation - async_write
-void wg::WebSocketClient::join(std::string message)
-{
-    // Push our message to the end of the queue
-    message_queue_.push(message);
-
-    // This is only the case if we're already in a async_write!
-    if (message_) return;
-
-    // Great, no write currently happening
-    message_ = message_queue_.front();
-    message_queue_.pop();
-    ws_.async_write(asio::buffer(format_general(*message_, "b")),
-                    beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
 }
 
 // Launches async operation - async_write

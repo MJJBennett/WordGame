@@ -83,6 +83,7 @@ void wg::dev::Client::update(const wg::ChatUpdate& u)
 }
 
 void wg::dev::Client::update(const wg::ConfUpdate& u) {}
+void wg::dev::Client::update(const wg::ServUpdate& u) {}
 
 std::optional<wg::JSONUpdate> wg::dev::Client::poll_json(bool)
 {

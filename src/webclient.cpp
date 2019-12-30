@@ -36,10 +36,13 @@ void wg::web::Client::update(const wg::ConfUpdate& u)
     const auto j = nlohmann::json{{u.config, u.setting}};
     wg::log::point(__func__, ": Sending data: ", j.dump());
     send(j.dump());
-    if (u.config == "join")
-    {
-        client_->queue_join(u.setting);
-    }
+}
+
+void wg::web::Client::update(const wg::ServUpdate& u)
+{
+    const auto j = nlohmann::json{{"SERVER", u.update_type}, {u.update_type, u.update}};
+    wg::log::point(__func__, ": Sending data: ", j.dump());
+    send(j.dump());
 }
 
 std::optional<wg::GameUpdate> wg::web::Client::poll_game(bool clear)

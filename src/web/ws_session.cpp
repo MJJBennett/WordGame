@@ -5,6 +5,7 @@
 #include "commands.hpp"
 #include "connections.hpp"
 #include "debug/log.hpp"
+#include "framework/json_tools.hpp"
 
 namespace websocket = boost::beast::websocket;
 using tcp           = boost::asio::ip::tcp;
@@ -113,10 +114,26 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
 
     // This is where we forward the message elsewhere
     if (data["type"] == "msg")
-        connections_->alert_connections(this, msg);
-    else if (data["type"] == "b") {
-        wg::log::point("Setting username using packet: ", data.dump());
-        connections_->set_user(this, data["msg"]);
+    {
+        // For now, because of the way this is all set up,
+        // we're going to check to see if the message is meant for us.
+        const auto m = wg::try_parse(data["msg"]);
+        if (m && m->find("SERVER") != m->end())
+        {
+            const auto& sm = *m;
+            if (sm.find("join") != sm.end())
+            {
+                connections_->set_user(this, sm["join"]);
+            }
+            else
+            {
+                wg::log::warn("[WebSocket] Found unknown server message: ", sm.dump());
+            }
+        }
+        else
+        {
+            connections_->alert_connections(this, msg);
+        }
     }
 
     websocket_.async_read(

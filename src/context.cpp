@@ -24,6 +24,7 @@ void wg::GameContext::init()
 {
     load_config("config.json");
     io_.init();
+    update_handler.update(wg::ServUpdate{"join", io_.user_});
     update_handler.update(wg::ConfUpdate{"join", io_.user_});
 }
 

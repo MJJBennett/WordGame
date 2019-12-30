@@ -29,6 +29,12 @@ struct JSONUpdate
 {
     const nlohmann::json& json_;
 };
+
+struct ServUpdate
+{
+    std::string update_type;
+    std::string update;
+};
 }  // namespace wg
 
 #endif  // WG_GAME_UPDATE_HPP

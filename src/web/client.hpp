@@ -30,7 +30,6 @@ public:
 
     // Sends a single string message over the connection
     void queue_send(std::string message);
-    void queue_join(std::string username);
 
     size_t num_waiting();
     std::optional<std::string> read_once();
