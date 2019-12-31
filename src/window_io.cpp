@@ -20,7 +20,7 @@ static std::optional<std::string> try_get_text(wg::WindowContext& target, sf::Te
     {
         sf::Event e;
 
-        while (target.getTarget().pollEvent(e))
+        while (target.pollEvent(e))
         {
             if (target.shouldClose(e))
             {
@@ -117,7 +117,7 @@ std::string wg::window_io::get_string(wg::WindowContext& target, wg::ResourceMan
     {
         sf::Event e;
 
-        while (target.getTarget().pollEvent(e))
+        while (target.pollEvent(e))
         {
             if (target.shouldClose(e))
             {

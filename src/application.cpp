@@ -114,7 +114,7 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
     {
         sf::Event e;
 
-        while (window.getTarget().pollEvent(e))
+        while (window.pollEvent(e))
         {
             if (e.type == sf::Event::Closed)
             {
@@ -163,7 +163,7 @@ int wg::Application::run_develop(wg::WindowContext& window, wg::ResourceManager&
     {
         sf::Event e;
 
-        while (window.getTarget().pollEvent(e))
+        while (window.pollEvent(e))
         {
             if (e.type == sf::Event::Closed)
             {
