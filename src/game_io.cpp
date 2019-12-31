@@ -39,6 +39,7 @@ wg::GameIO::Result wg::GameIO::do_event(const sf::Event& e)
         case sf::Event::TextEntered: return text_entered(e.text.unicode);
         case sf::Event::KeyPressed: return key_pressed(e.key.code);
         case sf::Event::KeyReleased: return key_released(e.key.code);
+        case sf::Event::Resized: return target_resized(e.size.width, e.size.height);
         default: return Result::None;
     }
 }
@@ -129,6 +130,11 @@ wg::GameIO::Result wg::GameIO::key_released(sf::Keyboard::Key k)
         default: return Result::None;
     }
     if (mode_ == Mode::ChatEdit) return Result::ChatEdited;
+    return Result::None;
+}
+
+wg::GameIO::Result wg::GameIO::target_resized(unsigned int width, unsigned int height)
+{
     return Result::None;
 }
 

@@ -64,6 +64,7 @@ public:
     Result key_pressed(sf::Keyboard::Key k);
     Result key_released(sf::Keyboard::Key k);
     Result do_enter();
+    Result target_resized(unsigned int w, unsigned int h);
 
     void chat(std::string msg, std::string auth);
     void chat_broadcast(std::string msg, std::string auth);

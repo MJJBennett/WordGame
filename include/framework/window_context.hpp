@@ -20,6 +20,18 @@ public:
     bool shouldClose(const sf::Event& e) { return e.type == sf::Event::Closed; }
     void close() { window_.close(); }
 
+    bool pollEvent(sf::Event& e)
+    {
+        auto b = window_.pollEvent(e);
+        if (b && e.type == sf::Event::Resized)
+        {
+            auto v = window_.getDefaultView();
+            v.setSize(static_cast<float>(e.size.width), static_cast<float>(e.size.height));
+            window_.setView(v);
+        }
+        return b;
+    }
+
     unsigned int width() { return window_.getSize().x; }
     unsigned int height() { return window_.getSize().y; }
 
