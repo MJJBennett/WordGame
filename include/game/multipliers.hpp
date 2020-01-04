@@ -64,16 +64,19 @@ struct MultiplierMask
 
     unsigned int get_word() const
     {
-        return (multipliers_ & multiplier::DoubleWord) * 1 +
-               (multipliers_ & multiplier::TripleWord) * 2 +
-               (multipliers_ & multiplier::QuadWord) * 3 + 1;
+        const unsigned int dm = (bool(multipliers_ & multiplier::DoubleWord) * 1) + 1; // either 1 or 2
+        const unsigned int tm = (bool(multipliers_ & multiplier::TripleWord) * 2) + 1; // either 1 or 3
+        const unsigned int qm = (bool(multipliers_ & multiplier::QuadWord) * 3) + 1; // either 1 or 4
+        return dm * tm * qm;
     }
     unsigned int get_char() const
     {
-        return (multipliers_ & multiplier::DoubleChar) * 1 +
-               (multipliers_ & multiplier::TripleChar) * 2 +
-               (multipliers_ & multiplier::QuadChar) * 3 + 1;
+        const unsigned int dm = (bool(multipliers_ & multiplier::DoubleChar) * 1) + 1; // either 1 or 2
+        const unsigned int tm = (bool(multipliers_ & multiplier::TripleChar) * 2) + 1; // either 1 or 3
+        const unsigned int qm = (bool(multipliers_ & multiplier::QuadChar) * 3) + 1; // either 1 or 4
+        return dm * tm * qm;
     }
 };
 }  // namespace wg
+
 #endif  // WG_MULTIPLIERS_HPP

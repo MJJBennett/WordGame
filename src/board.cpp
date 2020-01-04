@@ -84,7 +84,7 @@ int wg::Board::score(const std::vector<Tile>& word) const
                 // Okay, we're good. Now accumulate the scores.
                 // We don't need to worry about multipliers at all.
                 // Simply sum up the letter scores for everything.
-                while (is_set(px, y))
+                while (px < table_.table_size && is_set(px, y))
                 {
                     word_score += scores_.of(*table_.at(px, y).character_);
                     px++;
@@ -102,7 +102,7 @@ int wg::Board::score(const std::vector<Tile>& word) const
                 // Okay, we're good. Now accumulate the scores.
                 // We don't need to worry about multipliers at all.
                 // Simply sum up the letter scores for everything.
-                while (is_set(x, py))
+                while (py < table_.table_size && is_set(x, py))
                 {
                     word_score += scores_.of(*table_.at(x, py).character_);
                     py++;
