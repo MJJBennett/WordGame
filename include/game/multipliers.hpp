@@ -64,15 +64,15 @@ struct MultiplierMask
 
     unsigned int get_word() const
     {
-        return (multipliers_ | multiplier::DoubleWord) * 2 +
-               (multipliers_ | multiplier::TripleWord) * 3 +
-               (multipliers_ | multiplier::QuadWord) * 4;
+        return (multipliers_ | multiplier::DoubleWord) * 1 +
+               (multipliers_ | multiplier::TripleWord) * 2 +
+               (multipliers_ | multiplier::QuadWord) * 3 + 1;
     }
     unsigned int get_char() const
     {
-        return (multipliers_ | multiplier::DoubleChar) * 2 +
-               (multipliers_ | multiplier::TripleChar) * 3 +
-               (multipliers_ | multiplier::QuadChar) * 4;
+        return (multipliers_ | multiplier::DoubleChar) * 1 +
+               (multipliers_ | multiplier::TripleChar) * 2 +
+               (multipliers_ | multiplier::QuadChar) * 3 + 1;
     }
 };
 }  // namespace wg
