@@ -222,31 +222,23 @@ bool wg::GameIO::handle_command(const std::string& command)
 {
     if (startswith(command, std::string{"/"}))
     {
-        if (startswith(command, std::string{"/layout"}))
+        if (startswith(command, "/layout"))
         {
             // Load layout
             const auto fn = wg::get_arg(command);
             wg::log::point("[GameIO] Loading new layout from file: ", fn);
 
-            std::ifstream input_file(fn);
-            nlohmann::json data;
-            if (!input_file.good())
+            auto data = wg::filename_to_json(fn);
+            if (wg::is_error(data, wg::JSONError::Open))
             {
-                wg::log::warn(__func__, ": Could not open file: ", fn);
                 chat("Could not open file: " + fn, "Error");  // Error is the author, hm
                 return true;
             }
-            try
+            if (wg::is_error(data, wg::JSONError::Parse))
             {
-                data = nlohmann::json::parse(input_file);
-            }
-            catch (const nlohmann::json::parse_error& e)
-            {
-                wg::log::warn(__func__, ": Could not parse json in file: ", fn);
-                chat("Could not parse json in file: " + fn, "Error");
+                chat("Could not parse json in file: " + fn, "Error");  // Oh well
                 return true;
             }
-            input_file.close();
 
             // Note to self:
             // In a future where GameIO does all i/o, including board i/o, there may
@@ -256,28 +248,75 @@ bool wg::GameIO::handle_command(const std::string& command)
             board_.set_layout(data["layout"]);
             update_handler_.update(wg::ConfUpdate{"layout", data["layout"].dump()});
         }
-        else if (startswith(command, std::string{"/turn"}))
+        else if (startswith(command, "/turn"))
         {
             const auto user = wg::get_arg(command);
             queue_.emplace(wg::Action{Action::Type::TurnStart, user});
         }
-        if (startswith(command, std::string{"/charset"}))
+        else if (startswith(command, "/charset"))
         {
             // Load charset
             load_charset(wg::get_single_line(wg::get_arg(command)));
         }
-        if (startswith(command, std::string{"/draw"}))
+        else if (startswith(command, "/draw"))
         {
             // Draw tiles
             draw_tiles(wg::atoi_default(wg::get_arg(command)));
         }
-        if (startswith(command, std::string{"/push"}))
+        else if (startswith(command, "/drawtillall"))
+        {
+            // Draw tiles
+            const int num = wg::atoi_default(wg::get_arg(command));
+            if (num > hand_.size()) draw_tiles(num - hand_.size());
+            update_handler_.update(wg::ConfUpdate{"drawtill", wg::get_arg(command)});
+            draw_tiles(wg::atoi_default(wg::get_arg(command)));
+        }
+        else if (startswith(command, "/push"))
         {
             // Push information to others:
             //  - Charset
             update_handler_.update(wg::ConfUpdate{"charset", charset_});
             //  - Player List, etc
             queue_.emplace(wg::Action{Action::Type::PushInfo, ""});
+        }
+        else if (startswith(command, "/load"))
+        {
+            // Ideally this file shouldn't be JSON
+            const auto ignore = wg::get_arg(command);
+            const std::string filename =
+                (wg::has_chars(ignore) ? ignore : /*"load.json"*/ "load.wg");
+            wg::log::point("[GameIO] Loading new everything from file: ", filename);
+
+            /*
+            auto data = wg::filename_to_json(filename);
+            if (wg::is_error(data, wg::JSONError::Open))
+            {
+                chat("Could not open file: " + filename, "Error");  // Error is the author, hm
+                return true;
+            }
+            if (wg::is_error(data, wg::JSONError::Parse))
+            {
+                chat("Could not parse json in file: " + filename, "Error");  // Oh well
+                return true;
+            }
+            // Okay, we're good
+            if (data.find("load") != data.end())
+            {
+                handle_command("/load=" + data["load"].get<std::string>());
+            }
+            if (data.find("charset") != data.end())
+            {
+                handle_command("/charset=" + data["charset"].get<std::string>());
+            }
+            */
+            for (const auto& c : wg::get_lines(filename, wg::ReadMode::HasChars))
+            {
+                if (!startswith(c, "//") && !startswith(c, "#"))
+                {
+                    wg::log::point("Handling command: ", c);
+                    handle_command(c);
+                }
+            }
         }
         return true;
     }

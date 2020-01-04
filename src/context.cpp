@@ -217,14 +217,41 @@ void wg::GameContext::maybe_command(const wg::Action& act)
 
 void wg::GameContext::do_turn(const std::string& player)
 {
+    if (turn_)
+    {
+        end_turn();
+    }
     if (io_.user_ == player)
     {
         io_.chat("It's your turn!", "Game");
+        turn_ = wg::Turn{player};
     }
     else
     {
         io_.chat("It's " + player + "'s turn!", "Game");
     }
+}
+
+void wg::GameContext::end_turn()
+{
+    wg::assert_true(!!turn_); // There's probably something better
+                              // But I always wanted to do this...
+                            
+    // TODO - In the future, this is where we would serialize the current
+    // turn_ object into a file so that the game can be reloaded easily.
+    // For now, we simply count the points, then commit the object to the board.
+    
+    // Tally points
+    
+    // Currently, we assume tiles are placed in a straight line
+    // In the future, we could implement diagonals or other rulesets
+    const auto& v = turn_->letters_;
+    if (v.size() == 0) return;
+
+    // Count points!
+    
+    // Commit the letters to the board, for drawing purposes
+    // For now, this does nothing, as tiles don't really exist
 }
 
 void wg::GameContext::render(wg::Renderer& renderer)

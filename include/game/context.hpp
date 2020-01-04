@@ -1,10 +1,11 @@
 #ifndef WG_GAME_CONTEXT_HPP
 #define WG_GAME_CONTEXT_HPP
 
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <unordered_set>
 #include "game/board.hpp"
-#include <SFML/Graphics/RectangleShape.hpp>
 #include "game/game_io.hpp"
+#include "game/turn.hpp"
 #include "game/update.hpp"
 #include "wg_forward.hpp"
 
@@ -63,6 +64,7 @@ private:
     void parse_escape();
 
     void do_turn(const std::string& player);
+    void end_turn();
 
 private:
     enum class Mode
@@ -83,6 +85,8 @@ private:
 
     sf::RectangleShape rect_;
     sf::Text legend_;
+
+    std::optional<wg::Turn> turn_;
 
     sf::Text playerlist_;
     std::string playerlist_str_;
