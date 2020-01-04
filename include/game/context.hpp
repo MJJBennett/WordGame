@@ -80,7 +80,7 @@ private:
     GameIO io_;
 
     // This is game state stuff, until we refactor it out
-    std::unordered_set<std::string> players_;
+    std::unordered_map<std::string, int> players_;
     bool is_host_{false};
 
     sf::RectangleShape rect_;
@@ -93,9 +93,9 @@ private:
     void fix_playerlist()
     {
         playerlist_str_ = "Players:\n> " + io_.user_;
-        for (auto&& op : players_)
+        for (auto&& [op, s] : players_)
         {
-            playerlist_str_ += "\n- " + op;
+            playerlist_str_ += "\n- " + op + ": " + std::to_string(s);
         }
         playerlist_.setString(playerlist_str_);
     }

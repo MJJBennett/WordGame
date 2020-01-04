@@ -83,7 +83,7 @@ void wg::GameContext::update()
         }
         if (conf.config == "join")
         {
-            players_.insert(conf.setting);
+            players_.insert({conf.setting, 0});
             fix_playerlist();
             if (is_host_) send_playerlist();
             io_.chat(conf.setting + " has joined the game!", "Server");
@@ -100,7 +100,7 @@ void wg::GameContext::update()
         {
             const auto np = wg::decode_range(conf.setting);
             for (auto&& p : np)
-                if (p != io_.user_) players_.insert(p);
+                if (p != io_.user_) players_.insert({p,0});
             wg::log::point("Updated playerlist.");
             fix_playerlist();
             return;
@@ -161,8 +161,9 @@ void wg::GameContext::update()
 
 void wg::GameContext::send_playerlist()
 {
-    auto temp_playerlist = players_;
-    temp_playerlist.insert(io_.user_);
+    std::vector<std::string> temp_playerlist;
+    for (auto&& [k, v] : players_) temp_playerlist.push_back(k);
+    temp_playerlist.push_back(io_.user_);
     update_handler.update(wg::ConfUpdate{"playerlist", wg::encode_range(temp_playerlist)});
 }
 
@@ -261,10 +262,12 @@ void wg::GameContext::end_turn()
     // In the future, we could implement diagonals or other rulesets
     const auto& v = turn_->letters_;
     if (v.size() == 0) return;
-    board_.score(v);
+    int p = board_.score(v);
 
     // Count points!
 
+    io_.chat(turn_->player_ + " scored " + std::to_string(p) + " points!", "Game");
+    players_.at(turn_->player_) += p;
     // Commit the letters to the board, for drawing purposes
     // For now, this does nothing, as tiles don't really exist
 }
@@ -350,7 +353,13 @@ void wg::GameContext::parse_mouse_released(sf::Event& e)
         mode_         = Mode::SetTile;
     }
 }
-void wg::GameContext::parse_escape() { running_ = false; }
+void wg::GameContext::parse_escape()
+{
+    wg::log::point("Parsing escape command.");
+
+    // switch(mode_
+    running_ = false;
+}
 
 bool wg::GameContext::load_config(std::string filename)
 {
@@ -457,9 +466,8 @@ void wg::GameContext::print_debug()
             debug_str += "\n\t\t - " + val;
         }
     };
-    auto item_m = [&debug_str](const std::string& name, const auto& range) {
+    auto item_m = [&debug_str](const std::string& name, const auto& range, const int ml = 6) {
         debug_str += "\n\t - " + name + ": ";
-        const int ml = 6;
         int cl = 0;
         for (auto [k, v] : range)
         {
@@ -467,7 +475,7 @@ void wg::GameContext::print_debug()
             {
                 debug_str += "\n\t\t| ";
             }
-            debug_str +=  std::string{k} + " : " + std::to_string(v) + " | ";
+            debug_str += std::string{k} + " : " + std::to_string(v) + " | ";
         }
     };
 
@@ -475,7 +483,7 @@ void wg::GameContext::print_debug()
     item("Username", io_.user_);
     item_b("Is Host", is_host_);
     item_b("Is Running", is_host_);
-    item_v("Other Users", players_);
+    item_m("Other Users", players_, 1);
     item("Charset", io_.charset_);
     item_m("Charscores", board_.scores_.get_ref());
     item("Hand", io_.hand_);
