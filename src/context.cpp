@@ -122,6 +122,20 @@ void wg::GameContext::update()
         if (conf.config == "charset")
         {
             io_.charset_ = conf.setting;
+            return;
+        }
+        if (conf.config == "drawtill")
+        {
+            if (const int i = wg::atoi_default(conf.setting); i > 0)
+            {
+                io_.draw_tiles(i - io_.hand_.size());
+            }
+            return;
+        }
+        if (conf.config == "charscores")
+        {
+            board_.scores_.from_string(conf.setting);
+            return;
         }
         wg::log::warn(
             "Found configuration update that could not be understood by the game context:",
@@ -234,22 +248,23 @@ void wg::GameContext::do_turn(const std::string& player)
 
 void wg::GameContext::end_turn()
 {
-    wg::assert_true(!!turn_); // There's probably something better
-                              // But I always wanted to do this...
-                            
+    wg::assert_true(!!turn_);  // There's probably something better
+                               // But I always wanted to do this...
+
     // TODO - In the future, this is where we would serialize the current
     // turn_ object into a file so that the game can be reloaded easily.
     // For now, we simply count the points, then commit the object to the board.
-    
+
     // Tally points
-    
+
     // Currently, we assume tiles are placed in a straight line
     // In the future, we could implement diagonals or other rulesets
     const auto& v = turn_->letters_;
     if (v.size() == 0) return;
+    board_.score(v);
 
     // Count points!
-    
+
     // Commit the letters to the board, for drawing purposes
     // For now, this does nothing, as tiles don't really exist
 }
@@ -302,6 +317,11 @@ void wg::GameContext::parse_text_entered(sf::Event& e)
 
 void wg::GameContext::set_tile(int col, int row, char c)
 {
+    // This method is always called when a tile is placed on the board
+    // Therefore, this is our entry point for tracking turns
+    if (turn_)
+    {
+    }
     auto& item      = board_.table_.at(col, row);
     item.character_ = c;
 }
@@ -437,6 +457,19 @@ void wg::GameContext::print_debug()
             debug_str += "\n\t\t - " + val;
         }
     };
+    auto item_m = [&debug_str](const std::string& name, const auto& range) {
+        debug_str += "\n\t - " + name + ": ";
+        const int ml = 6;
+        int cl = 0;
+        for (auto [k, v] : range)
+        {
+            if (cl++ % ml == 0)
+            {
+                debug_str += "\n\t\t| ";
+            }
+            debug_str +=  std::string{k} + " : " + std::to_string(v) + " | ";
+        }
+    };
 
     // Players
     item("Username", io_.user_);
@@ -444,6 +477,7 @@ void wg::GameContext::print_debug()
     item_b("Is Running", is_host_);
     item_v("Other Users", players_);
     item("Charset", io_.charset_);
+    item_m("Charscores", board_.scores_.get_ref());
     item("Hand", io_.hand_);
 
     wg::log::point(debug_str);

@@ -107,6 +107,7 @@ wg::GameIO::Result wg::GameIO::key_pressed(sf::Keyboard::Key k)
     switch (k)
     {
         case sf::Keyboard::Key::Enter: return do_enter();
+        case sf::Keyboard::Key::Slash: return do_enter('/');
         default: return Result::None;
     }
 }
@@ -138,13 +139,14 @@ wg::GameIO::Result wg::GameIO::target_resized(unsigned int width, unsigned int h
     return Result::None;
 }
 
-wg::GameIO::Result wg::GameIO::do_enter()
+wg::GameIO::Result wg::GameIO::do_enter(char b)
 {
     switch (mode_)
     {
         case Mode::Normal:
         {
             mode_ = Mode::ChatEdit;
+            if (b != '\b') text_entered('\b');
             return Result::ModeEdited;
         }
         case Mode::BoardEdit:
@@ -253,15 +255,28 @@ bool wg::GameIO::handle_command(const std::string& command)
             const auto user = wg::get_arg(command);
             queue_.emplace(wg::Action{Action::Type::TurnStart, user});
         }
-        else if (startswith(command, "/charset"))
+        else if (startswith(command, "/charse"))
         {
             // Load charset
             load_charset(wg::get_single_line(wg::get_arg(command)));
         }
-        else if (startswith(command, "/draw"))
+        else if (startswith(command, "/charsc"))
         {
-            // Draw tiles
-            draw_tiles(wg::atoi_default(wg::get_arg(command)));
+            // Load charset
+            const auto data = wg::filename_to_json(wg::get_arg(command));
+            if (wg::is_error(data, wg::JSONError::Open))
+            {
+                chat("Could not open file: " + wg::get_arg(command), "Error");
+                return true;
+            }
+            if (wg::is_error(data, wg::JSONError::Parse))
+            {
+                chat("Could not parse json in file: " + wg::get_arg(command), "Error");
+                return true;
+            }
+            board_.scores_.from_json(data);
+            update_handler_.update(wg::ConfUpdate{"charscores", data.dump()});
+            return true;
         }
         else if (startswith(command, "/drawtillall"))
         {
@@ -269,6 +284,16 @@ bool wg::GameIO::handle_command(const std::string& command)
             const int num = wg::atoi_default(wg::get_arg(command));
             if (num > hand_.size()) draw_tiles(num - hand_.size());
             update_handler_.update(wg::ConfUpdate{"drawtill", wg::get_arg(command)});
+        }
+        else if (startswith(command, "/drawtill"))
+        {
+            // Draw tiles
+            const int num = wg::atoi_default(wg::get_arg(command));
+            if (num > hand_.size()) draw_tiles(num - hand_.size());
+        }
+        else if (startswith(command, "/draw"))
+        {
+            // Draw tiles
             draw_tiles(wg::atoi_default(wg::get_arg(command)));
         }
         else if (startswith(command, "/push"))
@@ -317,6 +342,10 @@ bool wg::GameIO::handle_command(const std::string& command)
                     handle_command(c);
                 }
             }
+        }
+        else
+        {
+            wg::log::warn("Command does not exist: ", command);
         }
         return true;
     }

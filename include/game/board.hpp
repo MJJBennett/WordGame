@@ -6,7 +6,9 @@
 #include <string>
 #include <vector>
 #include "framework/table.hpp"
+#include "game/scoring.hpp"
 #include "item.hpp"
+#include "tile.hpp"
 
 namespace wg
 {
@@ -29,7 +31,10 @@ public:
     // Converts 0 to '0', 1 to '1', etc
     static char decode(int board_num) { return board_num + '0'; }
 
-    sf::Color multiplier_colour(unsigned char multipliers);
+    int score(const std::vector<Tile>&) const;
+    wg::ScoreMap scores_;
+
+    sf::Color multiplier_colour(unsigned char multipliers) const;
     std::array<sf::Color, 8> colours_;
 };
 }  // namespace wg

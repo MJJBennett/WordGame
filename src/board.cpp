@@ -31,6 +31,19 @@ void wg::Board::parse_board_update(const nlohmann::json& update)
     }
 }
 
+int wg::Board::score(const std::vector<Tile>& word) const
+{
+    for (const auto& l : word)
+    {
+        if (!l.board_pos_)
+        {
+            wg::log::warn("Asked to score letter: ", l.letter_, " that is not on the board!");
+            continue;
+        }
+        
+    }
+}
+
 void wg::Board::set_layout(const nlohmann::json& layout)
 {
     try
@@ -57,7 +70,7 @@ void wg::Board::set_layout(const nlohmann::json& layout)
     }
 }
 
-sf::Color wg::Board::multiplier_colour(unsigned char multipliers)
+sf::Color wg::Board::multiplier_colour(unsigned char multipliers) const
 {
     switch (multipliers)
     {

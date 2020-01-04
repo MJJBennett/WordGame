@@ -63,7 +63,7 @@ public:
     Result text_entered(unsigned int c);
     Result key_pressed(sf::Keyboard::Key k);
     Result key_released(sf::Keyboard::Key k);
-    Result do_enter();
+    Result do_enter(char b = '\b');
     Result target_resized(unsigned int w, unsigned int h);
 
     void chat(std::string msg, std::string auth);

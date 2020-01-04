@@ -58,8 +58,9 @@ inline std::string to_string(unsigned char mul)
 
 struct MultiplierMask
 {
-    unsigned char multipliers_;
+    unsigned char multipliers_{::wg::multiplier::None};
     MultiplierMask(unsigned char multipliers) : multipliers_(multipliers) {}
+    MultiplierMask() = default;
 
     unsigned int get_word() const
     {

@@ -95,6 +95,8 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
     if (clear) cache_.reset();
     try
     {
+        // Wow, this is not good.
+        // But it ... it works for now. For now.
         const auto d = nlohmann::json::parse(str);
         if (d.find("command") != d.end())
         {
@@ -135,6 +137,18 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
             const std::string charset = d["charset"];
             wg::log::point("New charset: ", charset);
             return wg::ConfUpdate{"charset", charset};
+        }
+        if (d.find("charscores") != d.end())
+        {
+            const std::string charscores = d["charscores"];
+            wg::log::point("New charscores: ", charscores);
+            return wg::ConfUpdate{"charscores", charscores};
+        }
+        if (d.find("drawtill") != d.end())
+        {
+            const std::string drawtill = d["drawtill"];
+            wg::log::point("New drawtill: ", drawtill);
+            return wg::ConfUpdate{"drawtill", drawtill};
         }
         return {};
     }

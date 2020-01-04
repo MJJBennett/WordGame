@@ -53,7 +53,7 @@ enum class JSONError
 };
 const std::string OpenError  = "WG_OPEN_ERROR";   // This may or may not be a hack
 const std::string ParseError = "WG_PARSE_ERROR";  // But if it works for now, it works... for now
-bool is_error(const nlohmann::json& jd, ::wg::JSONError error)
+inline bool is_error(const nlohmann::json& jd, ::wg::JSONError error)
 {
     switch (error)
     {
