@@ -31,6 +31,8 @@ public:
     // Converts 0 to '0', 1 to '1', etc
     static char decode(int board_num) { return board_num + '0'; }
 
+    bool is_set(int x, int y) const { return table_.at(x, y).character_.has_value(); }
+
     int score(const std::vector<Tile>&) const;
     wg::ScoreMap scores_;
 

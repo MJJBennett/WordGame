@@ -24,6 +24,8 @@ public:
 
     CellType& at(unsigned int col_num, unsigned int row_pos) { return items_[col_num][row_pos]; }
 
+    const CellType& at(unsigned int col_num, unsigned int row_pos) const { return items_[col_num][row_pos]; }
+
     float get_width() const
     {
         if (!width_) calculate_width();
