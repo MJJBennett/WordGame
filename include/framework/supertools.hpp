@@ -64,7 +64,7 @@ inline bool is_error(const nlohmann::json& jd, ::wg::JSONError error)
 
 inline nlohmann::json filename_to_json(const std::string& fn)
 {
-    wg::log::point("Loading new layout from file: ", fn);
+    wg::log::point("Loading new JSON data from file: ", fn);
 
     std::ifstream input_file(fn); // Load this file
     if (!input_file.good())

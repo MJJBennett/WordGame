@@ -38,11 +38,21 @@ void wg::ScoreMap::from_json(const nlohmann::json& data)
 {
     for (const auto& k : data.items())
     {
-        const std::string& key = k.key();
-        const int value        = k.value();
+        try
+        {
+            const std::string& key = k.key();
+            const int value        = k.value();
 
-        if (key.size() != 1) wg::log::warn(__func__, ": Converting string to character: ", key);
+            if (key.size() != 1)
+                wg::log::warn(__func__, ": Converting string to character: ", key);
 
-        map_.insert({key[0], value});
+            map_.insert({key[0], value});
+        }
+        catch (const nlohmann::json::type_error& e)
+        {
+            wg::log::err("Encountered type error while parsing score from JSON: ", data.dump());
+            wg::log::err("At key: ", k.key());
+            wg::log::err(e.what());
+        }
     }
 }
