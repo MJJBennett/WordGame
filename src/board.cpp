@@ -20,7 +20,7 @@ void wg::Board::parse_board_update(const nlohmann::json& update)
             {
                 // This might be some of the ugliest framework code I've ever made
                 // Rough times
-                table_.at(col_id, row_id).character_ = decode(row.at(col_id));
+                table_.at(col_id, row_id).character_ = decode(row.at(static_cast<unsigned int>(col_id)));
             }
         }
     }
@@ -194,7 +194,7 @@ void wg::Board::set_layout(const nlohmann::json& layout)
             const int row_id       = row_id_char - 'A';
             wg::log::point(k.value().dump());
             const std::vector<int>& row = k.value().get<std::vector<int>>();
-            for (size_t col_id = 0; col_id < row.size(); col_id++)
+            for (unsigned int col_id = 0; col_id < static_cast<unsigned int>(row.size()); col_id++)
             {
                 const unsigned char i = wg::multiplier::decode(
                     row.at(col_id));  // This number represents the multiplier

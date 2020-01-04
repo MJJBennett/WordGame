@@ -184,6 +184,8 @@ wg::GameIO::Result wg::GameIO::do_enter(char b)
             mode_ = Mode::Normal;
             return r;  // not so sure about this but hey
         }
+        default:
+            abort();
     }
 }
 

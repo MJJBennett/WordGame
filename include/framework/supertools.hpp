@@ -59,6 +59,7 @@ inline bool is_error(const nlohmann::json& jd, ::wg::JSONError error)
     {
         case JSONError::Open: return jd.size() == 1 && jd.find(::wg::OpenError) != jd.end();
         case JSONError::Parse: return jd.size() == 1 && jd.find(::wg::ParseError) != jd.end();
+        default: return false;
     }
 }
 
@@ -80,6 +81,7 @@ inline nlohmann::json filename_to_json(const std::string& fn)
     catch (const nlohmann::json::parse_error& e)
     {
         wg::log::warn(__func__, ": Could not parse json in file: ", fn);
+        wg::log::warn("With error message: ", e.what());
         return {ParseError};
     }
     return data;

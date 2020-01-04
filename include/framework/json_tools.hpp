@@ -17,6 +17,7 @@ inline std::optional<nlohmann::json> try_parse(const std::string& str)
     catch (const nlohmann::json::parse_error& e)
     {
         wg::log::warn("Could not parse JSON: ", str);
+        wg::log::warn("With error message: ", e.what());
         return {};
     }
 }

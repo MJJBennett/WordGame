@@ -63,6 +63,7 @@ void wg::dev::Client::update(const wg::ChatUpdate& u)
         catch (const nlohmann::json::parse_error& e)
         {
             wg::log::warn(__func__, ": Could not parse json in file: ", file_);
+            wg::log::warn("With error message: ", e.what());
             chat_.push("Could not parse json in file: " + file_);
             return;
         }

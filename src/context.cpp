@@ -398,6 +398,7 @@ bool wg::GameContext::load_config(std::string filename)
     catch (const json::parse_error& e)
     {
         wg::log::warn(__func__, ": Could not parse json in file: ", filename);
+        wg::log::warn("With error message: ", e.what());
         return false;
     }
 
