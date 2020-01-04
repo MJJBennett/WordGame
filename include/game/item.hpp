@@ -11,6 +11,8 @@ namespace wg
 struct Item
 {
     std::optional<char> character_;
+    // This should just default to ::wg::multiplier::None
+    // Then there's no need for checking optionals/etc
     std::optional<MultiplierMask> multipliers_;
     sf::Color colour_{192, 87, 70};
 

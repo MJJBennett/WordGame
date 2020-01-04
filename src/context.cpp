@@ -239,12 +239,12 @@ void wg::GameContext::do_turn(const std::string& player)
     if (io_.user_ == player)
     {
         io_.chat("It's your turn!", "Game");
-        turn_ = wg::Turn{player};
     }
     else
     {
         io_.chat("It's " + player + "'s turn!", "Game");
     }
+    turn_ = wg::Turn{player};
 }
 
 void wg::GameContext::end_turn()
@@ -324,6 +324,11 @@ void wg::GameContext::set_tile(int col, int row, char c)
     // Therefore, this is our entry point for tracking turns
     if (turn_)
     {
+        Tile t(c);
+        t.board_pos_ = {col, row};
+        const auto m = board_.table_.at(col, row).multipliers_;
+        t.multipliers_ = (m ? *m : ::wg::multiplier::None);
+        turn_->letters_.emplace_back(std::move(t));
     }
     auto& item      = board_.table_.at(col, row);
     item.character_ = c;
@@ -451,6 +456,7 @@ bool wg::GameContext::set_config(std::string name, std::string value) { return t
 
 void wg::GameContext::print_debug()
 {
+    using std::to_string;
     std::string debug_str = "Debug information:";
     auto item             = [&debug_str](const std::string& name, const std::string& value) {
         debug_str += "\n\t - " + name + ": " + value;
@@ -463,7 +469,7 @@ void wg::GameContext::print_debug()
         debug_str += "\n\t - " + name + ": ";
         for (auto&& val : range)
         {
-            debug_str += "\n\t\t - " + val;
+            debug_str += "\n\t\t - " + to_string(val);
         }
     };
     auto item_m = [&debug_str](const std::string& name, const auto& range, const int ml = 6) {
@@ -475,7 +481,7 @@ void wg::GameContext::print_debug()
             {
                 debug_str += "\n\t\t| ";
             }
-            debug_str += std::string{k} + " : " + std::to_string(v) + " | ";
+            debug_str += std::string{k} + " : " + to_string(v) + " | ";
         }
     };
 
@@ -487,6 +493,7 @@ void wg::GameContext::print_debug()
     item("Charset", io_.charset_);
     item_m("Charscores", board_.scores_.get_ref());
     item("Hand", io_.hand_);
+    if (turn_) item_v("Turn", turn_->letters_);
 
     wg::log::point(debug_str);
 }

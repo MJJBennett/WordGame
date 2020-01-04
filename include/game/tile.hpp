@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <optional>
+#include <string>
 #include "game/boardcoordinate.hpp"
 #include "game/multipliers.hpp"
 
@@ -22,6 +23,15 @@ public:
                 other.letter_ == letter_);
     }
 };
+
+std::string to_string(const Tile& t)
+{
+    const auto p = t.board_pos_;
+    std::string r = "Tile(" + std::string{t.letter_} + ")";
+    if (p) r += " @ " + std::to_string(p->x_) + ", " + std::to_string(p->y_);
+    r += " x " + wg::multiplier::to_string(t.multipliers_.multipliers_);
+    return r;
+}
 }  // namespace wg
 
 #endif  // WG_TILE_HPP
