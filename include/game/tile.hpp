@@ -24,7 +24,7 @@ public:
     }
 };
 
-std::string to_string(const Tile& t)
+inline std::string to_string(const Tile& t)
 {
     const auto p = t.board_pos_;
     std::string r = "Tile(" + std::string{t.letter_} + ")";
