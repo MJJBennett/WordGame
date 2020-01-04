@@ -146,13 +146,17 @@ int wg::Board::score(const std::vector<Tile>& word) const
                     sy++;
                 }
                 other_scores += temps * m.get_word();
+                // If the current letter has a character multiplier, we must include
+                // that multiplied value again (as previously, only the additional points,
+                // not the full points, as the letter is already counted once)
+                other_scores += (m.get_char() - 1) * scores_.of(l.letter_);
             }
         }
         if (direction == 2)
         {
             // Vertical! Scan left!
             int sx = -1;
-            if ((x > 1 && is_set(sx - 1, y)))  // x - 1 is set
+            if ((x > 1 && is_set(x - 1, y)))  // x - 1 is set
             {
                 sx = x - 1;  // this is set
                 while (sx > 0)
@@ -177,6 +181,10 @@ int wg::Board::score(const std::vector<Tile>& word) const
                     sx++;
                 }
                 other_scores += temps * m.get_word();
+                // If the current letter has a character multiplier, we must include
+                // that multiplied value again (as previously, only the additional points,
+                // not the full points, as the letter is already counted once)
+                other_scores += (m.get_char() - 1) * scores_.of(l.letter_);
             }
         }
     }

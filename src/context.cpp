@@ -281,6 +281,7 @@ void wg::GameContext::end_turn()
         my_score_ += p;
     else
         players_.at(turn_->player_) += p;
+    fix_playerlist();
     // Commit the letters to the board, for drawing purposes
     // For now, this does nothing, as tiles don't really exist
 }
