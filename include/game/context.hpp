@@ -81,6 +81,7 @@ private:
 
     // This is game state stuff, until we refactor it out
     std::unordered_map<std::string, int> players_;
+    int my_score_{0};
     bool is_host_{false};
 
     sf::RectangleShape rect_;
@@ -92,7 +93,7 @@ private:
     std::string playerlist_str_;
     void fix_playerlist()
     {
-        playerlist_str_ = "Players:\n> " + io_.user_;
+        playerlist_str_ = "Players:\n> " + io_.user_ + ": " + std::to_string(my_score_);
         for (auto&& [op, s] : players_)
         {
             playerlist_str_ += "\n- " + op + ": " + std::to_string(s);
@@ -101,6 +102,7 @@ private:
     }
 
     bool hide_things_{false};
+    bool just_entered_char_{false};
 };
 }  // namespace wg
 

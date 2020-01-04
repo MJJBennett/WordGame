@@ -100,7 +100,7 @@ void wg::GameContext::update()
         {
             const auto np = wg::decode_range(conf.setting);
             for (auto&& p : np)
-                if (p != io_.user_) players_.insert({p,0});
+                if (p != io_.user_) players_.insert({p, 0});
             wg::log::point("Updated playerlist.");
             fix_playerlist();
             return;
@@ -187,13 +187,22 @@ void wg::GameContext::parse_input(sf::Event& e)
     switch (e.type)
     {
         case sf::Event::KeyReleased:
+        {
             if (e.key.code == sf::Keyboard::Escape)
             {
                 parse_escape();
             }
             else if (mode_ == Mode::Default)
-                parse_key_released(e);
+            {
+                // Okay so KeyReleased actually occurs after TextEntered
+                // Which means this still fires in "Mode::Default" after entering
+                // a character into the board.
+                // Fast fix:
+                if (!just_entered_char_) parse_key_released(e);
+            }
+            just_entered_char_ = false;
             break;
+        }
         case sf::Event::TextEntered:
             if (mode_ != Mode::Default) parse_text_entered(e);
         case sf::Event::MouseButtonReleased: parse_mouse_released(e); break;
@@ -267,7 +276,11 @@ void wg::GameContext::end_turn()
     // Count points!
 
     io_.chat(turn_->player_ + " scored " + std::to_string(p) + " points!", "Game");
-    players_.at(turn_->player_) += p;
+    const auto pl = turn_->player_;
+    if (pl == io_.user_)
+        my_score_ += p;
+    else
+        players_.at(turn_->player_) += p;
     // Commit the letters to the board, for drawing purposes
     // For now, this does nothing, as tiles don't really exist
 }
@@ -314,7 +327,8 @@ void wg::GameContext::parse_text_entered(sf::Event& e)
             io_.play_tile(*c);
             update_handler.update(GameUpdate{int(col), int(row), *c});
         }
-        mode_ = Mode::Default;
+        mode_              = Mode::Default;
+        just_entered_char_ = true;
     }
 }
 
@@ -325,8 +339,8 @@ void wg::GameContext::set_tile(int col, int row, char c)
     if (turn_)
     {
         Tile t(c);
-        t.board_pos_ = {col, row};
-        const auto m = board_.table_.at(col, row).multipliers_;
+        t.board_pos_   = {col, row};
+        const auto m   = board_.table_.at(col, row).multipliers_;
         t.multipliers_ = (m ? *m : ::wg::multiplier::None);
         turn_->letters_.emplace_back(std::move(t));
     }
@@ -356,6 +370,7 @@ void wg::GameContext::parse_mouse_released(sf::Event& e)
 
         pending_tile_ = {row, col};
         mode_         = Mode::SetTile;
+        // wg::log::point("Set mode to SetTile.");
     }
 }
 void wg::GameContext::parse_escape()
@@ -493,7 +508,7 @@ void wg::GameContext::print_debug()
     item("Charset", io_.charset_);
     item_m("Charscores", board_.scores_.get_ref());
     item("Hand", io_.hand_);
-    if (turn_) item_v("Turn", turn_->letters_);
+    if (turn_) item_v("Turn (" + turn_->player_ + ")", turn_->letters_);
 
     wg::log::point(debug_str);
 }

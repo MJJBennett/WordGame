@@ -37,6 +37,8 @@ public:
         return *height_;
     }
 
+    bool bounds_check(int cx, int ry) const { return (cx > 0 && ry > 0) && (cx < table_size && ry < table_size); }
+
     std::array<unsigned int, 2> get_tile_dimensions() const { return {tile_width, tile_height}; }
     std::array<unsigned int, 2> get_tile_offsets() const { return {offset_x, offset_y}; }
     std::array<float, 2> get_dimensions() const { return {get_width(), get_height()}; }

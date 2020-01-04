@@ -13,7 +13,7 @@ public:
     void from_file(const std::string&);
     void from_string(const std::string&);
     void from_json(const nlohmann::json&);
-    int of(char c) { return map_.at(c); }
+    int of(char c) const { return map_.at(c); }
 
     const std::unordered_map<char, int>& get_ref() const { return map_; }
 

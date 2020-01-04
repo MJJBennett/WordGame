@@ -33,6 +33,29 @@ void wg::Board::parse_board_update(const nlohmann::json& update)
 
 int wg::Board::score(const std::vector<Tile>& word) const
 {
+    bool scored_word{false};
+    std::optional<Tile> first;
+    int word_score{0};
+    int word_multiplier{1};
+    int other_scores{0};
+    int direction{0};
+    for (size_t p = 0; p < word.size(); p++)
+    {
+        if (!(word[p].board_pos_)) continue;
+        if (!first)
+            first = word[p];
+        else
+        {
+            if (first->board_pos_->x_ != word[p].board_pos_->x_)
+            {
+                // x differs, horizontal word
+                direction = 1;
+            }
+            else
+                direction = 2;
+            break;
+        }
+    }
     for (const auto& l : word)
     {
         if (!l.board_pos_)
@@ -40,8 +63,125 @@ int wg::Board::score(const std::vector<Tile>& word) const
             wg::log::warn("Asked to score letter: ", l.letter_, " that is not on the board!");
             continue;
         }
-        
+        const auto x = l.board_pos_->x_;
+        const auto y = l.board_pos_->y_;
+        const auto m = l.multipliers_;
+
+        word_multiplier *= m.get_word();
+
+        // First, score the whole word!
+        if (!scored_word)
+        {
+            if (direction == 1)
+            {
+                // Horizontal!
+                // Scan left
+                int px = x;
+                while ((px - 1 >= 0) && is_set(px - 1, y))
+                {
+                    px--;
+                }
+                // Okay, we're good. Now accumulate the scores.
+                // We don't need to worry about multipliers at all.
+                // Simply sum up the letter scores for everything.
+                while (is_set(px, y))
+                {
+                    word_score += scores_.of(*table_.at(px, y).character_);
+                    px++;
+                }
+            }
+            else if (direction == 2)
+            {
+                // Vertical!
+                // Scan up
+                int py = y;
+                while ((py - 1 >= 0) && is_set(x, py - 1))
+                {
+                    py--;
+                }
+                // Okay, we're good. Now accumulate the scores.
+                // We don't need to worry about multipliers at all.
+                // Simply sum up the letter scores for everything.
+                while (is_set(x, py))
+                {
+                    word_score += scores_.of(*table_.at(x, py).character_);
+                    py++;
+                }
+            }
+            wg::log::point("Scored word at: ", word_score);
+            scored_word = true;
+        }
+
+        // Do this after logging
+        // This is only the ADDITIONAL word score
+        word_score += (m.get_char() - 1) * scores_.of(l.letter_);
+
+        // Now, we try and score offshoots
+        if (direction == 1)
+        {
+            // Horizontal! Scan up!
+            int sy = -1;
+            if ((y > 1 && is_set(x, y - 1)))  // y - 1 is set
+            {
+                sy = y - 1;  // this is set
+                while (sy > 0)
+                {
+                    if (is_set(x, sy - 1))
+                        sy--;
+                    else
+                        break;
+                }
+            }
+            else if ((y + 1) < table_.table_size && is_set(x, y + 1))
+                sy = y;
+
+            // Done scanning
+            if (sy != -1)
+            {
+                int temps((m.get_char() - 1) * scores_.of(l.letter_));
+                // sy is the highest point of our offshoot word
+                while (sy < table_.table_size && is_set(x, sy))
+                {
+                    temps += scores_.of(*table_.at(x, sy).character_);
+                    sy++;
+                }
+                other_scores += temps * m.get_word();
+            }
+        }
+        if (direction == 2)
+        {
+            // Vertical! Scan left!
+            int sx = -1;
+            if ((x > 1 && is_set(sx - 1, y)))  // x - 1 is set
+            {
+                sx = x - 1;  // this is set
+                while (sx > 0)
+                {
+                    if (is_set(sx - 1, y))
+                        sx--;
+                    else
+                        break;
+                }
+            }
+            else if ((x + 1) < table_.table_size && is_set(x + 1, y))
+                sx = x;
+
+            // Done scanning
+            if (sx != -1)
+            {
+                int temps((m.get_char() - 1) * scores_.of(l.letter_));
+                // sy is the highest point of our offshoot word
+                while (sx < table_.table_size && is_set(sx, y))
+                {
+                    temps += scores_.of(*table_.at(sx, y).character_);
+                    sx++;
+                }
+                other_scores += temps * m.get_word();
+            }
+        }
     }
+
+    return word_score * word_multiplier + other_scores;
 }
 
 void wg::Board::set_layout(const nlohmann::json& layout)
