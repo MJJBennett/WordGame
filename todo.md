@@ -1,5 +1,7 @@
 # Todo list
 
+- Rewrite all web code to have a better structure.
+
 - Web client:
 - Web server:
     - Make detachable web server
