@@ -286,7 +286,7 @@ bool wg::GameIO::handle_command(const std::string& command)
             const auto args = wg::split(wg::get_arg(command), '=');
             const int diff = wg::atoi_default(args[1]);
             const std::string& pn = args[0];
-            if (diff > 0)
+            if (diff != 0)
             {
                 queue_.emplace(wg::Action{Action::Type::AddPoints, wg::get_arg(command)});
                 update_handler_.update(wg::ConfUpdate{"points", wg::get_arg(command)});

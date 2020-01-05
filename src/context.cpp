@@ -253,7 +253,7 @@ void wg::GameContext::add_points(const std::string& point_info)
     const auto args       = wg::split(point_info, '=');
     const int diff        = wg::atoi_default(args[1]);
     const std::string& pn = args[0];
-    if (diff < 1) return;
+    if (diff == 0) return;
     if (io_.user_ == pn)
     {
         io_.chat("You gained " + args[1] + " points!", "Game");
