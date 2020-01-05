@@ -1,34 +1,45 @@
 # Todo list
 
 - Web client:
-    - Make web client setup all asynchronous
-    - Keep web client alive until intentionally closed
-        - Figure out how to do this without multithreading concerns
 - Web server:
     - Make detachable web server
+        - Partially complete. Application can be launched in server mode, which never opens a GUI.
     - Add initial JSON reading..?
+        - Not sure what this referred to. Probably automatic configuration from a file, which is low priority.
     - Decision: Should the server decide what is correct, or just forward information?
         - Possible solution: Admin client has permission to rollback any change
             - Difficult but powerful
+        - Current solution:
+            - Server knows almost nothing, and only forwards information between clients.
+            - Several issues with this, but it does keep web code from being entangled with game code.
 - Web:
     - All configuration should be in config files or arguments
         - Addresses, ports, etc
 
 - General:
     - Logging is not threadsafe (or so I would assume). This needs fixing.
-    - `abort_if` does the exact opposite of what it says it does.
 
 - Bugs:
     - Critical:
-        - Reloading config wipes the layout. (Is this fixed?)
     - Non-Critical:
         - Host leaving leads to playerlist being out of date, as with no host the next
             joining member (who becomes host) is not sent a playerlist.
         - 'ChatEdit' mode means we shouldn't parse keypress/keyrelease in GameContext
             - Probably 'BoardEdit' too? Wait, no
+        - Reloading config wipes the layout. (Is this fixed?)
+            - Moved to non-critical, as I don't think this is a problem currently.
 
 ---
 
 - Fixed:
     - Game freezes when clicking 'x' in text entry
     - Host leaving the game does not allow reassignment of the host.
+
+- Complete:
+    - Web client:
+        - Make web client setup all asynchronous
+            - Completed early on.
+        - Keep web client alive until intentionally closed
+            - Figure out how to do this without multithreading concerns
+                - Completed, web client runs in its own thread.
+    - Web server:
