@@ -71,10 +71,11 @@ add_executable(WordGame
     ${CMAKE_SOURCE_DIR}/src/resourcemanager.cpp ${CMAKE_SOURCE_DIR}/include/framework/resourcemanager.hpp
     ${CMAKE_SOURCE_DIR}/include/framework/resource.hpp
     ${CMAKE_SOURCE_DIR}/include/framework/file_io.hpp
-    ${CMAKE_SOURCE_DIR}/include/framework/json_io.hpp
+    ${CMAKE_SOURCE_DIR}/include/framework/json_tools.hpp
     ${CMAKE_SOURCE_DIR}/include/graphics/display_mode.hpp
 
     ${CMAKE_SOURCE_DIR}/src/board.cpp ${CMAKE_SOURCE_DIR}/include/game/board.hpp
+    ${CMAKE_SOURCE_DIR}/src/scoring.cpp ${CMAKE_SOURCE_DIR}/include/game/scoring.hpp
     ${CMAKE_SOURCE_DIR}/src/context.cpp ${CMAKE_SOURCE_DIR}/include/game/context.hpp
     ${CMAKE_SOURCE_DIR}/src/game_io.cpp ${CMAKE_SOURCE_DIR}/include/game/game_io.hpp
 

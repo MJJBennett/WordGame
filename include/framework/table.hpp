@@ -24,6 +24,8 @@ public:
 
     CellType& at(unsigned int col_num, unsigned int row_pos) { return items_[col_num][row_pos]; }
 
+    const CellType& at(unsigned int col_num, unsigned int row_pos) const { return items_[col_num][row_pos]; }
+
     float get_width() const
     {
         if (!width_) calculate_width();
@@ -34,6 +36,8 @@ public:
         if (!height_) calculate_height();
         return *height_;
     }
+
+    bool bounds_check(int cx, int ry) const { return (cx > 0 && ry > 0) && (cx < table_size && ry < table_size); }
 
     std::array<unsigned int, 2> get_tile_dimensions() const { return {tile_width, tile_height}; }
     std::array<unsigned int, 2> get_tile_offsets() const { return {offset_x, offset_y}; }
@@ -49,6 +53,12 @@ public:
             }
         }
     }
+
+    unsigned int bg_r = 0;
+    unsigned int bg_g = 0;
+    unsigned int bg_b = 0;
+    float x = 0;
+    float y = 0;
 
 private:
     void calculate_width() const { width_ = (float)table_size * (tile_width + offset_x); }

@@ -2,9 +2,10 @@
 
 #include <boost/beast/core/buffers_to_string.hpp>
 #include <nlohmann/json.hpp>
+#include "commands.hpp"
 #include "connections.hpp"
 #include "debug/log.hpp"
-#include "commands.hpp"
+#include "framework/json_tools.hpp"
 
 namespace websocket = boost::beast::websocket;
 using tcp           = boost::asio::ip::tcp;
@@ -40,14 +41,25 @@ void wg::WebSocketSession::on_accept(beast::error_code ec)
     }
 
     // might want to track that this is an active session here
+    wg::log::point("Attempting to claim host permissions.");
     if (connections_->claim_host(this))
     {
-        queue_write(nlohmann::json{{"type", "configure"},
-                                   {"msg", nlohmann::json{{"command", wg::command::host}}.dump()}});
+        wg::log::point("Claiming host permissions.");
+        queue_write(
+            nlohmann::json{{"type", "configure"},
+                           {"msg", (nlohmann::json{{"command", wg::command::host}}).dump()}}
+                .dump());
     }
 
     websocket_.async_read(
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));
+}
+
+void wg::WebSocketSession::queue_disconnect(std::string username)
+{
+    queue_write(nlohmann::json{{"type", "disconnect"},
+                               {"msg", (nlohmann::json{{"disconnect", username}}).dump()}}
+                    .dump());
 }
 
 void wg::WebSocketSession::queue_write(std::string message)
@@ -85,9 +97,9 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
     else if (rem_seq_ + 1 != seq)
         wg::log::warn("[WebSocket] Received sequence number ", seq, " when ", rem_seq_ + 1,
                       " was expected.");
-    rem_seq_                  = seq;
-    const std::string payload = data["msg"];
-    const auto ret            = nlohmann::json{{"type", "ack"}, {"ack", seq + 1}};
+    rem_seq_ = seq;
+    // const std::string payload = data["msg"];
+    const auto ret = nlohmann::json{{"type", "ack"}, {"ack", seq + 1}};
 
     buffer_.consume(buffer_.size());
 
@@ -100,7 +112,30 @@ void wg::WebSocketSession::on_read(beast::error_code ec, std::size_t)
             beast::bind_front_handler(&WebSocketSession::on_write, shared_from_this()));
     }
 
-    if (data["type"] == "msg") connections_->alert_connections(this, msg);
+    // This is where we forward the message elsewhere
+    if (data["type"] == "msg")
+    {
+        // For now, because of the way this is all set up,
+        // we're going to check to see if the message is meant for us.
+        const auto m = wg::try_parse(data["msg"]);
+        if (m && m->find("SERVER") != m->end())
+        {
+            const auto& sm = *m;
+            wg::log::point("[WebSocket] Parsing SERVER command: ", sm.dump());
+            if (sm.find("join") != sm.end())
+            {
+                connections_->set_user(this, sm["join"]);
+            }
+            else
+            {
+                wg::log::warn("[WebSocket] Found unknown server message: ", sm.dump());
+            }
+        }
+        else
+        {
+            connections_->alert_connections(this, msg);
+        }
+    }
 
     websocket_.async_read(
         buffer_, beast::bind_front_handler(&WebSocketSession::on_read, shared_from_this()));

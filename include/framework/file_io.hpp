@@ -27,7 +27,22 @@ static void ensure_file_exists(std::string filename, const std::string& data = "
     }
 }
 
-static std::vector<std::string> get_lines(std::string filename, ReadMode r = ReadMode::NonEmpty)
+static std::string get_single_line(const std::string& filename)
+{
+    std::ifstream input_file(filename);
+
+    if (input_file.fail()) return {};
+
+    std::string line;
+    while (std::getline(input_file, line))
+    {
+        return line;
+    }
+    return {};
+}
+
+static std::vector<std::string> get_lines(const std::string& filename,
+                                          ReadMode r = ReadMode::NonEmpty)
 {
     std::ifstream input_file(filename);
 

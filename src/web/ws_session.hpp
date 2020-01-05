@@ -33,6 +33,7 @@ public:
     void shutdown();
 
     void queue_write(std::string message);
+    void queue_disconnect(std::string username); // helper method
 
 private:
     beast::websocket::stream<beast::tcp_stream> websocket_;

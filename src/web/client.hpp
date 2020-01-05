@@ -5,10 +5,10 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <queue>
 #include <string>
-#include <mutex>
 
 namespace wg
 {
@@ -36,6 +36,7 @@ public:
     std::queue<std::string> read_all();
 
     std::string format_message(std::string);
+    std::string format_general(std::string message, std::string type_str);
     std::optional<std::string> parse_message(std::string);
 
 private:
@@ -47,6 +48,7 @@ private:
     void on_read(beast::error_code, std::size_t);
 
     void send(std::string message);
+    void join(std::string username);
 
     void shutdown();
 
@@ -65,7 +67,7 @@ private:
     // Message queue - messages that still need to be sent
     std::queue<std::string> message_queue_;
     // Current message waiting to be sent.
-    std::optional<std::string> message_;
+    std::optional<std::string> message_{""};
 
     // Received queue - messages waiting to be read
     std::queue<std::string> recv_queue_;

@@ -38,6 +38,13 @@ void wg::web::Client::update(const wg::ConfUpdate& u)
     send(j.dump());
 }
 
+void wg::web::Client::update(const wg::ServUpdate& u)
+{
+    const auto j = nlohmann::json{{"SERVER", u.update_type}, {u.update_type, u.update}};
+    wg::log::point(__func__, ": Sending data: ", j.dump());
+    send(j.dump());
+}
+
 std::optional<wg::GameUpdate> wg::web::Client::poll_game(bool clear)
 {
     if (!cache_) return {};
@@ -88,6 +95,8 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
     if (clear) cache_.reset();
     try
     {
+        // Wow, this is not good.
+        // But it ... it works for now. For now.
         const auto d = nlohmann::json::parse(str);
         if (d.find("command") != d.end())
         {
@@ -105,6 +114,42 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
             wg::log::point("New player joined: ", join);
             return wg::ConfUpdate{"join", join};
         }
+        if (d.find("disconnect") != d.end())
+        {
+            const std::string disconnect = d["disconnect"];
+            wg::log::point("Player disconnected: ", disconnect);
+            return wg::ConfUpdate{"disconnect", disconnect};
+        }
+        if (d.find("playerlist") != d.end())
+        {
+            const std::string playerlist = d["playerlist"];
+            wg::log::point("New playerlist: ", playerlist);
+            return wg::ConfUpdate{"playerlist", playerlist};
+        }
+        if (d.find("turn") != d.end())
+        {
+            const std::string turn = d["turn"];
+            wg::log::point("New turn: ", turn);
+            return wg::ConfUpdate{"turn", turn};
+        }
+        if (d.find("charset") != d.end())
+        {
+            const std::string charset = d["charset"];
+            wg::log::point("New charset: ", charset);
+            return wg::ConfUpdate{"charset", charset};
+        }
+        if (d.find("charscores") != d.end())
+        {
+            const std::string charscores = d["charscores"];
+            wg::log::point("New charscores: ", charscores);
+            return wg::ConfUpdate{"charscores", charscores};
+        }
+        if (d.find("drawtill") != d.end())
+        {
+            const std::string drawtill = d["drawtill"];
+            wg::log::point("New drawtill: ", drawtill);
+            return wg::ConfUpdate{"drawtill", drawtill};
+        }
         return {};
     }
     catch (nlohmann::json::parse_error e)
@@ -114,6 +159,8 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
         return {};
     }
 }
+
+std::optional<wg::JSONUpdate> wg::web::Client::poll_json(bool) { return {}; }
 
 void wg::web::Client::send(std::string message)
 {

@@ -2,6 +2,7 @@
 
 #include <nlohmann/json.hpp>
 #include <random>
+#include "assert.hpp"
 #include "debug/log.hpp"
 
 wg::WebSocketClient::WebSocketClient(std::string target, std::string port)
@@ -75,6 +76,7 @@ void wg::WebSocketClient::on_handshake(beast::error_code ec)
 
     // Now we need to authenticate with the server.
 
+    assert(message_);  // Fix from 052f329
     ws_.async_write(asio::buffer(format_message(*message_)),
                     beast::bind_front_handler(&WebSocketClient::on_write, shared_from_this()));
 
@@ -148,6 +150,13 @@ void wg::WebSocketClient::queue_shutdown()
     asio::post(ioc_, std::bind(&WebSocketClient::shutdown, shared_from_this()));
 }
 
+std::string wg::WebSocketClient::format_general(std::string message, std::string type_str)
+{
+    const auto data = nlohmann::json{
+        {"type", std::move(type_str)}, {"msg", std::move(message)}, {"seq", seq_++}};
+    return data.dump();
+}
+
 std::string wg::WebSocketClient::format_message(std::string message)
 {
     const auto data =
@@ -169,6 +178,14 @@ std::optional<std::string> wg::WebSocketClient::parse_message(std::string messag
         return data["msg"];
     }
     else if (data["type"] == "msg")
+    {
+        return data["msg"];
+    }
+    else if (data["type"] == "configure")
+    {
+        return data["msg"];
+    }
+    else if (data["type"] == "disconnect")
     {
         return data["msg"];
     }

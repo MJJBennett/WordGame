@@ -27,6 +27,8 @@ struct Action
         ChatWord,
 
         CommandBind,
+        TurnStart,
+        PushInfo,
     } type_;
 
     std::string input_;
@@ -42,16 +44,27 @@ public:
         Normal,
     } mode_ = Mode::Normal;
 
+    enum class Result
+    {
+        None,
+        Command,
+        BoardEdited,
+        ChatEdited,
+        ModeEdited,
+        Ignore,  // Like None, but makes Context ignore the event
+    };
+
 public:
     GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
-           wg::UpdateHandler& update_handler);
+           wg::UpdateHandler& update_handler, wg::Board& board);
     void init();
 
-    bool do_event(const sf::Event&);
-    void text_entered(unsigned int c);
-    void key_pressed(sf::Keyboard::Key k);
-    void key_released(sf::Keyboard::Key k);
-    void do_enter();
+    Result do_event(const sf::Event&);
+    Result text_entered(unsigned int c);
+    Result key_pressed(sf::Keyboard::Key k);
+    Result key_released(sf::Keyboard::Key k);
+    Result do_enter(char b = '\b');
+    Result target_resized(unsigned int w, unsigned int h);
 
     void chat(std::string msg, std::string auth);
     void chat_broadcast(std::string msg, std::string auth);
@@ -61,6 +74,29 @@ public:
     std::queue<Action> queue_;
     void log_queue();
 
+    bool handle_command(const std::string& command);
+    void load_charset(std::string charset);
+    void draw_tiles(int num);
+
+    void setup_text(sf::Text& text, const std::string& contents = "");
+    void position_playerlist(sf::Transformable& l);
+
+    std::string charset_;
+    std::string hand_;
+    sf::Text hand_text_;
+    bool play_tile(char c)
+    {
+        if (auto it = hand_.find(c); it != std::string::npos)
+        {
+            hand_.erase(it, 1);
+            hand_text_.setString("Hand: " + hand_);
+            return true;
+        }
+        return false;
+    }
+
+    void end_turn();
+
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
@@ -68,13 +104,19 @@ private:
     wg::WindowContext& target_;
     wg::ResourceManager& manager_;
     wg::UpdateHandler& update_handler_;
+    wg::Board& board_;
     std::vector<sf::Text> chat_bar_;
     sf::Text chat_text_;
 
+    // Scripts
+    std::vector<std::string> turn_end_script_;
+
     // Appearance
-    const int message_bar_height_{24}; // height of a message
-    const int message_character_size_{18}; // size of character in message
-    const int message_left_offset_{12}; // left offset of the chat
+    const int message_bar_height_{24};      // height of a message
+    const int message_character_size_{18};  // size of character in message
+    const int message_left_offset_{12};     // left offset of the chat
+    const int hand_character_size_{18};
+    const int default_character_size_{18};
 };
 }  // namespace wg
 
