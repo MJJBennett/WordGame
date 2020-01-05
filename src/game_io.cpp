@@ -216,6 +216,7 @@ void wg::GameIO::log_queue()
             case Action::Type::CommandBind: msg += "| CommandBind    | "; break;
             case Action::Type::TurnStart: msg += "| TurnStart      | "; break;
             case Action::Type::PushInfo: msg += "| PushInfo       | "; break;
+            case Action::Type::AddPoints: msg += "| AddPoints      | "; break;
         }
         msg += a.input_;
     }
@@ -278,6 +279,18 @@ bool wg::GameIO::handle_command(const std::string& command)
             board_.scores_.from_json(data);
             update_handler_.update(wg::ConfUpdate{"charscores", data.dump()});
             return true;
+        }
+        else if (startswith(command, "/points"))
+        {
+            // Draw tiles
+            const auto args = wg::split(wg::get_arg(command), '=');
+            const int diff = wg::atoi_default(args[1]);
+            const std::string& pn = args[0];
+            if (diff > 0)
+            {
+                queue_.emplace(wg::Action{Action::Type::AddPoints, wg::get_arg(command)});
+                update_handler_.update(wg::ConfUpdate{"points", wg::get_arg(command)});
+            }
         }
         else if (startswith(command, "/drawtillall"))
         {

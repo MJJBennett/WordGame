@@ -49,6 +49,8 @@ public:
 
     void print_debug();
 
+    void add_points(const std::string& point_info);
+
 public:
     // A game has a table, a chat, a network context, and a few other things
     // Let's deal with the table first of all

@@ -29,6 +29,8 @@ struct Action
         CommandBind,
         TurnStart,
         PushInfo,
+
+        AddPoints,
     } type_;
 
     std::string input_;

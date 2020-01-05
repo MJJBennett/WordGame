@@ -4,6 +4,8 @@
 - Improve display layout, add resizing support.
 - Add GIF to Readme (perhaps with streamlined installation instructions)
 - Add support for 'bonus' configuration (e.g. using 5 tiles in a turn gives +10)
+- Add manual points assignment command
+    - Complete, not tested.
 
 - Web client:
 - Web server:

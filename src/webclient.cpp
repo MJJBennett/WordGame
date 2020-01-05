@@ -150,6 +150,12 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
             wg::log::point("New drawtill: ", drawtill);
             return wg::ConfUpdate{"drawtill", drawtill};
         }
+        if (d.find("points") != d.end())
+        {
+            const std::string points = d["points"];
+            wg::log::point("New points: ", points);
+            return wg::ConfUpdate{"points", points};
+        }
         return {};
     }
     catch (nlohmann::json::parse_error e)

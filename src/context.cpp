@@ -105,6 +105,11 @@ void wg::GameContext::update()
             fix_playerlist();
             return;
         }
+        if (conf.config == "points")
+        {
+            add_points(conf.setting);
+            return;
+        }
         if (conf.config == "turn")
         {
             do_turn(conf.setting);
@@ -235,8 +240,36 @@ void wg::GameContext::maybe_command(const wg::Action& act)
             // existed) I don't think that's a big concern for this for a variety of reasons
             send_playerlist();
         }
+        case wg::Action::Type::AddPoints:
+        {
+            add_points(act.input_);
+        }
         default: break;
     }
+}
+
+void wg::GameContext::add_points(const std::string& point_info)
+{
+    const auto args       = wg::split(point_info, '=');
+    const int diff        = wg::atoi_default(args[1]);
+    const std::string& pn = args[0];
+    if (diff < 1) return;
+    if (io_.user_ == pn)
+    {
+        io_.chat("You gained " + args[1] + " points!", "Game");
+        my_score_ += diff;
+    }
+    else if (players_.find(pn) == players_.end())
+    {
+        wg::log::warn("Could not give points to player ", pn, " who does not exist.");
+        return;
+    }
+    else
+    {
+        io_.chat(pn + " gained " + args[1] + " points!", "Game");
+        players_.at(pn) += diff;
+    }
+    fix_playerlist();
 }
 
 void wg::GameContext::do_turn(const std::string& player)
