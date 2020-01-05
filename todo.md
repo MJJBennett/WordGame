@@ -3,6 +3,7 @@
 - Rewrite all web code to have a better structure.
 - Improve display layout, add resizing support.
 - Add GIF to Readme (perhaps with streamlined installation instructions)
+- Add support for 'bonus' configuration (e.g. using 5 tiles in a turn gives +10)
 
 - Web client:
 - Web server:
@@ -25,6 +26,7 @@
 
 - Bugs:
     - Critical:
+        - Entering a wildcard doesn't work most of the time for whatever reason
     - Non-Critical:
         - Host leaving leads to playerlist being out of date, as with no host the next
             joining member (who becomes host) is not sent a playerlist.
