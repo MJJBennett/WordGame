@@ -1,6 +1,8 @@
 # Todo list
 
 - Rewrite all web code to have a better structure.
+- Improve display layout, add resizing support.
+- Add GIF to Readme (perhaps with streamlined installation instructions)
 
 - Web client:
 - Web server:
