@@ -95,6 +95,8 @@ public:
         return false;
     }
 
+    void end_turn();
+
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
@@ -105,6 +107,9 @@ private:
     wg::Board& board_;
     std::vector<sf::Text> chat_bar_;
     sf::Text chat_text_;
+
+    // Scripts
+    std::vector<std::string> turn_end_script_;
 
     // Appearance
     const int message_bar_height_{24};      // height of a message

@@ -184,8 +184,7 @@ wg::GameIO::Result wg::GameIO::do_enter(char b)
             mode_ = Mode::Normal;
             return r;  // not so sure about this but hey
         }
-        default:
-            abort();
+        default: abort();
     }
 }
 
@@ -306,6 +305,52 @@ bool wg::GameIO::handle_command(const std::string& command)
             //  - Player List, etc
             queue_.emplace(wg::Action{Action::Type::PushInfo, ""});
         }
+        else if (startswith(command, "/loadscript"))
+        {
+            // load is instant; loadscript has a more nuanced spec
+            // spec... hahaha. more like "more nuanced code-documentation"
+            const auto ignore = wg::get_arg(command);
+            const std::string filename =
+                (wg::has_chars(ignore) ? ignore : /*"load.json"*/ "load.wg");
+            wg::log::point("[GameIO] Loading script in file: ", filename);
+            const auto v = wg::get_lines(filename, wg::ReadMode::HasChars);
+            enum class HeaderMode
+            {
+                None,
+                TurnEnd,
+            } header_mode = HeaderMode::None;
+            for (const auto& c : v)
+            {
+                if (startswith(c, "HEADER"))
+                {
+                    const auto arg = wg::get_arg(c);
+                    if (arg == "turn-end")
+                    {
+                        header_mode = HeaderMode::TurnEnd;
+                        break;
+                    }
+                    else
+                    {
+                        wg::log::warn("Encountered unknown HEADER declaration: ", arg);
+                    }
+                }
+            }
+            switch (header_mode)
+            {
+                case HeaderMode::TurnEnd:
+                {
+                    for (const auto& c : v)
+                    {
+                        if (!startswith(c, "//") && !startswith(c, "#"))
+                        {
+                            turn_end_script_.push_back(c);
+                        }
+                    }
+                    break;
+                }
+                default: wg::log::warn("No header specified for script in file: ", filename);
+            }
+        }
         else if (startswith(command, "/load"))
         {
             // Ideally this file shouldn't be JSON
@@ -383,4 +428,9 @@ void wg::GameIO::setup_text(sf::Text& text, const std::string& contents)
 void wg::GameIO::position_playerlist(sf::Transformable& l)
 {
     l.setPosition(target_.width() / 2 + 50, target_.height() - 200);
+}
+
+void wg::GameIO::end_turn()
+{
+    for (const auto& v : turn_end_script_) handle_command(v);
 }

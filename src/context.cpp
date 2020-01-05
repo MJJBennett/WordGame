@@ -284,6 +284,8 @@ void wg::GameContext::end_turn()
     fix_playerlist();
     // Commit the letters to the board, for drawing purposes
     // For now, this does nothing, as tiles don't really exist
+    
+    io_.end_turn(); // Executes turn end scripts
 }
 
 void wg::GameContext::render(wg::Renderer& renderer)
