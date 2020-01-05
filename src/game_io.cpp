@@ -32,13 +32,13 @@ void wg::GameIO::init()
     user_ = wg::window_io::get_from_file(target_, manager_, "Enter Username", "name.txt");
 }
 
-wg::GameIO::Result wg::GameIO::do_event(const sf::Event& e)
+wg::GameIO::Result wg::GameIO::do_event(const sf::Event& e, bool ignore_text)
 {
     switch (e.type)
     {
-        case sf::Event::TextEntered: return text_entered(e.text.unicode);
-        case sf::Event::KeyPressed: return key_pressed(e.key.code);
-        case sf::Event::KeyReleased: return key_released(e.key.code);
+        case sf::Event::TextEntered: return (ignore_text ? Result::None : text_entered(e.text.unicode));
+        case sf::Event::KeyPressed: return (ignore_text ? Result::None : key_pressed(e.key.code));
+        case sf::Event::KeyReleased: return (ignore_text ? Result::None : key_released(e.key.code));
         case sf::Event::Resized: return target_resized(e.size.width, e.size.height);
         default: return Result::None;
     }

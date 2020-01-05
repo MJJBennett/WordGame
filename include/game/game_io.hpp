@@ -59,7 +59,7 @@ public:
            wg::UpdateHandler& update_handler, wg::Board& board);
     void init();
 
-    Result do_event(const sf::Event&);
+    Result do_event(const sf::Event&, bool ignore_text);
     Result text_entered(unsigned int c);
     Result key_pressed(sf::Keyboard::Key k);
     Result key_released(sf::Keyboard::Key k);

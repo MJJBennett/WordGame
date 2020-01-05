@@ -170,7 +170,7 @@ void wg::GameContext::send_playerlist()
 void wg::GameContext::parse_input(sf::Event& e)
 {
     const bool ret = io_.mode_ == GameIO::Mode::Normal;
-    switch (io_.do_event(e))
+    switch (io_.do_event(e, mode_ == Mode::SetTile))
     {
         case GameIO::Result::None: break;
         case GameIO::Result::Command:
@@ -284,8 +284,8 @@ void wg::GameContext::end_turn()
     fix_playerlist();
     // Commit the letters to the board, for drawing purposes
     // For now, this does nothing, as tiles don't really exist
-    
-    io_.end_turn(); // Executes turn end scripts
+
+    io_.end_turn();  // Executes turn end scripts
 }
 
 void wg::GameContext::render(wg::Renderer& renderer)
@@ -332,6 +332,7 @@ void wg::GameContext::parse_text_entered(sf::Event& e)
         }
         mode_              = Mode::Default;
         just_entered_char_ = true;
+        wg::log::point(__func__, ": Exited text entry mode.");
     }
 }
 
