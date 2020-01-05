@@ -6,6 +6,7 @@
 - Add support for 'bonus' configuration (e.g. using 5 tiles in a turn gives +10)
 - Add manual points assignment command
     - Complete, not tested.
+- Add 'help' commands for each command.
 
 - Web client:
 - Web server:
