@@ -31,6 +31,7 @@
     - Critical:
         - Scoring space causes... issues
             - Need way to delete tile
+        - Overwriting tile doesn't remove old one from turn tracker
     - Non-Critical:
         - Host leaving leads to playerlist being out of date, as with no host the next
             joining member (who becomes host) is not sent a playerlist.
@@ -38,6 +39,7 @@
             - Probably 'BoardEdit' too? Wait, no
         - Reloading config wipes the layout. (Is this fixed?)
             - Moved to non-critical, as I don't think this is a problem currently.
+        - 'Is Running' is always false for some unknown reason
 
 ---
 
