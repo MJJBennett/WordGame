@@ -28,6 +28,7 @@
     - Logging is not threadsafe (or so I would assume). This needs fixing.
     - Should make a "MakeGameContext" function, so the same code isn't repeated within Application?
         - Might be overoptimizing, though
+    - Add /pointsall
 
 - Bugs:
     - Critical:
@@ -42,6 +43,7 @@
         - Reloading config wipes the layout. (Is this fixed?)
             - Moved to non-critical, as I don't think this is a problem currently.
         - 'Is Running' is always false for some unknown reason
+        - Window resize still doesn't work properly
 
 ---
 
