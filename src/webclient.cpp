@@ -126,6 +126,12 @@ std::optional<wg::ConfUpdate> wg::web::Client::poll_conf(bool clear)
             wg::log::point("New playerlist: ", playerlist);
             return wg::ConfUpdate{"playerlist", playerlist};
         }
+        if (d.find("setting") != d.end())
+        {
+            const std::string setting = d["setting"];
+            wg::log::point("New setting: ", setting);
+            return wg::ConfUpdate{"setting", setting};
+        }
         if (d.find("turn") != d.end())
         {
             const std::string turn = d["turn"];

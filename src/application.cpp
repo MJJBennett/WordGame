@@ -1,11 +1,11 @@
 #include "application.hpp"
 
 #include <SFML/Graphics.hpp>
-#include "game/multipliers.hpp"
 #include <nlohmann/json.hpp>
 #include <thread>
 #include "client.hpp"
 #include "debug/log.hpp"
+#include "dev/devclient.hpp"
 #include "framework/render.hpp"
 #include "framework/resource.hpp"
 #include "framework/resourcemanager.hpp"
@@ -14,8 +14,9 @@
 #include "framework/window_io.hpp"
 #include "game/context.hpp"
 #include "game/item.hpp"
+#include "game/multipliers.hpp"
+#include "game/settings.hpp"
 #include "server.hpp"
-#include "dev/devclient.hpp"
 
 int wg::Application::launch(Mode mode)
 {
@@ -55,7 +56,8 @@ int wg::Application::launch(Mode mode)
         {
             if (run_develop(window, manager, renderer) == 0) break;
         }
-        else break;
+        else
+            break;
     }
 
     return 0;
@@ -106,7 +108,8 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
     // when connection fails (if), use wg::window_io::back_screen and go back to main menu
     // basically, we want a blocking "wait" on connection
     web_client.launch(addr, "27600");
-    wg::GameContext game(window, manager, web_client);
+    wg::Settings settings;
+    wg::GameContext game(window, manager, web_client, settings);
     game.init();
     wg::log::point("Initialized game.");
 
@@ -143,20 +146,22 @@ int wg::Application::run_webclient(wg::WindowContext& window, wg::ResourceManage
 }
 
 int wg::Application::run_develop(wg::WindowContext& window, wg::ResourceManager& manager,
-                                   wg::Renderer& renderer)
+                                 wg::Renderer& renderer)
 {
     wg::dev::Client client;
-    wg::GameContext game(window, manager, client);
+    wg::Settings settings;
+    wg::GameContext game(window, manager, client, settings);
     game.init();
     wg::log::point("Initialized game.");
     std::vector<sf::Text> help;
     for (int i = 0; i < 6; i++)
     {
         // Ah, reflection
-        const std::string s = std::to_string(i) + " is: " + wg::multiplier::to_string(wg::multiplier::decode(i));
+        const std::string s =
+            std::to_string(i) + " is: " + wg::multiplier::to_string(wg::multiplier::decode(i));
         help.push_back(sf::Text{s, manager.defaultFont()->font, 24});
-        help.back().setPosition(window.width() - 270, i*32);
-        help.back().setFillColor(sf::Color{1,1,1});
+        help.back().setPosition(window.width() - 270, i * 32);
+        help.back().setFillColor(sf::Color{1, 1, 1});
     }
 
     while (window.isOpen() && game.running())

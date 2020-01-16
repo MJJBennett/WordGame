@@ -58,7 +58,7 @@ public:
 
 public:
     GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
-           wg::UpdateHandler& update_handler, wg::Board& board);
+           wg::UpdateHandler& update_handler, wg::Settings& settings, wg::Board& board);
     void init();
 
     Result do_event(const sf::Event&, bool ignore_text);
@@ -86,6 +86,7 @@ public:
     std::string charset_;
     std::string hand_;
     sf::Text hand_text_;
+    bool can_play_tile(char c) { return hand_.find(c) != std::string::npos; }
     bool play_tile(char c)
     {
         if (auto it = hand_.find(c); it != std::string::npos)
@@ -106,6 +107,7 @@ private:
     wg::WindowContext& target_;
     wg::ResourceManager& manager_;
     wg::UpdateHandler& update_handler_;
+    wg::Settings& settings_;
     wg::Board& board_;
     std::vector<sf::Text> chat_bar_;
     sf::Text chat_text_;

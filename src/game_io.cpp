@@ -10,14 +10,19 @@
 #include "framework/window_context.hpp"
 #include "framework/window_io.hpp"
 #include "game/board.hpp"
+#include "game/settings.hpp"
 #include "update_handler.hpp"
 
 // This is basically just meant to be a better version of the
 // 'window io' static functions.
 
 wg::GameIO::GameIO(wg::WindowContext& target, wg::ResourceManager& manager,
-                   wg::UpdateHandler& update_handler, wg::Board& board)
-    : target_(target), manager_(manager), update_handler_(update_handler), board_(board)
+                   wg::UpdateHandler& update_handler, wg::Settings& settings, wg::Board& board)
+    : target_(target),
+      manager_(manager),
+      update_handler_(update_handler),
+      settings_(settings),
+      board_(board)
 {
     setup_text(chat_text_);
     chat_text_.setCharacterSize(message_character_size_);
@@ -36,9 +41,11 @@ wg::GameIO::Result wg::GameIO::do_event(const sf::Event& e, bool ignore_text)
 {
     switch (e.type)
     {
-        case sf::Event::TextEntered: return (ignore_text ? Result::None : text_entered(e.text.unicode));
+        case sf::Event::TextEntered:
+            return (ignore_text ? Result::None : text_entered(e.text.unicode));
         case sf::Event::KeyPressed: return (ignore_text ? Result::None : key_pressed(e.key.code));
-        case sf::Event::KeyReleased: return (ignore_text ? Result::None : key_released(e.key.code));
+        case sf::Event::KeyReleased:
+            return (ignore_text ? Result::None : key_released(e.key.code));
         case sf::Event::Resized: return target_resized(e.size.width, e.size.height);
         default: return Result::None;
     }
@@ -283,8 +290,8 @@ bool wg::GameIO::handle_command(const std::string& command)
         else if (startswith(command, "/points"))
         {
             // Draw tiles
-            const auto args = wg::split(wg::get_arg(command), '=');
-            const int diff = wg::atoi_default(args[1]);
+            const auto args       = wg::split(wg::get_arg(command), '=');
+            const int diff        = wg::atoi_default(args[1]);
             const std::string& pn = args[0];
             if (diff != 0)
             {
@@ -317,6 +324,12 @@ bool wg::GameIO::handle_command(const std::string& command)
             update_handler_.update(wg::ConfUpdate{"charset", charset_});
             //  - Player List, etc
             queue_.emplace(wg::Action{Action::Type::PushInfo, ""});
+        }
+        else if (startswith(command, "/config"))
+        {
+            // We need to enforce some config
+            if (settings_.load_command(command))
+                update_handler_.update(wg::ConfUpdate{"setting", command});
         }
         else if (startswith(command, "/loadscript"))
         {

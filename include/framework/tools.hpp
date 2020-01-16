@@ -59,9 +59,9 @@ inline bool startswith(const std::string& str, const std::string& start)
     return ((start.size() <= str.size()) && str.substr(0, start.size()) == start);
 }
 
-inline auto get_arg(const std::string& str) -> std::string
+inline auto get_arg(const std::string& str, const std::string& to_find = "=") -> std::string
 {
-    const auto it = str.find("=");
+    const auto it = str.find(to_find);
     if (it == std::string::npos) return "";
     return str.substr(it + 1, str.size());
 };

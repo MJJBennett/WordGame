@@ -11,12 +11,15 @@
 #include "framework/tools.hpp"
 #include "framework/window_io.hpp"
 #include "game/game_io.hpp"
+#include "game/settings.hpp"
+#include "strings.hpp"
 #include "update_handler.hpp"
 
 using json = nlohmann::json;
 
-wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u)
-    : io_(c, r, u, board_), update_handler(u)
+wg::GameContext::GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u,
+                             wg::Settings& s)
+    : io_(c, r, u, s, board_), update_handler(u), settings_(s)
 {
 }
 
@@ -127,6 +130,12 @@ void wg::GameContext::update()
         if (conf.config == "charset")
         {
             io_.charset_ = conf.setting;
+            return;
+        }
+        if (conf.config == "setting")
+        {
+            if (!settings_.load_command(conf.setting))
+                wg::log::warn("Couldn't load setting: ", conf.setting);
             return;
         }
         if (conf.config == "drawtill")
@@ -356,16 +365,23 @@ void wg::GameContext::parse_text_entered(sf::Event& e)
     if (mode_ == Mode::SetTile)
     {
         const auto c = get_game_char<std::optional<char>>(e.text.unicode);
-        if (c)
+        if (!c)
+        {
+            wg::log::point(__func__, ": Exited text entry mode.");
+            mode_ = Mode::Default;
+            return;
+        }
+        if (!settings_.get_default(wg::strings::option::enforce_hand, false) ||
+            io_.can_play_tile(*c))
         {
             const auto [col, row] = *pending_tile_;
             set_tile(col, row, *c);
             io_.play_tile(*c);
             update_handler.update(GameUpdate{int(col), int(row), *c});
         }
-        mode_              = Mode::Default;
         just_entered_char_ = true;
         wg::log::point(__func__, ": Exited text entry mode.");
+        mode_ = Mode::Default;
     }
 }
 
