@@ -29,6 +29,8 @@
 
 - Bugs:
     - Critical:
+        - Scoring space causes... issues
+            - Need way to delete tile
     - Non-Critical:
         - Host leaving leads to playerlist being out of date, as with no host the next
             joining member (who becomes host) is not sent a playerlist.
