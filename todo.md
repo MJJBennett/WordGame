@@ -26,6 +26,8 @@
 
 - General:
     - Logging is not threadsafe (or so I would assume). This needs fixing.
+    - Should make a "MakeGameContext" function, so the same code isn't repeated within Application?
+        - Might be overoptimizing, though
 
 - Bugs:
     - Critical:

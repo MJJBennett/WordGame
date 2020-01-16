@@ -17,6 +17,8 @@ class GameContext;
 class WindowContext;
 class Renderer;
 class UpdateHandler;
+class Setting;
+class Settings;
 }  // namespace wg
 
 #endif  // WG_FORWARD_HPP

@@ -61,7 +61,7 @@ add_executable(WordGame
     ${CMAKE_SOURCE_DIR}/include/game/item.hpp
     ${CMAKE_SOURCE_DIR}/include/game/multipliers.hpp
     ${CMAKE_SOURCE_DIR}/include/framework/tools.hpp
-     
+
     # Add class and function definitions
     ${CMAKE_SOURCE_DIR}/src/table.cpp ${CMAKE_SOURCE_DIR}/include/framework/table.hpp
     ${CMAKE_SOURCE_DIR}/src/render.cpp ${CMAKE_SOURCE_DIR}/include/framework/render.hpp
@@ -74,6 +74,7 @@ add_executable(WordGame
     ${CMAKE_SOURCE_DIR}/include/framework/json_tools.hpp
     ${CMAKE_SOURCE_DIR}/include/graphics/display_mode.hpp
 
+    ${CMAKE_SOURCE_DIR}/src/settings.cpp ${CMAKE_SOURCE_DIR}/include/game/settings.hpp
     ${CMAKE_SOURCE_DIR}/src/board.cpp ${CMAKE_SOURCE_DIR}/include/game/board.hpp
     ${CMAKE_SOURCE_DIR}/src/scoring.cpp ${CMAKE_SOURCE_DIR}/include/game/scoring.hpp
     ${CMAKE_SOURCE_DIR}/src/context.cpp ${CMAKE_SOURCE_DIR}/include/game/context.hpp

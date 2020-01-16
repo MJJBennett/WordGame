@@ -21,7 +21,7 @@ constexpr unsigned int TurnsEnabled = 0b1;
 class GameContext
 {
 public:
-    GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u);
+    GameContext(wg::WindowContext& c, wg::ResourceManager& r, wg::UpdateHandler& u, wg::Settings& s);
 
     void init();  // Called once
 
@@ -78,6 +78,7 @@ private:
 
     std::optional<std::array<unsigned int, 2>> pending_tile_;
     wg::UpdateHandler& update_handler;
+    wg::Settings& settings_;
     bool running_{true};
     GameIO io_;
 
